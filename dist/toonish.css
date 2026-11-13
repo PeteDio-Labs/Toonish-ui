@@ -2360,6 +2360,21 @@ a.toon-strip-item:focus-visible {
   line-height: 1.25;
 }
 
+/* The ": " between the direction and the title is for a screen reader only. The kit's own CSS carries the rule, so the
+     precompiled build hides it too. */
+
+.toon-pager-sep {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .toon-pager-title {
   display: block;
   font-size: 13px;

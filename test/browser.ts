@@ -362,6 +362,10 @@ try {
     eq(pg.minH >= 44, true, `pager 390: each link is at least 44 px tall (${pg.minH})`);
     eq(pg.prevArrowLeft && pg.nextArrowRight, true, 'pager 390: the previous arrow sits left of its text and the next arrow right of its text');
     eq(pg.lines <= 2, true, `pager 390: a long title is cut at two lines (${pg.lines})`);
+    const sep = await p.$eval('.pager-demo .toon-pager-sep', (e) => { const r = e.getBoundingClientRect(); return r.width <= 1 && r.height <= 1; });
+    eq(sep, true, 'pager 390: the separator between direction and title is hidden from sight');
+    const stale = await p.$$eval('#deck-demo .toon-deck-card', (cs) => cs.filter((c) => (c as HTMLElement).style.getPropertyValue('--dx') !== '').length);
+    eq(stale, 0, `deck swipe: no card keeps a drag offset after the swipes (${stale})`);
     eq(problems.length, 0, `deck swipe: no console errors (${problems.join('; ')})`);
     await c.close();
   }

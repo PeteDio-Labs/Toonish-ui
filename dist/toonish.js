@@ -109,12 +109,15 @@
           suppressTimer = window.setTimeout(() => {
             suppress = false;
           }, 400);
-          d.card.style.setProperty("--dx", `${d.dx}px`);
-          d.card.style.setProperty("--rot", `${d.dx / 20}deg`);
-          if (d.dx < 0)
+          if (d.dx < 0) {
+            d.card.style.setProperty("--dx", `${d.dx}px`);
+            d.card.style.setProperty("--rot", `${d.dx / 20}deg`);
             go(1, -1);
-          else
+          } else {
+            d.card.style.removeProperty("--dx");
+            d.card.style.removeProperty("--rot");
             go(-1, 1);
+          }
           return;
         }
       }

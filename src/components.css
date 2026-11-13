@@ -507,6 +507,9 @@
   .toon-pager-next .toon-pager-arrow { @apply bg-toon-paper; }
   .toon-pager-text { @apply grid min-w-0 gap-0.5; }
   .toon-pager-dir { @apply block text-body font-bold leading-tight; }
+  /* The ": " between the direction and the title is for a screen reader only. The kit's own CSS carries the rule, so the
+     precompiled build hides it too. */
+  .toon-pager-sep { @apply sr-only; }
   .toon-pager-title {
     @apply block text-footnote leading-snug;
     display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;

@@ -383,7 +383,7 @@ export const pager = (o: PagerOptions): string => {
   const link = (l: PagerLink, kind: 'prev' | 'next') => {
     const dir = l.dir ?? (kind === 'prev' ? 'Previous' : 'Next');
     if (!l.href.trim() || !l.title.trim() || !dir.trim()) throw new Error('pager: a link needs an href, a title and a direction');
-    return `<a class="toon-pager-link toon-pager-${kind}" href="${esc(l.href)}" rel="${kind}"><span class="toon-pager-arrow" aria-hidden="true">${CHEVRON(kind === 'prev' ? 'M10 3 5 8l5 5' : 'M6 3l5 5-5 5')}</span><span class="toon-pager-text"><span class="toon-pager-dir">${esc(dir)}<span class="sr-only">: </span></span><span class="toon-pager-title">${esc(l.title)}</span></span></a>`;
+    return `<a class="toon-pager-link toon-pager-${kind}" href="${esc(l.href)}"><span class="toon-pager-arrow" aria-hidden="true">${CHEVRON(kind === 'prev' ? 'M10 3 5 8l5 5' : 'M6 3l5 5-5 5')}</span><span class="toon-pager-text"><span class="toon-pager-dir">${esc(dir)}<span class="toon-pager-sep">: </span></span><span class="toon-pager-title">${esc(l.title)}</span></span></a>`;
   };
   return `<nav class="toon-pager${o.cls ? ' ' + esc(o.cls) : ''}" aria-label="${esc(o.label)}">${o.prev ? link(o.prev, 'prev') : ''}${o.next ? link(o.next, 'next') : ''}</nav>`;
 };

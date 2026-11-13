@@ -271,11 +271,11 @@ test('portrait rejects a missing alt, a bad size, an unknown backdrop and an unk
 test('pager writes a labelled nav of two links, each with an arrow, a direction and a title', () => {
   const html = pager({ label: 'Case studies', prev: { href: '/a.html', title: 'Study A' }, next: { href: '/b.html', title: 'Study B' } });
   expect(html.startsWith('<nav class="toon-pager" aria-label="Case studies">')).toBe(true);
-  expect(html).toContain('<a class="toon-pager-link toon-pager-prev" href="/a.html" rel="prev">');
-  expect(html).toContain('<a class="toon-pager-link toon-pager-next" href="/b.html" rel="next">');
+  expect(html).toContain('<a class="toon-pager-link toon-pager-prev" href="/a.html">');
+  expect(html).toContain('<a class="toon-pager-link toon-pager-next" href="/b.html">');
   expect(html.match(/class="toon-pager-arrow" aria-hidden="true"><svg/g)?.length).toBe(2);
-  expect(html).toContain('<span class="toon-pager-dir">Previous<span class="sr-only">: </span></span><span class="toon-pager-title">Study A</span>');
-  expect(html).toContain('<span class="toon-pager-dir">Next<span class="sr-only">: </span></span><span class="toon-pager-title">Study B</span>');
+  expect(html).toContain('<span class="toon-pager-dir">Previous<span class="toon-pager-sep">: </span></span><span class="toon-pager-title">Study A</span>');
+  expect(html).toContain('<span class="toon-pager-dir">Next<span class="toon-pager-sep">: </span></span><span class="toon-pager-title">Study B</span>');
   expect(html.indexOf('toon-pager-prev')).toBeLessThan(html.indexOf('toon-pager-next'));
 });
 

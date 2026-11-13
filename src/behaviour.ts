@@ -113,11 +113,18 @@ function initDeck(deck: HTMLElement): void {
         suppress = true;
         window.clearTimeout(suppressTimer);
         suppressTimer = window.setTimeout(() => { suppress = false; }, 400);
-        d.card.style.setProperty('--dx', `${d.dx}px`);
-        d.card.style.setProperty('--rot', `${d.dx / 20}deg`);
         // Left is next and right is previous, like turning pages. Both wrap, so the pile loops in either direction.
-        if (d.dx < 0) go(1, -1);
-        else go(-1, 1);
+        if (d.dx < 0) {
+          // The card leaves from where the finger let go.
+          d.card.style.setProperty('--dx', `${d.dx}px`);
+          d.card.style.setProperty('--rot', `${d.dx / 20}deg`);
+          go(1, -1);
+        } else {
+          // The card under the finger stays in the pile, so it must not keep the drag offset for a later flip.
+          d.card.style.removeProperty('--dx');
+          d.card.style.removeProperty('--rot');
+          go(-1, 1);
+        }
         return;
       }
     }
