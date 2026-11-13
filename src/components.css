@@ -139,6 +139,7 @@
   .toon-badge-paper { @apply bg-toon-paper; }
   .toon-badge-mist { @apply bg-toon-mist; }
   /* A count inside a badge: digits keep a fixed width so a row of badges lines up. */
+  .toon-badge, .toon-chip, .toon-stat-label, .toon-caption { @apply font-mono; }
   .toon-badge-count { @apply ml-s2; font-variant-numeric: tabular-nums; }
 
   /* 5b. Chip: a small tag. Quieter than a badge: sentence case, thinner border. */

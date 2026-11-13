@@ -57,9 +57,9 @@ for (const [entry, out, format] of [
 }
 run(['bunx', 'tsc', '-p', 'tsconfig.build.json']);
 
-// 5. Fonts: the five woff2 files that src/fonts.css names.
+// 5. Fonts: the four woff2 files that src/fonts.css names.
 await mkdir(`${dist}/fonts`, { recursive: true });
-for (const [pkg, file] of [['bangers', 'bangers-latin-400'], ['dm-sans', 'dm-sans-latin-400'], ['dm-sans', 'dm-sans-latin-700'], ['space-grotesk', 'space-grotesk-latin-500'], ['space-grotesk', 'space-grotesk-latin-700']] as const) {
+for (const [pkg, file] of [['bangers', 'bangers-latin-400'], ['ibm-plex-sans', 'ibm-plex-sans-latin-400'], ['ibm-plex-sans', 'ibm-plex-sans-latin-700'], ['ibm-plex-mono', 'ibm-plex-mono-latin-600']] as const) {
   await cp(`node_modules/@fontsource/${pkg}/files/${file}-normal.woff2`, `${dist}/fonts/${file}-normal.woff2`);
 }
 

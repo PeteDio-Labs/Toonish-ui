@@ -16,7 +16,7 @@
 }
 
 @font-face {
-  font-family: "DM Sans";
+  font-family: "IBM Plex Sans";
 
   font-style: normal;
 
@@ -24,11 +24,11 @@
 
   font-display: swap;
 
-  src: url(./fonts/dm-sans-latin-400-normal.woff2) format("woff2");
+  src: url(./fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2");
 }
 
 @font-face {
-  font-family: "DM Sans";
+  font-family: "IBM Plex Sans";
 
   font-style: normal;
 
@@ -36,31 +36,19 @@
 
   font-display: swap;
 
-  src: url(./fonts/dm-sans-latin-700-normal.woff2) format("woff2");
+  src: url(./fonts/ibm-plex-sans-latin-700-normal.woff2) format("woff2");
 }
 
 @font-face {
-  font-family: "Space Grotesk";
+  font-family: "IBM Plex Mono";
 
   font-style: normal;
 
-  font-weight: 500;
+  font-weight: 600;
 
   font-display: swap;
 
-  src: url(./fonts/space-grotesk-latin-500-normal.woff2) format("woff2");
-}
-
-@font-face {
-  font-family: "Space Grotesk";
-
-  font-style: normal;
-
-  font-weight: 700;
-
-  font-display: swap;
-
-  src: url(./fonts/space-grotesk-latin-700-normal.woff2) format("woff2");
+  src: url(./fonts/ibm-plex-mono-latin-600-normal.woff2) format("woff2");
 }
 
 /* toonish-ui components. Tokens come from the preset (src/preset.ts), built from tokens/toonish.tokens.json. */
@@ -234,11 +222,11 @@ html {
 body {
   --tw-bg-opacity: 1;
   background-color: rgb(12 18 64 / var(--tw-bg-opacity, 1));
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 17px;
   line-height: 1.5;
   --tw-text-opacity: 1;
-  color: rgb(243 239 230 / var(--tw-text-opacity, 1));
+  color: rgb(236 239 243 / var(--tw-text-opacity, 1));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -290,7 +278,7 @@ body {
   padding-right: 24px;
   padding-top: 12px;
   padding-bottom: 12px;
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 17px;
   font-weight: 700;
   --tw-text-opacity: 1;
@@ -343,7 +331,7 @@ body {
 .toon-btn-paper  {
   --toon-shadow: #5f8dff;
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
 }
 
 /* A button that follows a paragraph needs room above it: base styles zero every margin, so it would touch the text. */
@@ -368,7 +356,7 @@ p + .toon-btn {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding: 24px;
   --tw-text-opacity: 1;
   color: rgb(10 10 31 / var(--tw-text-opacity, 1));
@@ -421,7 +409,7 @@ p + .toon-btn {
   background-color: rgb(242 201 76 / var(--tw-bg-opacity, 1));
   padding-left: 12px;
   padding-right: 12px;
-  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 20px;
   line-height: 1;
   letter-spacing: 0.025em;
@@ -439,7 +427,7 @@ p + .toon-btn {
 /* 3. Heading: display type with an ink outline and a hard shadow. */
 
 .toon-heading {
-  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.025em;
@@ -460,7 +448,7 @@ p + .toon-btn {
 
 .toon-type {
   display: inline-block;
-  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-weight: 700;
   letter-spacing: -0.025em;
   color: var(--toon-fill, #5f8dff);
@@ -585,12 +573,12 @@ html.toon-js .toon-reveal.toon-in {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 4px;
   padding-bottom: 4px;
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 13px;
   font-weight: 700;
   --tw-text-opacity: 1;
@@ -713,7 +701,7 @@ html.toon-js .toon-reveal.toon-in {
 
 .toon-badge-paper {
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
 }
 
 .toon-badge-mist {
@@ -722,6 +710,10 @@ html.toon-js .toon-reveal.toon-in {
 }
 
 /* A count inside a badge: digits keep a fixed width so a row of badges lines up. */
+
+.toon-badge, .toon-chip, .toon-stat-label, .toon-caption {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
 
 .toon-badge-count {
   margin-left: 8px;
@@ -767,7 +759,7 @@ html.toon-js .toon-reveal.toon-in {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding-left: 16px;
   padding-right: 16px;
   padding-top: 12px;
@@ -795,7 +787,7 @@ html.toon-js .toon-reveal.toon-in {
 }
 
 .toon-stat-value {
-  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 28px;
   font-weight: 700;
   line-height: 1;
@@ -819,7 +811,7 @@ html.toon-js .toon-reveal.toon-in {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   --tw-text-opacity: 1;
   color: rgb(10 10 31 / var(--tw-text-opacity, 1));
   --tw-shadow: 4px 4px 0 #f2c94c;
@@ -906,7 +898,7 @@ html.toon-js .toon-reveal.toon-in {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding: 20px;
   --tw-text-opacity: 1;
   color: rgb(10 10 31 / var(--tw-text-opacity, 1));
@@ -921,7 +913,7 @@ html.toon-js .toon-reveal.toon-in {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 4px;
@@ -948,7 +940,7 @@ html.toon-js .toon-reveal.toon-in {
   white-space: nowrap;
   border-bottom-width: 1px;
   --tw-border-opacity: 1;
-  border-color: rgb(221 214 198 / var(--tw-border-opacity, 1));
+  border-color: rgb(211 216 224 / var(--tw-border-opacity, 1));
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 8px;
@@ -991,7 +983,7 @@ html.toon-js .toon-reveal.toon-in {
 
 .toon-table tr[aria-current] td {
   --tw-bg-opacity: 1;
-  background-color: rgb(221 214 198 / var(--tw-bg-opacity, 1));
+  background-color: rgb(211 216 224 / var(--tw-bg-opacity, 1));
   font-weight: 700;
 }
 
@@ -1096,11 +1088,11 @@ html.toon-js .toon-reveal.toon-in {
 
 .toon-bar-seg-paper {
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
 }
 
 .toon-bar-seg-hatch {
-  background: repeating-linear-gradient(135deg, #0a0a1f 0 2px, #f3efe6 2px 6px);
+  background: repeating-linear-gradient(135deg, #0a0a1f 0 2px, #eceff3 2px 6px);
 }
 
 .toon-bar-label {
@@ -1189,7 +1181,7 @@ html.toon-js .toon-reveal.toon-in {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding: 4px;
   --tw-shadow: 4px 4px 0 #f2c94c;
   --tw-shadow-colored: 4px 4px 0 var(--tw-shadow-color);
@@ -1216,7 +1208,7 @@ html.toon-js .toon-reveal.toon-in {
   padding-right: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 15px;
   font-weight: 700;
   --tw-text-opacity: 1;
@@ -1397,7 +1389,7 @@ html.toon-js .toon-reveal.toon-in {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   --tw-shadow: 4px 4px 0 #f2706a;
   --tw-shadow-colored: 4px 4px 0 var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
@@ -1440,7 +1432,7 @@ html.toon-js .toon-reveal.toon-in {
 .toon-modal-x {
   flex-shrink: 0;
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding-left: 16px;
   padding-right: 16px;
   padding-top: 4px;
@@ -1488,7 +1480,7 @@ html.toon-modal-open {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   --tw-shadow: 4px 4px 0 #5f8dff;
   --tw-shadow-colored: 4px 4px 0 var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
@@ -1518,7 +1510,7 @@ html.toon-modal-open {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   --tw-shadow: 4px 4px 0 #f2c94c;
   --tw-shadow-colored: 4px 4px 0 var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
@@ -1551,7 +1543,7 @@ html.toon-modal-open {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding-left: 16px;
   padding-right: 16px;
   padding-top: 12px;
@@ -1579,7 +1571,7 @@ html.toon-modal-open {
   --tw-border-opacity: 1;
   border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
   --tw-bg-opacity: 1;
-  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 16px;
@@ -1615,7 +1607,7 @@ html.toon-modal-open {
   left: 33px;
   bottom: -14px;
   border-width: 15px 9px 0 9px;
-  border-top-color: #f3efe6;
+  border-top-color: #eceff3;
 }
 
 /* 11. Caption: the yellow box a comic narrator speaks from. Square corners on purpose. */
@@ -1631,7 +1623,7 @@ html.toon-modal-open {
   padding-right: 12px;
   padding-top: 4px;
   padding-bottom: 4px;
-  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.05em;

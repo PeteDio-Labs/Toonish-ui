@@ -5,21 +5,22 @@ var toonish_tokens_default = {
     $type: "color",
     ground: { $value: "#0c1240", $description: "Page background, deep navy." },
     ink: { $value: "#0a0a1f", $description: "Outlines, and text on every fill." },
-    paper: { $value: "#f3efe6", $description: "Panels and bubbles; text on the ground." },
+    paper: { $value: "#eceff3", $description: "Panels and bubbles; text on the ground." },
     blue: { $value: "#5f8dff" },
     red: { $value: "#f2706a" },
     yellow: { $value: "#f2c94c" },
     violet: { $value: "#a995f0" },
     muted: { $value: "#4a4d78", $description: "Secondary text on paper." },
     mist: { $value: "#b9bde0", $description: "Secondary text on the ground, and the quiet fill for a closed or inactive state." },
-    rule: { $value: "#ddd6c6", $description: "Grid lines and the current-row fill on paper." }
+    rule: { $value: "#d3d8e0", $description: "Grid lines and the current-row fill on paper." }
   },
   font: {
     family: {
       $type: "fontFamily",
-      display: { $value: ["Space Grotesk", "system-ui", "sans-serif"] },
+      display: { $value: ["IBM Plex Sans", "system-ui", "sans-serif"] },
       comic: { $value: ["Bangers", "Arial Black", "Impact", "sans-serif"] },
-      body: { $value: ["DM Sans", "system-ui", "sans-serif"] }
+      body: { $value: ["IBM Plex Sans", "system-ui", "sans-serif"] },
+      mono: { $value: ["IBM Plex Mono", "ui-monospace", "monospace"], $description: "Labels: badges, chips, stat labels and captions." }
     },
     size: {
       $type: "dimension",

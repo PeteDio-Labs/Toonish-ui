@@ -16,7 +16,7 @@ test('toonish.css carries the components and not the reset', async () => {
 test('every font the CSS names ships in dist/fonts', async () => {
   const css = await read('toonish.css');
   const named = [...css.matchAll(/url\(\.\/fonts\/([^)]+)\)/g)].map((m) => m[1]!);
-  expect(named).toHaveLength(5);
+  expect(named).toHaveLength(4);
   const have = readdirSync('dist/fonts');
   for (const f of named) expect(have).toContain(f);
 });

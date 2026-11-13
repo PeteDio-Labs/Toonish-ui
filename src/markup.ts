@@ -130,7 +130,7 @@ export const row = (o: RowOptions): string => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : '';
   return `<div class="toon-row">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
 };
-const TONE_HEX: Record<Tone, string> = { ...HEX, paper: '#f3efe6', mist: '#b9bde0' };
+const TONE_HEX: Record<Tone, string> = { ...HEX, paper: '#eceff3', mist: '#b9bde0' };
 
 export interface BarSegment {
   value: number;
