@@ -7,7 +7,7 @@ const ext = preset.theme.extend;
 // The values below are the ones tailwind.config.js held in pdlabs-portfolio before the extraction. A change to a
 // token must change this file on purpose.
 test('the preset keeps every value the portfolio config held', () => {
-  expect(ext.colors.toon).toEqual({ ground: '#0c1240', ink: '#0a0a1f', paper: '#eceff3', blue: '#5f8dff', red: '#f2706a', yellow: '#f2c94c', violet: '#a995f0', muted: '#4a4d78', mist: '#b9bde0', rule: '#d3d8e0' });
+  expect(ext.colors.toon).toEqual({ ground: '#0c1240', ink: '#0a0a1f', paper: '#eceff3', blue: '#5f8dff', red: '#f2706a', yellow: '#f2c94c', violet: '#a995f0', 'blue-text': '#2a57d6', 'red-text': '#c8322b', 'violet-text': '#6b4fd6', 'yellow-text': '#7a5c00', muted: '#4a4d78', mist: '#b9bde0', rule: '#d3d8e0' });
   expect(ext.fontFamily).toEqual({
     display: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
     comic: ['Bangers', '"Arial Black"', 'Impact', 'sans-serif'],
@@ -68,4 +68,12 @@ test('the secondary-text colours meet 4.5:1 on their surfaces', () => {
   expect(contrast(c.muted!, c.paper!)).toBeGreaterThanOrEqual(4.5);
   expect(contrast(c.mist!, c.ground!)).toBeGreaterThanOrEqual(4.5);
   expect(contrast(c.ink!, c.mist!)).toBeGreaterThanOrEqual(5.1);
+});
+
+test('the -text accents meet 4.5:1 on paper, where the fills do not', () => {
+  const c = group('color');
+  for (const a of ['blue', 'red', 'yellow', 'violet']) {
+    expect(contrast(c[`${a}-text`]!, c.paper!)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(c[a]!, c.paper!)).toBeLessThan(3); // the reason the -text tokens exist
+  }
 });

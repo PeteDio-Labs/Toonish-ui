@@ -7,6 +7,9 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Accessibility as a hard rule, in code, tests and docs. An axe check at WCAG 2.2 AA runs in `test/browser.ts` on the fixture at both widths, with checks for the focus ring, target size, heading order and the skip link. `docs/components.md` carries the contract per component.
+- `list()`, `skipLink()` and `toon-skip`; the `-text` accent tokens and `HEX_TEXT`, which read on paper; and `letters(..., { onPaper })`.
+- Forced-colours support: a visible focus ring, and plain lettering.
 - Design docs in `docs/`: principles, tokens, components, patterns and build and deploy, with a decision log, plus `CONTRIBUTING.md`. `test/docs.test.ts` fails when a `toon-*` class or markup helper is missing from `docs/components.md`.
 - `portrait()` and `toon-portrait`: any cut-out person (transparent PNG or WebP) on a themed vector studio backdrop, `slate` or `paper`, with a halftone corner and ring in an accent colour.
 - Three colour tokens: `muted` (secondary text on paper), `mist` (secondary text on the ground, and the quiet fill for a closed or inactive state) and `rule` (grid lines and the current-row fill on paper). Tests check their contrast.
@@ -44,6 +47,13 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 ### Tests
 
 - Browser checks cover the `toon-bars` divider rules (a hatch at the bottom, in the middle and beside another hatch), the label alignment across an empty column, and the room under the current day's label.
+
+### Changed
+
+- **Focus ring** is two-tone: an ink ring inside a yellow ring. Yellow alone was 1.4:1 on paper.
+- `figure()` and `strip()` figures use the `-text` accents on paper, which changes how they look.
+- `toon-link` takes its surface's text colour instead of the browser's link blue, which was 1.9:1 on the ground.
+- `toon-nav` pills and `toon-motion` are 44 px tall. `row()` writes `role="listitem"`, so a `toon-list` must be `role="list"`: use `list()`. Deck cards are `aria-roledescription="slide"`. A badge count has a space before it.
 
 ## [0.2.0] - 2026-11-13
 

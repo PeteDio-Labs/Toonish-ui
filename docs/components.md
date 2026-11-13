@@ -6,6 +6,48 @@ Helpers return an HTML string. They escape every string you pass, throw on an un
 
 A class listed here as `toon-x-y` is a modifier of `toon-x` unless the text says otherwise. Internal parts, such as `toon-bar-seg`, are named so the docs check can account for them.
 
+## Accessibility contract
+
+This table is the contract. Every component meets it by default, and `test/browser.ts` fails the build when the fixture breaks it. [Principles](principles.md#2-accessibility-is-a-hard-rule) makes it a hard rule.
+
+Applies to every component: the text and the focus ring meet WCAG 2.2 AA, targets are at least 24 px and the kit's own controls are 44 px, the page reflows at 320 px, nothing depends on hover or on motion, and every animation stops under `prefers-reduced-motion` and `data-motion="off"`.
+
+| Component | Element and role | Name | Keyboard | Notes |
+|---|---|---|---|---|
+| `toon-btn` | `<button type="button">` or `<a>` | Its text | `Enter`, `Space` | Never a `div`. A link that looks like a button stays an `<a>`. |
+| `toon-link` | `<a href>` | Its text | `Enter` | Takes the surface's text colour. Link text says where it goes. |
+| `toon-skip` | `<a href="#main">` | Its text | `Enter` | First tab stop. Hidden until focused. |
+| `toon-nav` | `<nav aria-label>` of links, or a `role="group"` of buttons | Required label | `Tab`, `Enter` | The current page carries `aria-current="page"`. A toggle group carries `aria-pressed`. Pills are 44 px tall. |
+| `toon-pager` | `<nav aria-label>` | Required label | `Tab`, `Enter` | The arrow is `aria-hidden`; the direction and title are text. |
+| `toon-modal` | Native `<dialog aria-modal aria-labelledby>` | The title | `Esc` closes, focus is trapped, focus returns to the opener | Needs a visible `Close` button. |
+| `toon-deck` | `role="group" aria-roledescription="carousel"` of `role="group" aria-roledescription="slide"` cards, labelled `n of m` | Required label | `Tab` to the buttons, `ArrowLeft` and `ArrowRight` flip | Cards below the top are `inert`. The counter is a polite live region. A swipe is never the only way: the buttons flip. |
+| `toon-strip` | `<ul role="list" aria-label>` | Optional label | A linked cell is a link | The figure reads as text. |
+| `toon-steps` | `<ol role="list" aria-label>` | Optional label | None | The number and arrow are `aria-hidden`; the list gives the order. |
+| `toon-list`, `toon-row` | `role="list"` and `role="listitem"` | Required label on the list | None | `list()` and `row()` write the roles. |
+| `toon-stat`, `toon-stats` | Text in a tile | Label, value, detail in reading order | None | Do not use colour alone to rank a figure. |
+| `toon-bars` | `role="list"` of `role="listitem"` columns | Required label, and a label on each column that says its numbers | None | The shapes are not the only carrier of the numbers. |
+| `toon-table` | `<table>` with `<th scope>` | A caption or a label | None | The panel scrolls sideways at 320 px and is the one allowed scroll container. |
+| `toon-badge`, `toon-chip`, `toon-caption` | `<span>` | Its text | None | A count has a space before it. Not a control: use a button for something that acts. |
+| `toon-shot` | `<figure>`, `<img alt>`, `<figcaption>`, a `<details>` transcript | Required `alt` | The transcript opens with `Enter` | The `alt` says what the picture shows. An empty `alt` throws. |
+| `toon-portrait` | `<img alt>` over an `aria-hidden` SVG | Required `alt` | None | Say who is shown and how. The helper throws on a blank `alt`. |
+| `toon-sfx`, `toon-burst`, `toon-speed`, `toon-kicker-rule` | `aria-hidden="true"` | None | None | Decoration. Put the meaning in text elsewhere. |
+| `toon-type`, `toon-type-comic` | Real text in one span per letter | Its text | None | The comic face is for large words only. The fill must read on its ground. |
+| `toon-motion` | `<button aria-pressed>` | Its text, or an `aria-label` | `Enter`, `Space` | It lets a visitor stop motion. |
+
+**Contrast on paper.** The fill accents are for the navy ground and for shapes. Large text on paper uses the `-text` accents. `figure()` and `strip()` do this for you.
+
+**Heading order.** A page has one `h1`. Headings never skip a level. A comic word that acts as a heading keeps a real heading element with its text in `sr-only` when the letters would read badly.
+
+**Focus ring.** The ring is two-tone, an ink ring against the element and a yellow ring outside it, so it keeps 3:1 on paper and on the ground. A component that throws its own shadow repeats the ink ring ahead of it. Do not remove the outline.
+
+**Forced colours.** Under `forced-colors: active`, shadows and outlined lettering drop away and the focus ring is the system `Highlight`.
+
+### Check a component
+
+1. Run `bun run test:browser`. It runs axe at WCAG 2.2 AA on the fixture at 1280 and 390 px, reads the focus ring on every focusable element, checks the kit's target sizes and the heading order, and checks the skip link is the first tab stop. It prints how many rules and elements it examined.
+2. Add the component to `test/fixture.ts`, so axe reads it.
+3. Tab through it, then turn on VoiceOver or NVDA and listen to it once.
+
 ## Foundation
 
 ### Page and motion
@@ -18,8 +60,8 @@ A class listed here as `toon-x-y` is a modifier of `toon-x` unless the text says
 ### Type
 
 - `toon-type`, `toon-type-comic`, `toon-type-flat`, `toon-word`: display lettering. Helper: `letters(text, accent, { live, flat, cls, size })`. Each letter is its own span. Plain `toon-type` is the heavy sans. `live` adds `toon-type-comic`: the Bangers face with an ink outline and a paired shadow, tilting and bobbing in turn. The text stays real text.
-- `figure(value, accent, max, avail)` lays a number out as flat display type that shrinks to fit a card. `fitSize(value, max, avail)` returns that size in px.
-- `toon-heading` and `toon-heading-xl` are section headings. `toon-link` is an inked link.
+- `figure(value, accent, max, avail)` lays a number out as flat display type that shrinks to fit a card. It uses the `-text` accents, which read on paper; the fill accents do not (see [Tokens](tokens.md#colour)). `fitSize(value, max, avail)` returns that size in px.
+- `toon-heading` and `toon-heading-xl` are section headings. `toon-link` is an inked link. It takes the text colour of its surface (`color: inherit`), so it reads on both paper and the ground.
 - `toon-caption` is a caption box in the mono face.
 
 ## Actions and labels
@@ -55,6 +97,7 @@ A class listed here as `toon-x-y` is a modifier of `toon-x` unless the text says
 
 ## Navigation
 
+- `toon-skip` is the skip link, off screen until it takes focus. Helper: `skipLink(target?, text?)`. Make it the first element in `<body>` and point it at the id of `<main>`.
 - `toon-nav` and `toon-nav-wrap`: the top bar.
 - `toon-footer`, `toon-footer-links`, `toon-footer-note`: the page footer.
 - `toon-pager`, with `toon-pager-link`, `toon-pager-prev`, `toon-pager-next`, `toon-pager-arrow`, `toon-pager-text`, `toon-pager-dir`, `toon-pager-title` and `toon-pager-sep`: previous and next links in the shape of the deck's switcher. Helper: `pager({ prev, next, label })`. Each link is `{ href, title, dir? }`. Pass either link or both. The nav needs a label.
@@ -83,7 +126,7 @@ None of these holds data. You pass your own.
 
 ### List and row
 
-`toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helper: `row({ lead, title, sub, aside, dot })`. Use it instead of a bullet list.
+`toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helpers: `list(rows, { label, cls })` writes the container with `role="list"` and a label, and `row({ lead, title, sub, aside, dot })` writes each `role="listitem"`. Use them instead of a bullet list.
 
 ### Bars
 

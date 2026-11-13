@@ -2,6 +2,7 @@
 var ENT = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 var esc = (s) => s.replace(/[&<>"']/g, (c) => ENT[c]);
 var HEX = { blue: "#5f8dff", red: "#f2706a", yellow: "#f2c94c", violet: "#a995f0" };
+var HEX_TEXT = { blue: "#2a57d6", red: "#c8322b", yellow: "#7a5c00", violet: "#6b4fd6" };
 var PAIR = { blue: "yellow", red: "yellow", yellow: "blue", violet: "red" };
 var BADGE = { blue: "toon-badge-blue", red: "", yellow: "toon-badge-yellow", violet: "toon-badge-violet" };
 var accentOf = (accent) => {
@@ -22,13 +23,13 @@ var burst = (accent, cls = "") => {
 var speedLines = (cls = "") => `<svg class="toon-speed ${esc(cls)}" viewBox="0 0 200 120" aria-hidden="true" focusable="false" preserveAspectRatio="none"><g stroke="#f2c94c" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke">${[8, 26, 44, 62, 80, 98, 116].map((y, i) => `<line class="toon-speed-line" style="--i:${i}" x1="4" y1="${y}" x2="${120 + i % 3 * 30}" y2="${y}" pathLength="100" vector-effect="non-scaling-stroke"/>`).join("")}</g></svg>`;
 var letters = (text, accent = "blue", opts = {}) => {
   accentOf(accent);
-  return `<span class="toon-type${opts.live ? " toon-type-comic" : ""}${opts.flat ? " toon-type-flat" : ""} ${esc(opts.cls ?? "")}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}${opts.size !== undefined ? `; font-size:${Number(opts.size)}px` : ""}">${text.split(" ").map((word) => `<span class="toon-word">${[...word].map((c) => `<span>${esc(c)}</span>`).join("")}</span>`).join(" ")}</span>`;
+  return `<span class="toon-type${opts.live ? " toon-type-comic" : ""}${opts.flat ? " toon-type-flat" : ""} ${esc(opts.cls ?? "")}" style="--toon-fill:${(opts.onPaper ? HEX_TEXT : HEX)[accent]}; --toon-shade:${HEX[PAIR[accent]]}${opts.size !== undefined ? `; font-size:${Number(opts.size)}px` : ""}">${text.split(" ").map((word) => `<span class="toon-word">${[...word].map((c) => `<span>${esc(c)}</span>`).join("")}</span>`).join(" ")}</span>`;
 };
 var fitSize = (value, max, avail) => {
   const longest = Math.max(...value.split(" ").map((w) => w.length), 1);
   return Math.max(18, Math.min(max, Math.floor(avail / (longest * 0.6))));
 };
-var figure = (value, accent, max, avail) => letters(value, accent, { flat: true, cls: "block max-w-full leading-none", size: fitSize(value, max, avail) });
+var figure = (value, accent, max, avail) => letters(value, accent, { flat: true, onPaper: true, cls: "block max-w-full leading-none", size: fitSize(value, max, avail) });
 var shot = (o) => {
   if (!o.alt.trim())
     throw new Error("shot: alt text is required");
@@ -54,12 +55,24 @@ var toneOf = (tone) => {
     throw new Error(`unknown tone "${tone}": use one of ${Object.keys(TONE_CLASS).join(", ")}`);
   return tone;
 };
-var badge = (text, tone = "red", count) => `<span class="${["toon-badge", TONE_CLASS[toneOf(tone)]].filter(Boolean).join(" ")}">${esc(text)}${count === undefined ? "" : `<span class="toon-badge-count">${Number(count)}</span>`}</span>`;
+var badge = (text, tone = "red", count) => `<span class="${["toon-badge", TONE_CLASS[toneOf(tone)]].filter(Boolean).join(" ")}">${esc(text)}${count === undefined ? "" : `<span class="toon-badge-count"> ${Number(count)}</span>`}</span>`;
 var chip = (text) => `<span class="toon-chip">${esc(text)}</span>`;
 var stat = (label, value, detail = "") => `<div class="toon-stat"><span class="toon-stat-label">${esc(label)}</span><span class="toon-stat-value">${esc(value)}</span>${detail ? `<span class="toon-stat-detail">${esc(detail)}</span>` : ""}</div>`;
 var row = (o) => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : "";
-  return `<div class="toon-row">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
+  return `<div class="toon-row" role="listitem">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
+};
+var list = (rows, o) => {
+  if (!o.label?.trim())
+    throw new Error("list: label is required");
+  if (!rows.length)
+    throw new Error("list: at least one row is required");
+  return `<div class="toon-list${o.cls ? " " + esc(o.cls) : ""}" role="list" aria-label="${esc(o.label)}">${rows.join("")}</div>`;
+};
+var skipLink = (target = "main", text = "Skip to content") => {
+  if (!/^[A-Za-z][\w-]*$/.test(target))
+    throw new Error(`skipLink: target "${target}" is not a valid id`);
+  return `<a class="toon-skip" href="#${target}">${esc(text)}</a>`;
 };
 var TONE_HEX = { ...HEX, paper: "#eceff3", mist: "#b9bde0" };
 var SEG_CLASS = { blue: "", red: "toon-bar-seg-red", yellow: "toon-bar-seg-yellow", violet: "toon-bar-seg-violet", paper: "toon-bar-seg-paper", mist: "toon-bar-seg-mist", hatch: "toon-bar-seg-hatch" };
@@ -100,7 +113,7 @@ var strip = (cells, o = {}) => {
   const items = cells.map((c) => {
     if (!c.value.trim() || !c.label.trim())
       throw new Error("strip: every cell needs a value and a label");
-    const fill = c.accent ? ` style="--toon-fill:${HEX[accentOf(c.accent)]}"` : "";
+    const fill = c.accent ? ` style="--toon-fill:${HEX_TEXT[accentOf(c.accent)]}"` : "";
     const inner = `<span class="toon-strip-value"${fill}>${esc(c.value)}</span><span class="toon-strip-label">${esc(c.label)}</span>`;
     return `<li class="toon-strip-cell">${c.href ? `<a class="toon-strip-item" href="${esc(c.href)}">${inner}</a>` : `<div class="toon-strip-item">${inner}</div>`}</li>`;
   }).join("");
@@ -139,7 +152,7 @@ var deck = (cards, o) => {
   const cols = o.cols ?? 3;
   if (!Number.isInteger(cols) || cols < 1 || cols > 6)
     throw new Error("deck: cols must be a whole number from 1 to 6");
-  const items = cards.map((c, i) => `<div class="toon-deck-card" role="group" aria-label="${i + 1} of ${cards.length}">${c}</div>`).join("");
+  const items = cards.map((c, i) => `<div class="toon-deck-card" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${cards.length}">${c}</div>`).join("");
   const prev = o.prevLabel ?? "Previous";
   const next = o.nextLabel ?? "Next";
   const controls = `<div class="toon-deck-controls"><button type="button" class="toon-btn toon-btn-paper toon-deck-btn" data-toon-deck-prev>${CHEVRON("M10 3 5 8l5 5")}${esc(prev)}</button><span class="toon-deck-count" role="status" aria-live="polite" aria-atomic="true">1 / ${cards.length}</span><button type="button" class="toon-btn toon-btn-yellow toon-deck-btn" data-toon-deck-next>${esc(next)}${CHEVRON("m6 3 5 5-5 5")}</button></div>`;
@@ -182,6 +195,7 @@ var pager = (o) => {
 export {
   BADGE,
   HEX,
+  HEX_TEXT,
   PAIR,
   badge,
   bars,
@@ -193,11 +207,13 @@ export {
   fitSize,
   kicker,
   letters,
+  list,
   pager,
   portrait,
   row,
   sfx,
   shot,
+  skipLink,
   speedLines,
   stat,
   steps,

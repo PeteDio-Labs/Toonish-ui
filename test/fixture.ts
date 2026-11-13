@@ -1,12 +1,12 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation page is /ui.html on pdlab.dev.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, row, shot, speedLines, stat, steps, strip, sfx, portrait, pager } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager } from '../src/markup.ts';
 
 export const fixture = (): string => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc('toonish-ui fixture')}</title>
 <link rel="icon" href="data:,"><link rel="stylesheet" href="/dist/toonish.css"></head>
-<body><div class="toon-page"><main>
+<body>${skipLink('main')}<div class="toon-page"><main id="main">
 <h1>${letters('toonish-ui', 'yellow', { live: true })}</h1>
 <section id="buttons"><h2 class="toon-heading">Buttons</h2>
 <button class="toon-btn" type="button">Blue</button> <button class="toon-btn toon-btn-red" type="button">Red</button>
@@ -18,8 +18,8 @@ export const fixture = (): string => `<!doctype html>
 <section id="shot">${shot({ src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%23ccc'/%3E%3C/svg%3E", alt: 'A grey placeholder', width: 400, height: 200, caption: 'Real exchange, names redacted', badge: 'Real', accent: 'yellow', transcript: 'You: hello\nBot: hi', open: true })}</section>
 <section id="data"><div class="toon-stats">${stat('Total', '42', 'this week')}${stat('Rate', '71%')}${stat('Best', 'Tue')}</div>
 <p>${badge('Open', 'blue', 12)} ${badge('Done', 'mist', 3)} ${badge('Hold', 'paper')} ${chip('Remote')}</p>
-<div class="toon-list">${row({ lead: 'Nov 12', title: 'Acme', sub: 'Analyst', aside: 'Email', dot: 'blue' })}${row({ lead: 'Nov 11', title: 'Globex', aside: 'Site', dot: 'red' })}</div>
-<div class="toon-list toon-list-stack" id="list-stack">${row({ lead: 'Compute', title: 'Proxmox', sub: 'three nodes' })}</div>
+${list([row({ lead: 'Nov 12', title: 'Acme', sub: 'Analyst', aside: 'Email', dot: 'blue' }), row({ lead: 'Nov 11', title: 'Globex', aside: 'Site', dot: 'red' })], { label: 'Applications' })}
+${list([row({ lead: 'Compute', title: 'Proxmox', sub: 'three nodes' })], { label: 'Hosts', cls: 'toon-list-stack' }).replace('<div class="toon-list', '<div id="list-stack" class="toon-list')}
 <div class="toon-empty">Nothing yet.</div>
 <div class="toon-table-wrap"><table class="toon-table toon-table-text"><thead><tr><th>Name</th><th>What it does</th></tr></thead><tbody><tr><td>Alpha</td><td>A longer sentence of words that is allowed to wrap onto a second line on a narrow screen without scrolling.</td></tr></tbody></table></div>
 <div class="toon-card" id="dividers">${bars({ label: 'Divider cases', columns: [
