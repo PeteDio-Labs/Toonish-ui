@@ -184,6 +184,9 @@
   .toon-table th, .toon-table td { @apply whitespace-nowrap border-b border-toon-rule px-s2 py-s2 text-right; }
   .toon-table th:first-child, .toon-table td:first-child { @apply text-left; }
   .toon-table th { @apply text-caption1 font-bold uppercase tracking-wider text-toon-muted; }
+  /* Words, not figures: left-aligned, top-aligned and allowed to wrap, with the first column in bold. */
+  .toon-table-text th, .toon-table-text td { @apply whitespace-normal text-left align-top; }
+  .toon-table-text td:first-child { @apply font-bold; }
   .toon-table tfoot td { @apply border-b-0 border-t-toon border-t-toon-ink font-bold; }
   .toon-table tr[aria-current] td { @apply bg-toon-rule font-bold; }
 
