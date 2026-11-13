@@ -237,7 +237,7 @@ body {
 
 .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-stat, .toon-list, .toon-chip, .toon-empty, .toon-table-wrap,
-  .toon-portrait, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num {
+  .toon-portrait, .toon-pager-link, .toon-pager-arrow, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num {
   background-clip: padding-box;
 }
 
@@ -247,7 +247,7 @@ body {
 .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text, .toon-stat, .toon-list, .toon-chip,
   .toon-empty, .toon-bar-seg, .toon-table-wrap, .toon-row, .toon-table th, .toon-table td, .toon-row-aside > i, .toon-bars-key i,
-  .toon-portrait, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule {
+  .toon-portrait, .toon-pager-link, .toon-pager-arrow, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule {
   border-style: solid;
 }
 
@@ -2258,6 +2258,141 @@ a.toon-strip-item:focus-visible {
 
 .toon-deck-btn svg {
   flex-shrink: 0;
+}
+
+/* 22. Pager: previous and next links at the foot of a page, in the shape of the deck's switcher. Each link is a button:
+     an arrow in a disc, the direction in bold and the title of where it goes in plain text under it, cut at two lines. The
+     arrow leans the way you go on hover. Two columns from `sm`, stacked below, with next's arrow on the right. */
+
+.toon-pager {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .toon-pager {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+.toon-pager-link {
+  --toon-shadow: #5f8dff;
+  display: flex;
+  min-width: 0px;
+  align-items: center;
+  gap: 16px;
+  border-radius: 9999px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-left: 12px;
+  padding-right: 24px;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+  text-decoration-line: none;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.34,1.8,0.5,1);
+  box-shadow: 4px 4px 0 var(--toon-shadow);
+}
+
+.toon-pager-next {
+  --toon-shadow: #f2c94c;
+  flex-direction: row-reverse;
+  --tw-bg-opacity: 1;
+  background-color: rgb(95 141 255 / var(--tw-bg-opacity, 1));
+  padding-left: 24px;
+  padding-right: 12px;
+  text-align: right;
+}
+
+@media (min-width: 640px) {
+  .toon-pager-next:only-child {
+    grid-column-start: 2;
+  }
+}
+
+.toon-pager-arrow {
+  display: grid;
+  height: 2.75rem;
+  width: 2.75rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 9999px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(242 201 76 / var(--tw-bg-opacity, 1));
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.34,1.8,0.5,1);
+}
+
+.toon-pager-next .toon-pager-arrow {
+  --tw-bg-opacity: 1;
+  background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
+}
+
+.toon-pager-text {
+  display: grid;
+  min-width: 0px;
+  gap: 0.125rem;
+}
+
+.toon-pager-dir {
+  display: block;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.toon-pager-title {
+  display: block;
+  font-size: 13px;
+  line-height: 1.375;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+@media (hover: hover) {
+  .toon-pager-link:hover {
+    --tw-translate-y: -0.125rem;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    box-shadow: 6px 6px 0 var(--toon-shadow);
+  }
+
+  .toon-pager-prev:hover .toon-pager-arrow {
+    --tw-translate-x: -0.25rem;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+
+  .toon-pager-next:hover .toon-pager-arrow {
+    --tw-translate-x: 0.25rem;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  }
+}
+
+.toon-pager-link:active {
+  --tw-translate-x: 0.25rem;
+  --tw-translate-y: 0.25rem;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  box-shadow: 0 0 0 var(--toon-shadow);
 }
 
 .toon-deck[data-toon-deck-on] .toon-deck-pile {

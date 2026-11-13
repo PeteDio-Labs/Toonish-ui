@@ -115,7 +115,9 @@ function initDeck(deck: HTMLElement): void {
         suppressTimer = window.setTimeout(() => { suppress = false; }, 400);
         d.card.style.setProperty('--dx', `${d.dx}px`);
         d.card.style.setProperty('--rot', `${d.dx / 20}deg`);
-        go(1, d.dx < 0 ? -1 : 1);
+        // Left is next and right is previous, like turning pages. Both wrap, so the pile loops in either direction.
+        if (d.dx < 0) go(1, -1);
+        else go(-1, 1);
         return;
       }
     }

@@ -111,7 +111,10 @@
           }, 400);
           d.card.style.setProperty("--dx", `${d.dx}px`);
           d.card.style.setProperty("--rot", `${d.dx / 20}deg`);
-          go(1, d.dx < 0 ? -1 : 1);
+          if (d.dx < 0)
+            go(1, -1);
+          else
+            go(-1, 1);
           return;
         }
       }

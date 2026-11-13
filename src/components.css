@@ -18,13 +18,13 @@
      ink, so nothing visible changes except the sliver. */
   .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-stat, .toon-list, .toon-chip, .toon-empty, .toon-table-wrap,
-  .toon-portrait, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num { background-clip: padding-box; }
+  .toon-portrait, .toon-pager-link, .toon-pager-arrow, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num { background-clip: padding-box; }
   /* The precompiled build has no Tailwind reset, which is where `border-style: solid` normally comes from. Without it a
      bordered div or figure draws no border at all. */
   .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text, .toon-stat, .toon-list, .toon-chip,
   .toon-empty, .toon-bar-seg, .toon-table-wrap, .toon-row, .toon-table th, .toon-table td, .toon-row-aside > i, .toon-bars-key i,
-  .toon-portrait, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule { border-style: solid; }
+  .toon-portrait, .toon-pager-link, .toon-pager-arrow, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule { border-style: solid; }
   :focus-visible { @apply outline outline-2 outline-offset-2 outline-toon-yellow; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 }
@@ -488,6 +488,35 @@
   .toon-deck-count { @apply min-w-[4.5rem] text-center font-mono text-footnote font-bold; font-variant-numeric: tabular-nums; }
   .toon-deck-btn { @apply inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center justify-center gap-s2 px-s5 py-s2; }
   .toon-deck-btn svg { @apply shrink-0; }
+
+  /* 22. Pager: previous and next links at the foot of a page, in the shape of the deck's switcher. Each link is a button:
+     an arrow in a disc, the direction in bold and the title of where it goes in plain text under it, cut at two lines. The
+     arrow leans the way you go on hover. Two columns from `sm`, stacked below, with next's arrow on the right. */
+  .toon-pager { @apply grid gap-s4 sm:grid-cols-2 sm:gap-s5; }
+  .toon-pager-link {
+    --toon-shadow: theme(colors.toon.blue);
+    @apply flex min-w-0 items-center gap-s4 rounded-full border-toon border-toon-ink bg-toon-paper py-s3 pl-s3 pr-s6
+           text-toon-ink no-underline transition duration-fast ease-bounce;
+    box-shadow: 4px 4px 0 var(--toon-shadow);
+  }
+  .toon-pager-next { --toon-shadow: theme(colors.toon.yellow); @apply flex-row-reverse bg-toon-blue pl-s6 pr-s3 text-right; }
+  .toon-pager-next:only-child { @apply sm:col-start-2; }
+  .toon-pager-arrow {
+    @apply grid h-11 w-11 shrink-0 place-items-center rounded-full border-toon border-toon-ink bg-toon-yellow text-toon-ink transition duration-fast ease-bounce;
+  }
+  .toon-pager-next .toon-pager-arrow { @apply bg-toon-paper; }
+  .toon-pager-text { @apply grid min-w-0 gap-0.5; }
+  .toon-pager-dir { @apply block text-body font-bold leading-tight; }
+  .toon-pager-title {
+    @apply block text-footnote leading-snug;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  }
+  @media (hover: hover) {
+    .toon-pager-link:hover { @apply -translate-y-0.5; box-shadow: 6px 6px 0 var(--toon-shadow); }
+    .toon-pager-prev:hover .toon-pager-arrow { @apply -translate-x-1; }
+    .toon-pager-next:hover .toon-pager-arrow { @apply translate-x-1; }
+  }
+  .toon-pager-link:active { @apply translate-x-1 translate-y-1; box-shadow: 0 0 0 var(--toon-shadow); }
   .toon-deck[data-toon-deck-on] .toon-deck-pile {
     --toon-deck-step: 9px;
     padding: theme(spacing.s4) calc(var(--toon-deck-step) * 2 + theme(spacing.s2)) calc(var(--toon-deck-step) * 2 + theme(spacing.s2)) theme(spacing.s2);

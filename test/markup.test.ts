@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, steps, sfx, deck, portrait } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, steps, sfx, deck, portrait, pager } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -266,4 +266,28 @@ test('portrait rejects a missing alt, a bad size, an unknown backdrop and an unk
   expect(() => portrait({ ...base, width: 0 })).toThrow('positive integers');
   expect(() => portrait({ ...base, backdrop: 'neon' as 'slate' })).toThrow('unknown portrait backdrop');
   expect(() => portrait({ ...base, accent: 'pink' as 'red' })).toThrow('unknown accent');
+});
+
+test('pager writes a labelled nav of two links, each with an arrow, a direction and a title', () => {
+  const html = pager({ label: 'Case studies', prev: { href: '/a.html', title: 'Study A' }, next: { href: '/b.html', title: 'Study B' } });
+  expect(html.startsWith('<nav class="toon-pager" aria-label="Case studies">')).toBe(true);
+  expect(html).toContain('<a class="toon-pager-link toon-pager-prev" href="/a.html" rel="prev">');
+  expect(html).toContain('<a class="toon-pager-link toon-pager-next" href="/b.html" rel="next">');
+  expect(html.match(/class="toon-pager-arrow" aria-hidden="true"><svg/g)?.length).toBe(2);
+  expect(html).toContain('<span class="toon-pager-dir">Previous<span class="sr-only">: </span></span><span class="toon-pager-title">Study A</span>');
+  expect(html).toContain('<span class="toon-pager-dir">Next<span class="sr-only">: </span></span><span class="toon-pager-title">Study B</span>');
+  expect(html.indexOf('toon-pager-prev')).toBeLessThan(html.indexOf('toon-pager-next'));
+});
+
+test('pager escapes every string, takes one link alone, and throws with no link or a blank label', () => {
+  const html = pager({ label: 'A & B', cls: 'x"y', next: { href: '/b.html?a=1&b=2', title: '<b>Bold</b>', dir: 'Newer <i>' } });
+  expect(html).toContain('aria-label="A &amp; B"');
+  expect(html).toContain('class="toon-pager x&quot;y"');
+  expect(html).toContain('href="/b.html?a=1&amp;b=2"');
+  expect(html).toContain('&lt;b&gt;Bold&lt;/b&gt;');
+  expect(html).toContain('Newer &lt;i&gt;');
+  expect(html).not.toContain('toon-pager-prev');
+  expect(() => pager({ label: 'Pages' })).toThrow('pager');
+  expect(() => pager({ label: ' ', next: { href: '/b', title: 'B' } })).toThrow('label');
+  expect(() => pager({ label: 'Pages', next: { href: '/b', title: ' ' } })).toThrow('pager');
 });
