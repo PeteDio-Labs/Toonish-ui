@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
-import { badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat } from '../src/markup.ts';
+import { group } from '../src/tokens.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -118,4 +119,21 @@ test('bars rejects bad input instead of drawing an empty chart', () => {
   expect(() => bars({ label: 'x', columns: [{ label: 'a', segments: [{ value: -1, tone: 'blue', label: 'n' }] }] })).toThrow('0 or more');
   expect(() => bars({ label: 'x', columns: [{ label: 'a', segments: [{ value: 1, tone: 'nope' as never, label: 'n' }] }] })).toThrow('unknown tone');
   expect(bars({ label: 'x', target: 1, columns: [{ label: '<', segments: [] }] })).toContain('&lt;');
+});
+
+test('bars sums without float noise and gives paper its own fill', () => {
+  const html = bars({ label: 'x', columns: [{ label: 'a', segments: [{ value: 0.1, tone: 'paper', label: 'p' }, { value: 0.2, tone: 'blue', label: 'q' }] }] });
+  expect(html).toContain('<span class="toon-bar-total">0.3</span>');
+  expect(html).toContain('toon-bar-seg-paper');
+});
+
+test('a row without a lead renders no lead element', () => {
+  expect(row({ title: 't', aside: 'a' })).not.toContain('toon-row-lead');
+});
+
+test('the hex colours in the markup helpers match the tokens', () => {
+  const c = group('color');
+  for (const k of ['blue', 'red', 'yellow', 'violet'] as const) expect(HEX[k]).toBe(c[k]!);
+  expect(row({ title: 't', aside: 'a', dot: 'paper' })).toContain(c.paper!);
+  expect(row({ title: 't', aside: 'a', dot: 'mist' })).toContain(c.mist!);
 });

@@ -200,7 +200,7 @@ var row = (o) => {
   return `<div class="toon-row">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
 };
 var TONE_HEX = { ...HEX, paper: "#f3efe6", mist: "#b9bde0" };
-var SEG_CLASS = { blue: "", red: "toon-bar-seg-red", yellow: "toon-bar-seg-yellow", violet: "toon-bar-seg-violet", paper: "", mist: "toon-bar-seg-mist", hatch: "toon-bar-seg-hatch" };
+var SEG_CLASS = { blue: "", red: "toon-bar-seg-red", yellow: "toon-bar-seg-yellow", violet: "toon-bar-seg-violet", paper: "toon-bar-seg-paper", mist: "toon-bar-seg-mist", hatch: "toon-bar-seg-hatch" };
 var bars = (o) => {
   if (!o.label.trim())
     throw new Error("bars: label is required");
@@ -213,14 +213,14 @@ var bars = (o) => {
       if (g.tone !== "hatch")
         toneOf(g.tone);
     }
-  const stack = (c) => c.segments.reduce((a, g) => a + g.value, 0);
+  const stack = (c) => Number(c.segments.reduce((a, g) => a + g.value, 0).toFixed(2));
   const max = o.max ?? Math.max(...o.columns.map(stack), o.target ?? 0);
   if (!(max > 0))
     throw new Error("bars: max must be above 0: every column is empty and no target is set");
   const pct = (v) => (v / max * 100).toFixed(2);
   const line = o.target === undefined ? "" : `<div class="toon-bars-target" style="--at:${pct(o.target)}" aria-hidden="true"></div>`;
   const cols = o.columns.map((c) => {
-    const said = c.segments.filter((g) => g.value > 0).map((g) => `${g.label} ${g.value}`).join(", ") || "none";
+    const said = c.segments.filter((g) => g.value > 0).map((g) => `${g.label} ${Number(g.value.toFixed(2))}`).join(", ") || "none";
     const segs = c.segments.filter((g) => g.value > 0).map((g) => `<div class="toon-bar-seg ${SEG_CLASS[g.tone]}" style="--h:${pct(g.value)}"></div>`).join("");
     return `<div class="toon-bar" role="listitem" aria-label="${esc(`${c.label}${c.sub ? " " + c.sub : ""}: ${said}`)}"${c.current ? ' aria-current="date"' : ""}><span class="toon-bar-total">${stack(c) || ""}</span><div class="toon-bar-plot">${line}<div class="toon-bar-stack">${segs}</div></div><span class="toon-bar-label"><b>${esc(c.label)}</b>${c.sub ? esc(c.sub) : ""}</span></div>`;
   }).join("");
@@ -240,7 +240,7 @@ var toonish_tokens_default = {
     violet: { $value: "#a995f0" },
     muted: { $value: "#4a4d78", $description: "Secondary text on paper." },
     mist: { $value: "#b9bde0", $description: "Secondary text on the ground, and the quiet fill for a closed or inactive state." },
-    rule: { $value: "#ddd6c6", $description: "Grid lines and hover fill on paper." }
+    rule: { $value: "#ddd6c6", $description: "Grid lines and the current-row fill on paper." }
   },
   font: {
     family: {

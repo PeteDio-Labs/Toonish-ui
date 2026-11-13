@@ -114,12 +114,12 @@ Tiles, rows, bars and a table for dashboards. None of them holds data: you pass 
 ```ts
 import { badge, bars, row, stat } from 'toonish-ui/markup';
 
-`<div class="toon-stats">${stat('This week', '12', 'applications')}${stat('Rate', '71%')}</div>`;
+`<div class="toon-stats">${stat('This week', '12', 'orders')}${stat('Rate', '71%')}</div>`;
 badge('Open', 'blue', 4);                       // a badge with a count; tones: blue red yellow violet paper mist
-`<div class="toon-list">${row({ lead: 'Nov 12', title: 'Acme', sub: 'Analyst', aside: 'Email', dot: 'blue' })}</div>`;
+`<div class="toon-list">${row({ lead: 'Nov 12', title: 'Order 1042', sub: 'Pending', aside: 'Web', dot: 'blue' })}</div>`;
 bars({
-  label: 'Applications this week', target: 1,   // target draws a dashed line at that value
-  columns: [{ label: 'Mon', sub: '9', segments: [{ value: 0.6, tone: 'blue', label: 'Email' }, { value: 0.2, tone: 'hatch', label: 'Dropped' }] }],
+  label: 'Orders this week', target: 1,   // target draws a dashed line at that value
+  columns: [{ label: 'Mon', sub: '9', segments: [{ value: 0.6, tone: 'blue', label: 'Web' }, { value: 0.2, tone: 'hatch', label: 'Returned' }] }],
 });
 ```
 

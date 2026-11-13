@@ -22,7 +22,7 @@
      bordered div or figure draws no border at all. */
   .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text, .toon-stat, .toon-list, .toon-chip,
-  .toon-empty, .toon-bar-seg, .toon-table-wrap { border-style: solid; }
+  .toon-empty, .toon-bar-seg, .toon-table-wrap, .toon-row, .toon-table th, .toon-table td, .toon-row-aside > i, .toon-bars-key i { border-style: solid; }
   :focus-visible { @apply outline outline-2 outline-offset-2 outline-toon-yellow; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 }
@@ -163,7 +163,7 @@
   /* 5d. List: rows on one paper panel. A row has a lead (a date or a tag), a body and an aside. On a phone the lead
      takes its own line. */
   .toon-list { @apply grid rounded-toon border-toon border-toon-ink bg-toon-paper text-toon-ink shadow-toon-yellow; }
-  .toon-row { @apply grid items-baseline gap-x-s3 gap-y-s1 border-t-toon border-toon-ink px-s4 py-s3; grid-template-columns: 1fr auto; }
+  .toon-row { @apply grid items-baseline gap-x-s3 gap-y-s1 border-t-toon border-toon-ink px-s4 py-s3; grid-template-columns: minmax(0, 1fr) auto; }
   .toon-row:first-child { @apply border-t-0; }
   .toon-row-lead { @apply text-footnote font-bold text-toon-muted; grid-column: 1 / -1; font-variant-numeric: tabular-nums; }
   .toon-row-body { @apply min-w-0; }
@@ -171,7 +171,7 @@
   .toon-row-aside { @apply whitespace-nowrap text-footnote font-bold; }
   .toon-row-aside > i { @apply mr-s1 inline-block h-2 w-2 rounded-[2px] border border-toon-ink align-baseline; background: var(--toon-dot, theme(colors.toon.blue)); }
   @media (min-width: 640px) {
-    .toon-row { grid-template-columns: 6.5rem minmax(0, 1fr) auto; }
+    .toon-row:has(.toon-row-lead) { grid-template-columns: 6.5rem minmax(0, 1fr) auto; }
     .toon-row-lead { grid-column: auto; }
   }
 
@@ -194,13 +194,14 @@
   .toon-bar { @apply grid gap-s1 rounded-toon text-center text-toon-ink; grid-template-rows: auto 9rem auto; }
   .toon-bar-total { @apply min-h-[1.2em] text-footnote font-bold; font-variant-numeric: tabular-nums; }
   .toon-bar-plot { @apply relative; }
-  .toon-bar-stack { @apply absolute inset-x-[22%] inset-y-0 flex flex-col-reverse gap-0.5; }
+  .toon-bar-stack { @apply absolute inset-x-[22%] inset-y-0 flex flex-col-reverse gap-0; }
   .toon-bar-seg { @apply box-border min-h-0 border-toon border-toon-ink bg-toon-blue; height: calc(var(--h, 0) * 1%); }
   .toon-bar-stack > .toon-bar-seg:last-child { @apply rounded-t-[4px]; }
   .toon-bar-seg-red { @apply bg-toon-red; }
   .toon-bar-seg-yellow { @apply bg-toon-yellow; }
   .toon-bar-seg-violet { @apply bg-toon-violet; }
   .toon-bar-seg-mist { @apply bg-toon-mist; }
+  .toon-bar-seg-paper { @apply bg-toon-paper; }
   .toon-bar-seg-hatch { background: repeating-linear-gradient(135deg, theme(colors.toon.ink) 0 2px, theme(colors.toon.paper) 2px 6px); }
   .toon-bar-label { @apply text-caption1 leading-tight text-toon-muted; }
   .toon-bar-label > b { @apply block font-bold uppercase tracking-wider text-toon-ink; }

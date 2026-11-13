@@ -8,7 +8,7 @@
   --toon-color-violet: #a995f0;
   --toon-color-muted: #4a4d78; /** Secondary text on paper. */
   --toon-color-mist: #b9bde0; /** Secondary text on the ground, and the quiet fill for a closed or inactive state. */
-  --toon-color-rule: #ddd6c6; /** Grid lines and hover fill on paper. */
+  --toon-color-rule: #ddd6c6; /** Grid lines and the current-row fill on paper. */
   --toon-font-family-display: 'Space Grotesk', system-ui, sans-serif;
   --toon-font-family-comic: Bangers, 'Arial Black', Impact, sans-serif;
   --toon-font-family-body: 'DM Sans', system-ui, sans-serif;

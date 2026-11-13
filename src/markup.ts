@@ -156,7 +156,7 @@ export interface BarsOptions {
   label: string;
 }
 
-const SEG_CLASS: Record<Tone | 'hatch', string> = { blue: '', red: 'toon-bar-seg-red', yellow: 'toon-bar-seg-yellow', violet: 'toon-bar-seg-violet', paper: '', mist: 'toon-bar-seg-mist', hatch: 'toon-bar-seg-hatch' };
+const SEG_CLASS: Record<Tone | 'hatch', string> = { blue: '', red: 'toon-bar-seg-red', yellow: 'toon-bar-seg-yellow', violet: 'toon-bar-seg-violet', paper: 'toon-bar-seg-paper', mist: 'toon-bar-seg-mist', hatch: 'toon-bar-seg-hatch' };
 
 /**
  * Stacked columns on one scale. Heights are percentages of `max`, so the CSS needs no script. Each column carries
@@ -169,13 +169,13 @@ export const bars = (o: BarsOptions): string => {
     if (!Number.isFinite(g.value) || g.value < 0) throw new Error(`bars: segment "${g.label}" needs a value of 0 or more`);
     if (g.tone !== 'hatch') toneOf(g.tone);
   }
-  const stack = (c: BarColumn) => c.segments.reduce((a, g) => a + g.value, 0);
+  const stack = (c: BarColumn) => Number(c.segments.reduce((a, g) => a + g.value, 0).toFixed(2));
   const max = o.max ?? Math.max(...o.columns.map(stack), o.target ?? 0);
   if (!(max > 0)) throw new Error('bars: max must be above 0: every column is empty and no target is set');
   const pct = (v: number) => ((v / max) * 100).toFixed(2);
   const line = o.target === undefined ? '' : `<div class="toon-bars-target" style="--at:${pct(o.target)}" aria-hidden="true"></div>`;
   const cols = o.columns.map((c) => {
-    const said = c.segments.filter((g) => g.value > 0).map((g) => `${g.label} ${g.value}`).join(', ') || 'none';
+    const said = c.segments.filter((g) => g.value > 0).map((g) => `${g.label} ${Number(g.value.toFixed(2))}`).join(', ') || 'none';
     const segs = c.segments.filter((g) => g.value > 0).map((g) => `<div class="toon-bar-seg ${SEG_CLASS[g.tone]}" style="--h:${pct(g.value)}"></div>`).join('');
     return `<div class="toon-bar" role="listitem" aria-label="${esc(`${c.label}${c.sub ? ' ' + c.sub : ''}: ${said}`)}"${c.current ? ' aria-current="date"' : ''}><span class="toon-bar-total">${stack(c) || ''}</span><div class="toon-bar-plot">${line}<div class="toon-bar-stack">${segs}</div></div><span class="toon-bar-label"><b>${esc(c.label)}</b>${c.sub ? esc(c.sub) : ''}</span></div>`;
   }).join('');

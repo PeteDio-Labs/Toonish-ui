@@ -84,6 +84,8 @@ try {
     eq(await style('.toon-stat', 'border-top-width'), '2px', `${name}: .toon-stat draws its border`);
     eq(await style('.toon-stat-label', 'color'), 'rgb(74, 77, 120)', `${name}: .toon-stat-label uses the muted token`);
     eq(await style('.toon-list', 'border-top-width'), '2px', `${name}: .toon-list draws its border`);
+    eq(await style('.toon-row + .toon-row', 'border-top-style'), 'solid', `${name}: .toon-row draws its separator`);
+    eq(await style('.toon-table td', 'border-bottom-style'), 'solid', `${name}: .toon-table draws its rules`);
     eq(await style('.toon-badge-mist', 'background-color'), 'rgb(185, 189, 224)', `${name}: .toon-badge-mist fill is mist`);
     const barBox = await page.evaluate(() => {
       const plot = document.querySelector('.toon-bar-plot')!.getBoundingClientRect();
