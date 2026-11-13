@@ -259,6 +259,8 @@ export interface SfxOptions {
   size?: 'sm' | 'lg';
   /** An outline only, low in contrast, for sitting behind content. */
   ghost?: boolean;
+  /** A sticker on the top right corner of a `relative` parent, at every width. */
+  corner?: boolean;
   cls?: string;
 }
 
@@ -275,7 +277,7 @@ export const sfx = (text: string, accent: Accent = 'red', opts: SfxOptions = {})
   accentOf(accent);
   if (!text.trim()) throw new Error('sfx: text is required');
   if (opts.size !== undefined && opts.size !== 'sm' && opts.size !== 'lg') throw new Error(`unknown sfx size "${String(opts.size)}": use sm or lg`);
-  const cls = ['toon-sfx', opts.size ? `toon-sfx-${opts.size}` : '', opts.ghost ? 'toon-sfx-ghost' : '', opts.cls ? esc(opts.cls) : ''].filter(Boolean).join(' ');
+  const cls = ['toon-sfx', opts.size ? `toon-sfx-${opts.size}` : '', opts.ghost ? 'toon-sfx-ghost' : '', opts.corner ? 'toon-sfx-corner' : '', opts.cls ? esc(opts.cls) : ''].filter(Boolean).join(' ');
   const spans = [...text].map((c, i) => `<span style="--n:${i};--r:${SFX_TURN[i % 6]}deg;--y:${SFX_RISE[(i * 5) % 6]}em;--s:${SFX_SIZE[(i * 7) % 6]}">${esc(c)}</span>`).join('');
   return `<span class="${cls}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}" aria-hidden="true">${spans}</span>`;
 };

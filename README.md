@@ -173,7 +173,7 @@ Every component is designed for a phone first, at 390 px, and widened from there
   takes a swipe, such as `toon-deck`, sets `touch-action: pan-y`, so a vertical drag always scrolls the page.
 - **Touch targets are at least 44 px,** and nothing depends on hover.
 - **Decoration shows on a phone.** `toon-sfx`, the tilts and the bursts draw at every width. To fit a phone,
-  use a smaller size (`toon-sfx-sm`) or a different position. Don't hide the element.
+  use a smaller size (`toon-sfx-sm`), and `toon-sfx-corner` to pin the word to a corner at every width. Don't hide the element.
 - **No component widens the page.** The browser check loads the fixture at 390 px and at 1280 px, and fails on
   sideways overflow.
 
