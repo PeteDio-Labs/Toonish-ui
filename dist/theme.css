@@ -1,0 +1,44 @@
+/* Generated from tokens/toonish.tokens.json. For Tailwind v4: @import "tailwindcss"; @import "toonish-ui/theme.css"; */
+@theme {
+  --color-toon-ground: #0c1240;
+  --color-toon-ink: #0a0a1f;
+  --color-toon-paper: #f3efe6;
+  --color-toon-blue: #5f8dff;
+  --color-toon-red: #f2706a;
+  --color-toon-yellow: #f2c94c;
+  --color-toon-violet: #a995f0;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-comic: Bangers, "Arial Black", Impact, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --text-caption2: 11px;
+  --text-caption1: 12px;
+  --text-footnote: 13px;
+  --text-subhead: 15px;
+  --text-body: 17px;
+  --text-title3: 20px;
+  --text-title2: 22px;
+  --text-title1: 28px;
+  --text-display2: clamp(32px,5.5vw,52px);
+  --text-display1: clamp(44px,10vw,104px);
+  --text-hero: clamp(52px,10vw,144px);
+  --spacing-s1: 4px;
+  --spacing-s2: 8px;
+  --spacing-s3: 12px;
+  --spacing-s4: 16px;
+  --spacing-s5: 20px;
+  --spacing-s6: 24px;
+  --spacing-s8: 32px;
+  --radius-group: 12px;
+  --radius-card: 16px;
+  --radius-hero: 24px;
+  --radius-sheet: 28px;
+  --radius-toon: 10px;
+  --shadow-toon-blue: 4px 4px 0 #5f8dff;
+  --shadow-toon-red: 4px 4px 0 #f2706a;
+  --shadow-toon-yellow: 4px 4px 0 #f2c94c;
+  --shadow-toon-violet: 4px 4px 0 #a995f0;
+  --shadow-toon-lift: 6px 7px 0 var(--toon-shadow, #f2706a);
+  --shadow-toon-press: 0 0 0 var(--toon-shadow, #f2706a);
+  --ease-spring: cubic-bezier(0.175,0.885,0.32,1.275);
+  --ease-bounce: cubic-bezier(0.34,1.8,0.5,1);
+}

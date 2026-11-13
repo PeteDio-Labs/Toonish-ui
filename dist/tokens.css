@@ -1,0 +1,47 @@
+:root {
+  --toon-color-ground: #0c1240; /** Page background, deep navy. */
+  --toon-color-ink: #0a0a1f; /** Outlines, and text on every fill. */
+  --toon-color-paper: #f3efe6; /** Panels and bubbles; text on the ground. */
+  --toon-color-blue: #5f8dff;
+  --toon-color-red: #f2706a;
+  --toon-color-yellow: #f2c94c;
+  --toon-color-violet: #a995f0;
+  --toon-font-family-display: 'Space Grotesk', system-ui, sans-serif;
+  --toon-font-family-comic: Bangers, 'Arial Black', Impact, sans-serif;
+  --toon-font-family-body: 'DM Sans', system-ui, sans-serif;
+  --toon-font-size-caption2: 11px;
+  --toon-font-size-caption1: 12px;
+  --toon-font-size-footnote: 13px;
+  --toon-font-size-subhead: 15px;
+  --toon-font-size-body: 17px;
+  --toon-font-size-title3: 20px;
+  --toon-font-size-title2: 22px;
+  --toon-font-size-title1: 28px;
+  --toon-font-fluid-display2: clamp(32px,5.5vw,52px);
+  --toon-font-fluid-display1: clamp(44px,10vw,104px);
+  --toon-font-fluid-hero: clamp(52px,10vw,144px);
+  --toon-space-s1: 4px;
+  --toon-space-s2: 8px;
+  --toon-space-s3: 12px;
+  --toon-space-s4: 16px;
+  --toon-space-s5: 20px;
+  --toon-space-s6: 24px;
+  --toon-space-s8: 32px;
+  --toon-radius-group: 12px;
+  --toon-radius-card: 16px;
+  --toon-radius-hero: 24px;
+  --toon-radius-sheet: 28px;
+  --toon-radius-toon: 10px;
+  --toon-border-toon: 2px;
+  --toon-shadow-blue: 4px 4px 0 #5f8dff;
+  --toon-shadow-red: 4px 4px 0 #f2706a;
+  --toon-shadow-yellow: 4px 4px 0 #f2c94c;
+  --toon-shadow-violet: 4px 4px 0 #a995f0;
+  --toon-shadow-lift: 6px 7px 0 var(--toon-shadow, #f2706a);
+  --toon-shadow-press: 0 0 0 var(--toon-shadow, #f2706a);
+  --toon-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275); /** House spring. */
+  --toon-ease-bounce: cubic-bezier(0.34, 1.8, 0.5, 1); /** Toon overshoot. */
+  --toon-duration-fast: 0.2s;
+  --toon-duration-normal: 0.3s;
+  --toon-duration-slow: 0.5s;
+}

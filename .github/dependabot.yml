@@ -1,0 +1,15 @@
+# Weekly version PRs for the pinned GitHub Actions and the Bun packages.
+# A bump that changes the build output also needs `bun run build` and a commit of dist/, or the ci check fails.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      fontsource:
+        patterns: ['@fontsource/*']
