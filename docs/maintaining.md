@@ -41,7 +41,7 @@ No session merges its own pull request in this repository without the gate in th
 
 1. Open a pull request that moves the `## [Unreleased]` entries under a new `## [X.Y.Z] - date` heading in `CHANGELOG.md` and sets `version` in `package.json`.
 2. Run `bun run build` and commit `dist/`. Merge after `check` passes and every thread is resolved.
-3. Tag the merge commit on `main`: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+3. Start the release. Either run the `release` workflow on `main` (Actions > release > Run workflow), which creates the tag `vX.Y.Z` from `package.json`, or tag the merge commit yourself: `git tag vX.Y.Z && git push origin vX.Y.Z`.
 4. The `release` workflow checks that the tag, `package.json` and the changelog agree and that the tag is on `main`. It then rebuilds, checks `dist/` again, runs the tests, and attaches `toonish-ui-X.Y.Z.tgz` and `SHA256SUMS` to a GitHub release.
 5. Read the release back: it must list two assets.
 
