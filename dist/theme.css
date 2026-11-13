@@ -2,14 +2,14 @@
 @theme {
   --color-toon-ground: #0c1240;
   --color-toon-ink: #0a0a1f;
-  --color-toon-paper: #f3efe6;
+  --color-toon-paper: #eceff3;
   --color-toon-blue: #5f8dff;
   --color-toon-red: #f2706a;
   --color-toon-yellow: #f2c94c;
   --color-toon-violet: #a995f0;
   --color-toon-muted: #4a4d78;
   --color-toon-mist: #b9bde0;
-  --color-toon-rule: #ddd6c6;
+  --color-toon-rule: #d3d8e0;
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-comic: Bangers, "Arial Black", Impact, sans-serif;
   --font-body: "DM Sans", system-ui, sans-serif;

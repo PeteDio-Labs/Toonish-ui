@@ -199,7 +199,7 @@ var row = (o) => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : "";
   return `<div class="toon-row">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
 };
-var TONE_HEX = { ...HEX, paper: "#f3efe6", mist: "#b9bde0" };
+var TONE_HEX = { ...HEX, paper: "#eceff3", mist: "#b9bde0" };
 var SEG_CLASS = { blue: "", red: "toon-bar-seg-red", yellow: "toon-bar-seg-yellow", violet: "toon-bar-seg-violet", paper: "toon-bar-seg-paper", mist: "toon-bar-seg-mist", hatch: "toon-bar-seg-hatch" };
 var bars = (o) => {
   if (!o.label.trim())
@@ -233,14 +233,14 @@ var toonish_tokens_default = {
     $type: "color",
     ground: { $value: "#0c1240", $description: "Page background, deep navy." },
     ink: { $value: "#0a0a1f", $description: "Outlines, and text on every fill." },
-    paper: { $value: "#f3efe6", $description: "Panels and bubbles; text on the ground." },
+    paper: { $value: "#eceff3", $description: "Panels and bubbles; text on the ground." },
     blue: { $value: "#5f8dff" },
     red: { $value: "#f2706a" },
     yellow: { $value: "#f2c94c" },
     violet: { $value: "#a995f0" },
     muted: { $value: "#4a4d78", $description: "Secondary text on paper." },
     mist: { $value: "#b9bde0", $description: "Secondary text on the ground, and the quiet fill for a closed or inactive state." },
-    rule: { $value: "#ddd6c6", $description: "Grid lines and the current-row fill on paper." }
+    rule: { $value: "#d3d8e0", $description: "Grid lines and the current-row fill on paper." }
   },
   font: {
     family: {

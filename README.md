@@ -85,13 +85,13 @@ call `initToonish()` from `toonish-ui`.
 |---|---|---|
 | `color.ground` | `#0c1240` | Page background |
 | `color.ink` | `#0a0a1f` | Outlines, and text on every fill |
-| `color.paper` | `#f3efe6` | Panels and bubbles; text on the ground |
+| `color.paper` | `#eceff3` | Panels and bubbles; text on the ground |
 | `color.blue` | `#5f8dff` | Fill and shadow |
 | `color.red` | `#f2706a` | Fill and shadow |
 | `color.yellow` | `#f2c94c` | Fill and shadow |
 | `color.violet` | `#a995f0` | Fill and shadow |
 
-Ink on the darkest fill (blue) measures 5.1:1. Paper on the ground measures 15.6:1. Both pass WCAG AA, and
+Ink on the darkest fill (blue) measures 5.1:1. Paper on the ground measures 15.5:1. Both pass WCAG AA, and
 `test/tokens.test.ts` computes both on every run.
 
 The spacing grid, type scale, radius names and spring easing come from the PeteDio house tokens. The colours are a

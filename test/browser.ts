@@ -57,7 +57,7 @@ try {
     eq(await style('.toon-btn', 'border-top-width'), '2px', `${name}: .toon-btn border is 2px`);
     eq(await style('.toon-btn', 'color'), 'rgb(10, 10, 31)', `${name}: .toon-btn text is ink`);
     eq(await style('.toon-card', 'border-top-width'), '2px', `${name}: .toon-card draws its border`);
-    eq(await style('.toon-card', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-card fill is paper`);
+    eq(await style('.toon-card', 'background-color'), 'rgb(236, 239, 243)', `${name}: .toon-card fill is paper`);
     eq(await style('body', 'background-color'), 'rgb(12, 18, 64)', `${name}: body is the navy ground`);
     eq(await style('.toon-btn', 'font-family'), '"DM Sans", system-ui, sans-serif', `${name}: .toon-btn uses the body family`);
 
@@ -67,7 +67,7 @@ try {
 
     // Shot: the panel keeps the ink border and paper fill, the image fits the panel, the badge overlaps the corner, the transcript is text.
     eq(await style('.toon-shot-panel', 'border-top-width'), '2px', `${name}: .toon-shot-panel border is 2px`);
-    eq(await style('.toon-shot-panel', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-shot-panel fill is paper`);
+    eq(await style('.toon-shot-panel', 'background-color'), 'rgb(236, 239, 243)', `${name}: .toon-shot-panel fill is paper`);
     const shotBox = await page.evaluate(() => {
       const panel = document.querySelector('.toon-shot-panel')!.getBoundingClientRect();
       const img = document.querySelector('.toon-shot-panel img') as HTMLImageElement;
@@ -80,7 +80,7 @@ try {
     eq(await page.$eval('.toon-shot-text', (d) => (d as HTMLDetailsElement).open && d.querySelectorAll('p').length), 2, `${name}: shot transcript is open with 2 lines`);
 
     // Data components: tiles, list, bars and table keep the paper fill and border, and the bars have real heights.
-    eq(await style('.toon-stat', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-stat fill is paper`);
+    eq(await style('.toon-stat', 'background-color'), 'rgb(236, 239, 243)', `${name}: .toon-stat fill is paper`);
     eq(await style('.toon-stat', 'border-top-width'), '2px', `${name}: .toon-stat draws its border`);
     eq(await style('.toon-stat-label', 'color'), 'rgb(74, 77, 120)', `${name}: .toon-stat-label uses the muted token`);
     eq(await style('.toon-list', 'border-top-width'), '2px', `${name}: .toon-list draws its border`);
@@ -112,7 +112,7 @@ try {
     eq(new Set(labels).size, 1, `${name}: every column's labels start at the same height (${labels})`);
     eq(await page.$eval('#dividers [aria-current] .toon-bar-label b', (e) => getComputedStyle(e).paddingBottom), '8px', `${name}: the current-day label has 8px below it for its underline`);
     eq(barBox.targetInside, true, `${name}: the target line sits inside the plot`);
-    eq(await style('.toon-table-wrap', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-table-wrap fill is paper`);
+    eq(await style('.toon-table-wrap', 'background-color'), 'rgb(236, 239, 243)', `${name}: .toon-table-wrap fill is paper`);
     // The second column and the header are the ones the base table right-aligns and keeps on one line.
     eq(await style('.toon-table-text td:nth-child(2)', 'text-align'), 'left', `${name}: .toon-table-text second column is left-aligned`);
     eq(await style('.toon-table-text td:nth-child(2)', 'white-space'), 'normal', `${name}: .toon-table-text second column wraps`);

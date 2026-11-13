@@ -13,6 +13,10 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 - Badge modifiers `toon-badge-paper` and `toon-badge-mist`, and `toon-badge-count` for a count inside a badge.
 - `badge()`, `chip()`, `stat()`, `row()` and `bars()` in `toonish-ui/markup`. `bars()` computes segment heights and the target position, labels each column for a screen reader, and throws on an empty chart.
 
+### Changed
+
+- `paper` is a cool grey off-white (`#eceff3`, was the cream `#f3efe6`), and `rule` is a matching cool grey (`#d3d8e0`, was `#ddd6c6`). Ink on paper is 16.9:1 and `muted` on paper is 6.9:1.
+
 ### Fixed
 
 - In `toon-bars`, the red underline under the current day overlapped the date below it. Each day label now has 8px of bottom padding, so the underline sits clear of the date.
