@@ -169,13 +169,15 @@ The script adds backdrop taps and a scroll lock that lasts while any modal is op
 Every component is designed for a phone first, at 390 px, and widened from there.
 
 - **The base rule is the phone layout.** Wider layouts sit in `min-width` queries (`sm`, `md`, `lg`).
-- **No component traps a scroll.** No component is a sideways scroll container on a phone. A component that
-  takes a swipe, such as `toon-deck`, sets `touch-action: pan-y`, so a vertical drag always scrolls the page.
+- **No component traps a scroll.** A component that takes a swipe, such as `toon-deck`, sets `touch-action: pan-y`,
+  so a vertical drag always scrolls the page. The one sideways scroll container is `toon-table-wrap`, for a table
+  wider than a phone. Don't add another.
 - **Touch targets are at least 44 px,** and nothing depends on hover.
 - **Decoration shows on a phone.** `toon-sfx`, the tilts and the bursts draw at every width. To fit a phone,
   use a smaller size (`toon-sfx-sm`), and `toon-sfx-corner` to pin the word to a corner at every width. Don't hide the element.
-- **No component widens the page.** The browser check loads the fixture at 390 px and at 1280 px, and fails on
-  sideways overflow.
+- **No component widens the page.** `toon-page` clips sideways overflow, and the browser check fails when the document
+  is wider than the viewport at 390 px or at 1280 px. Neither catches a component that `toon-page` clips, so look
+  at the component at 390 px.
 
 ## Develop
 
