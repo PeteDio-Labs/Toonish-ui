@@ -245,9 +245,10 @@ var toonish_tokens_default = {
   font: {
     family: {
       $type: "fontFamily",
-      display: { $value: ["Space Grotesk", "system-ui", "sans-serif"] },
+      display: { $value: ["IBM Plex Sans", "system-ui", "sans-serif"] },
       comic: { $value: ["Bangers", "Arial Black", "Impact", "sans-serif"] },
-      body: { $value: ["DM Sans", "system-ui", "sans-serif"] }
+      body: { $value: ["IBM Plex Sans", "system-ui", "sans-serif"] },
+      mono: { $value: ["IBM Plex Mono", "ui-monospace", "monospace"], $description: "Labels: badges, chips, stat labels and captions." }
     },
     size: {
       $type: "dimension",

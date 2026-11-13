@@ -10,7 +10,7 @@ The package ships:
 - **Component CSS** (`toon-btn`, `toon-card`, `toon-modal` and more) as plain CSS. It needs no Tailwind.
 - **A small script** for modals, toggle groups and scroll reveal. No framework.
 - **TypeScript helpers** that return markup for the lettered display type, bursts and speed lines.
-- **Fonts**: Bangers, DM Sans and Space Grotesk as self-hosted `woff2` files.
+- **Fonts**: Bangers, IBM Plex Sans and IBM Plex Mono as self-hosted `woff2` files.
 
 ## Install
 

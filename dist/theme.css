@@ -10,9 +10,10 @@
   --color-toon-muted: #4a4d78;
   --color-toon-mist: #b9bde0;
   --color-toon-rule: #d3d8e0;
-  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", system-ui, sans-serif;
   --font-comic: Bangers, "Arial Black", Impact, sans-serif;
-  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --text-caption2: 11px;
   --text-caption1: 12px;
   --text-footnote: 13px;

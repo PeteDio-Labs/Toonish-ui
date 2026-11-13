@@ -48,7 +48,7 @@ try {
     // Fonts: all three families the kit names must be loaded, not fall back.
     const fonts = await page.evaluate(async () => {
       await document.fonts.ready;
-      return ['Bangers', 'DM Sans', 'Space Grotesk'].map((f) => [f, [...document.fonts].some((x) => x.family.replace(/"/g, '') === f && x.status === 'loaded')]);
+      return ['Bangers', 'IBM Plex Sans', 'IBM Plex Mono'].map((f) => [f, [...document.fonts].some((x) => x.family.replace(/"/g, '') === f && x.status === 'loaded')]);
     });
     for (const [f, loaded] of fonts as [string, boolean][]) eq(loaded, true, `${name}: font ${f} loaded`);
 
@@ -59,7 +59,7 @@ try {
     eq(await style('.toon-card', 'border-top-width'), '2px', `${name}: .toon-card draws its border`);
     eq(await style('.toon-card', 'background-color'), 'rgb(236, 239, 243)', `${name}: .toon-card fill is paper`);
     eq(await style('body', 'background-color'), 'rgb(12, 18, 64)', `${name}: body is the navy ground`);
-    eq(await style('.toon-btn', 'font-family'), '"DM Sans", system-ui, sans-serif', `${name}: .toon-btn uses the body family`);
+    eq(await style('.toon-btn', 'font-family'), '"IBM Plex Sans", system-ui, sans-serif', `${name}: .toon-btn uses the body family`);
 
     // Nothing may widen the page: a phone browser stretches its layout viewport to fit any overflow.
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);

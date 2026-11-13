@@ -9,9 +9,10 @@ const ext = preset.theme.extend;
 test('the preset keeps every value the portfolio config held', () => {
   expect(ext.colors.toon).toEqual({ ground: '#0c1240', ink: '#0a0a1f', paper: '#eceff3', blue: '#5f8dff', red: '#f2706a', yellow: '#f2c94c', violet: '#a995f0', muted: '#4a4d78', mist: '#b9bde0', rule: '#d3d8e0' });
   expect(ext.fontFamily).toEqual({
-    display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+    display: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
     comic: ['Bangers', '"Arial Black"', 'Impact', 'sans-serif'],
-    body: ['"DM Sans"', 'system-ui', 'sans-serif'],
+    body: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
+    mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
   });
   expect(ext.fontSize).toEqual({
     caption2: '11px', caption1: '12px', footnote: '13px', subhead: '15px', body: '17px', title3: '20px', title2: '22px', title1: '28px',

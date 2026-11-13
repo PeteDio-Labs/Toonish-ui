@@ -17,6 +17,8 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 - `paper` is a cool grey off-white (`#eceff3`, was the cream `#f3efe6`), and `rule` is a matching cool grey (`#d3d8e0`, was `#ddd6c6`). Ink on paper is 16.9:1 and `muted` on paper is 6.9:1.
 
+- Fonts are IBM Plex Sans (headings and body) and IBM Plex Mono (badges, chips, stat labels and captions), replacing Space Grotesk and DM Sans. Bangers stays the comic face. A new `font.family.mono` token and `font-mono` utility carry the mono stack. All three are SIL OFL 1.1.
+
 ### Fixed
 
 - In `toon-bars`, the red underline under the current day overlapped the date below it. Each day label now has 8px of bottom padding, so the underline sits clear of the date.
