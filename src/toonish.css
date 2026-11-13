@@ -1,0 +1,7 @@
+/* Full entry for a consumer that runs Tailwind v3 with the toonish preset: fonts, Tailwind's base (preflight),
+   the kit's own base rules and components, then utilities. Point the Tailwind CLI's -i flag at this file. */
+@import "./fonts.css";
+@import "./components.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

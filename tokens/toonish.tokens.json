@@ -1,0 +1,80 @@
+{
+  "$description": "Toonish design tokens in the W3C Design Tokens format (2025.10). Structure comes from the PeteDio house tokens; colour is the deliberate break from that set. Every fill carries ink text, which keeps contrast at 5.1:1 or better.",
+  "color": {
+    "$type": "color",
+    "ground": { "$value": "#0c1240", "$description": "Page background, deep navy." },
+    "ink": { "$value": "#0a0a1f", "$description": "Outlines, and text on every fill." },
+    "paper": { "$value": "#f3efe6", "$description": "Panels and bubbles; text on the ground." },
+    "blue": { "$value": "#5f8dff" },
+    "red": { "$value": "#f2706a" },
+    "yellow": { "$value": "#f2c94c" },
+    "violet": { "$value": "#a995f0" }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "display": { "$value": ["Space Grotesk", "system-ui", "sans-serif"] },
+      "comic": { "$value": ["Bangers", "Arial Black", "Impact", "sans-serif"] },
+      "body": { "$value": ["DM Sans", "system-ui", "sans-serif"] }
+    },
+    "size": {
+      "$type": "dimension",
+      "caption2": { "$value": { "value": 11, "unit": "px" } },
+      "caption1": { "$value": { "value": 12, "unit": "px" } },
+      "footnote": { "$value": { "value": 13, "unit": "px" } },
+      "subhead": { "$value": { "value": 15, "unit": "px" } },
+      "body": { "$value": { "value": 17, "unit": "px" } },
+      "title3": { "$value": { "value": 20, "unit": "px" } },
+      "title2": { "$value": { "value": 22, "unit": "px" } },
+      "title1": { "$value": { "value": 28, "unit": "px" } }
+    },
+    "fluid": {
+      "$description": "Fluid display sizes. CSS clamp() has no DTCG type, so these are plain strings.",
+      "display2": { "$value": "clamp(32px,5.5vw,52px)" },
+      "display1": { "$value": "clamp(44px,10vw,104px)" },
+      "hero": { "$value": "clamp(52px,10vw,144px)" }
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "s1": { "$value": { "value": 4, "unit": "px" } },
+    "s2": { "$value": { "value": 8, "unit": "px" } },
+    "s3": { "$value": { "value": 12, "unit": "px" } },
+    "s4": { "$value": { "value": 16, "unit": "px" } },
+    "s5": { "$value": { "value": 20, "unit": "px" } },
+    "s6": { "$value": { "value": 24, "unit": "px" } },
+    "s8": { "$value": { "value": 32, "unit": "px" } }
+  },
+  "radius": {
+    "$type": "dimension",
+    "group": { "$value": { "value": 12, "unit": "px" } },
+    "card": { "$value": { "value": 16, "unit": "px" } },
+    "hero": { "$value": { "value": 24, "unit": "px" } },
+    "sheet": { "$value": { "value": 28, "unit": "px" } },
+    "toon": { "$value": { "value": 10, "unit": "px" } }
+  },
+  "border": {
+    "$type": "dimension",
+    "toon": { "$value": { "value": 2, "unit": "px" } }
+  },
+  "shadow": {
+    "$description": "Hard offset shadows. They are plain CSS strings: the DTCG shadow type has no way to say 'a var() colour'.",
+    "blue": { "$value": "4px 4px 0 #5f8dff" },
+    "red": { "$value": "4px 4px 0 #f2706a" },
+    "yellow": { "$value": "4px 4px 0 #f2c94c" },
+    "violet": { "$value": "4px 4px 0 #a995f0" },
+    "lift": { "$value": "6px 7px 0 var(--toon-shadow, #f2706a)" },
+    "press": { "$value": "0 0 0 var(--toon-shadow, #f2706a)" }
+  },
+  "ease": {
+    "$type": "cubicBezier",
+    "spring": { "$value": [0.175, 0.885, 0.32, 1.275], "$description": "House spring." },
+    "bounce": { "$value": [0.34, 1.8, 0.5, 1], "$description": "Toon overshoot." }
+  },
+  "duration": {
+    "$type": "duration",
+    "fast": { "$value": { "value": 200, "unit": "ms" } },
+    "normal": { "$value": { "value": 300, "unit": "ms" } },
+    "slow": { "$value": { "value": 500, "unit": "ms" } }
+  }
+}
