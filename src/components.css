@@ -195,7 +195,7 @@
      in `toonish-ui/markup` computes both. A `toon-bars-key` below names what each colour means. */
   .toon-bars { @apply relative grid gap-s2; grid-template-columns: repeat(var(--toon-cols, 7), minmax(0, 1fr)); }
   .toon-bar { @apply grid gap-s1 rounded-toon text-center text-toon-ink; grid-template-rows: auto 9rem auto; }
-  .toon-bar-total { @apply min-h-[1.2em] text-footnote font-bold; font-variant-numeric: tabular-nums; }
+  .toon-bar-total { @apply min-h-[1lh] text-footnote font-bold; font-variant-numeric: tabular-nums; }
   .toon-bar-plot { @apply relative; }
   .toon-bar-stack { @apply absolute inset-x-[22%] inset-y-0 flex flex-col-reverse gap-0; }
   .toon-bar-seg { @apply box-border min-h-0 border-toon border-toon-ink bg-toon-blue; height: calc(var(--h, 0) * 1%); }
@@ -207,7 +207,7 @@
   .toon-bar-seg-paper { @apply bg-toon-paper; }
   .toon-bar-seg-hatch { background: repeating-linear-gradient(135deg, theme(colors.toon.ink) 0 2px, theme(colors.toon.paper) 2px 6px); }
   .toon-bar-label { @apply text-caption1 leading-tight text-toon-muted; }
-  .toon-bar-label > b { @apply block font-bold uppercase tracking-wider text-toon-ink; }
+  .toon-bar-label > b { @apply block pb-s2 font-bold uppercase tracking-wider text-toon-ink; }
   .toon-bar[aria-current] .toon-bar-label > b { @apply underline decoration-toon-red decoration-4 underline-offset-4; }
   .toon-bars-target { @apply pointer-events-none absolute -inset-x-1 z-[1] border-t-toon border-dashed border-toon-ink; bottom: calc(var(--at, 0) * 1%); }
   .toon-bars-key { @apply m-0 flex list-none flex-wrap gap-x-s4 gap-y-s1 p-0 text-footnote text-toon-muted; }

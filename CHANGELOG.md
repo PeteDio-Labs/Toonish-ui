@@ -13,6 +13,11 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 - Badge modifiers `toon-badge-paper` and `toon-badge-mist`, and `toon-badge-count` for a count inside a badge.
 - `badge()`, `chip()`, `stat()`, `row()` and `bars()` in `toonish-ui/markup`. `bars()` computes segment heights and the target position, labels each column for a screen reader, and throws on an empty chart.
 
+### Fixed
+
+- In `toon-bars`, the red underline under the current day overlapped the date below it. Each day label now has 8px of bottom padding, so the underline sits clear of the date.
+- In `toon-bars`, a column with no segments sat its labels 2px higher than the others, because its empty total was shorter than one line. The total's minimum height is now one line.
+
 ## [0.2.0] - 2026-11-13
 
 ### Added

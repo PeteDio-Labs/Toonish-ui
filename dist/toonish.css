@@ -1017,7 +1017,7 @@ html.toon-js .toon-reveal.toon-in {
 }
 
 .toon-bar-total {
-  min-height: 1.2em;
+  min-height: 1lh;
   font-size: 13px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -1092,6 +1092,7 @@ html.toon-js .toon-reveal.toon-in {
 
 .toon-bar-label > b {
   display: block;
+  padding-bottom: 8px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
