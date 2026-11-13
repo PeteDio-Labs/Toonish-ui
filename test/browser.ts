@@ -121,6 +121,82 @@ try {
     eq(await page.$eval('.toon-table-text', (t) => t.getBoundingClientRect().width <= (t.parentElement as HTMLElement).clientWidth + 1), true, `${name}: .toon-table-text fits its panel without scrolling`);
     eq(await page.$eval('.toon-table tfoot td', (e) => getComputedStyle(e).fontWeight), '700', `${name}: .toon-table total row is bold`);
 
+    // Landing-page components. Rects are read in one pass so each layout claim names what it measured.
+    const wide = width >= 640;
+    const flow = await page.evaluate(() => {
+      const r = (e: Element) => e.getBoundingClientRect();
+      const cells = [...document.querySelectorAll('.toon-strip-cell')].map(r);
+      const strip = r(document.querySelector('.toon-strip')!);
+      const values = [...document.querySelectorAll('.toon-strip-value')].map((v) => ({ over: v.scrollWidth - v.clientWidth, within: r(v).right <= r(v.closest('.toon-strip-cell')!).right + 0.5 }));
+      const lis = [...document.querySelectorAll('.toon-step')].map(r);
+      const arrows = [...document.querySelectorAll('.toon-step-arrow')].map(r);
+      const kick = document.querySelector('#flow .toon-kicker')!;
+      const rule = r(kick.querySelector('.toon-kicker-rule')!);
+      const link = r(kick.querySelector('.toon-kicker-link')!);
+      const num = kick.querySelector('.toon-kicker-num')!;
+      return {
+        cells, strip, values, lis, arrows, ruleW: rule.width, ruleToLink: link.left - rule.right, kickRight: r(kick).right,
+        numBorder: getComputedStyle(num).borderTopWidth, numFont: getComputedStyle(num).fontFamily,
+        arrowSvg: document.querySelector('.toon-step-arrow')!.getAttribute('aria-hidden'),
+        stepsTag: document.querySelector('.toon-steps')!.tagName,
+        steps: lis.length,
+      };
+    });
+    const sameRow = (rs: { top: number }[]) => rs.every((x) => Math.abs(x.top - rs[0]!.top) < 1);
+    eq(flow.cells.length, 4, `${name}: the strip has 4 cells`);
+    eq(wide ? sameRow(flow.cells) : sameRow(flow.cells.slice(0, 2)) && sameRow(flow.cells.slice(2)) && flow.cells[2]!.top > flow.cells[0]!.bottom - 1, true, `${name}: the strip is ${wide ? '4 across' : '2 by 2'}`);
+    eq(new Set(flow.cells.map((c) => Math.round(c.left))).size, wide ? 4 : 2, `${name}: the strip has ${wide ? 4 : 2} columns`);
+    eq(flow.cells.every((c) => c.left >= flow.strip.left - 1 && c.right <= flow.strip.right + 1), true, `${name}: strip cells stay inside the strip`);
+    eq(flow.values.every((v) => v.over <= 0 && v.within), true, `${name}: every strip figure fits its cell (${flow.values.map((v) => v.over)})`);
+    eq(await style('.toon-strip', 'border-top-width'), '2px', `${name}: .toon-strip draws its border`);
+    eq(await style('.toon-strip-cell', 'background-color'), 'rgb(236, 239, 243)', `${name}: a strip cell is paper`);
+    eq(flow.steps, 3, `${name}: 3 steps`);
+    eq(flow.stepsTag, 'OL', `${name}: steps are an ordered list`);
+    eq(width >= 768 ? sameRow(flow.lis) : flow.lis.every((l, i) => Math.abs(l.left - flow.lis[0]!.left) < 1 && (i === 0 || l.top > flow.lis[i - 1]!.bottom)), true, `${name}: steps are ${width >= 768 ? 'a row' : 'stacked'}`);
+    eq(flow.arrows.length, 2, `${name}: 2 arrows between 3 steps`);
+    // The arrow sits in the gap between two panels: beside them in a row, below the first when stacked.
+    eq(flow.arrows.every((a, i) => {
+      const c = { x: a.left + a.width / 2, y: a.top + a.height / 2 };
+      const p = flow.lis[i]!, n = flow.lis[i + 1]!;
+      return width >= 768 ? c.x > p.right - 2 && c.x < n.left + 2 && Math.abs(c.y - (p.top + p.height / 2)) < 2 : c.y > p.bottom - 2 && c.y < n.top + 2 && Math.abs(c.x - (p.left + p.width / 2)) < 2;
+    }), true, `${name}: arrows sit between the panels`);
+    // A right arrow has no rotation; a stacked one is turned 90 degrees to point down.
+    eq(await page.$eval('.toon-step-arrow', (a) => { const m = new DOMMatrix(getComputedStyle(a).transform); return Math.round(Math.atan2(m.b, m.a) * 180 / Math.PI); }), width >= 768 ? 0 : 90, `${name}: the arrow points ${width >= 768 ? 'right' : 'down'}`);
+    eq(flow.arrowSvg, 'true', `${name}: arrows are hidden from readers`);
+    eq(flow.numBorder, '2px', `${name}: the kicker chip has an ink border`);
+    eq(flow.numFont.includes('IBM Plex Mono'), true, `${name}: the kicker chip is mono`);
+    eq(flow.ruleW > 20 && flow.ruleToLink >= 0 && flow.ruleToLink < 24, true, `${name}: the kicker rule fills the row up to the link (rule ${Math.round(flow.ruleW)} px, ${Math.round(flow.ruleToLink)} px from the link)`);
+    eq(await style('#panel', 'background-color'), 'rgb(236, 239, 243)', `${name}: .toon-panel is paper`);
+    eq(await style('#panel', 'border-top-width'), '2px', `${name}: .toon-panel draws its border`);
+    eq((await style('#panel', 'box-shadow')).includes('6px 6px'), true, `${name}: .toon-panel has a hard shadow`);
+    eq(await style('#panel .toon-kicker-rule', 'border-top-color'), 'rgb(10, 10, 31)', `${name}: a kicker rule inside a panel is ink`);
+    eq(await style('#flow .toon-kicker-rule', 'border-top-color'), 'rgb(236, 239, 243)', `${name}: a kicker rule on the ground is paper`);
+    // Bubble tails: the tail is the pseudo-element's border, drawn in ink on the side that points away from the bubble.
+    const tail = (sel: string, prop: string) => page.$eval(sel, (el, p) => getComputedStyle(el, '::before').getPropertyValue(p), prop);
+    eq(await tail('#bubble-left', 'border-right-color'), 'rgb(10, 10, 31)', `${name}: .toon-bubble-left tail is ink and points left`);
+    eq(await tail('#bubble-left', 'left'), '-24px', `${name}: .toon-bubble-left tail sits on the left edge`);
+    eq(await tail('#bubble-left', 'border-top-width'), '16px', `${name}: .toon-bubble-left tail is drawn sideways`);
+    eq(await tail('#bubble-up', 'border-bottom-color'), 'rgb(10, 10, 31)', `${name}: .toon-bubble-up tail is ink and points up`);
+    eq(await tail('#bubble-up', 'top'), '-24px', `${name}: .toon-bubble-up tail sits on the top edge`);
+    eq(await tail('.toon-bubble:not([class*="toon-bubble-"])', 'border-top-color'), 'rgb(10, 10, 31)', `${name}: the default bubble keeps its bottom tail`);
+    const tilt = (sel: string) => page.$eval(sel, (el) => { const r = getComputedStyle(el).rotate; return r === 'none' ? 0 : parseFloat(r); });
+    eq(await tilt('#tilt-l'), wide ? -2 : 0, `${name}: .toon-tilt-l turns ${wide ? '-2' : 'no'} degrees`);
+    eq(await tilt('#tilt-r'), wide ? 2 : 0, `${name}: .toon-tilt-r turns ${wide ? '2' : 'no'} degrees`);
+    // A frame below the fold gets toon-reveal, which sets transform. The angle must survive it.
+    await page.$eval('#tilt-r', (el) => el.classList.add('toon-reveal', 'toon-in'));
+    eq(await tilt('#tilt-r'), wide ? 2 : 0, `${name}: the tilt survives scroll reveal`);
+
+    // Sfx: decoration only, in the comic face, hand-lettered, and it drifts unless motion is off.
+    eq(await style('.toon-sfx', 'pointer-events'), 'none', `${name}: .toon-sfx takes no pointer`);
+    eq(await style('.toon-sfx', 'user-select'), 'none', `${name}: .toon-sfx cannot be selected`);
+    eq((await style('.toon-sfx', 'font-family')).includes('Bangers'), true, `${name}: .toon-sfx uses the comic face`);
+    eq(await page.$$eval('.toon-sfx[aria-hidden="true"]', (e) => e.length), 3, `${name}: every sfx is hidden from readers`);
+    eq(await page.$eval('.toon-sfx', (e) => new Set([...e.children].map((c) => getComputedStyle(c).transform)).size > 3), true, `${name}: sfx letters differ in turn and rise`);
+    eq(await page.$eval('.toon-sfx > span', (c) => getComputedStyle(c).animationName), 'toon-sfx-drift', `${name}: sfx letters drift when motion is allowed`);
+    eq(await page.$eval('.toon-sfx-ghost', (e) => [getComputedStyle(e).color, getComputedStyle(e).opacity].join()), 'rgba(0, 0, 0, 0),0.4', `${name}: .toon-sfx-ghost is an outline only`);
+    eq(await page.$eval('.toon-sfx-lg', (e) => parseFloat(getComputedStyle(e).fontSize)) > (await page.$eval('.toon-sfx-sm', (e) => parseFloat(getComputedStyle(e).fontSize))), true, `${name}: sfx size modifiers order sm < lg`);
+    eq(await page.$eval('.toon-sfx', (e) => getComputedStyle(e).rotate), '-5deg', `${name}: the word is tilted`);
+
     // Toggle group: pressing the second button moves aria-pressed.
     await page.click('.toon-nav button:nth-child(2)');
     eq(await page.$eval('.toon-nav button:nth-child(2)', (b) => b.getAttribute('aria-pressed')), 'true', `${name}: toggle presses the tapped button`);

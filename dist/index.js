@@ -226,6 +226,48 @@ var bars = (o) => {
   }).join("");
   return `<div class="toon-bars" role="list" aria-label="${esc(o.label)}" style="--toon-cols:${o.columns.length}">${cols}</div>`;
 };
+var kicker = (num, label, o = {}) => {
+  if (!num.trim() || !label.trim())
+    throw new Error("kicker: num and label are required");
+  const link = o.link ? `<a class="toon-link toon-kicker-link${o.link.cls ? " " + esc(o.link.cls) : ""}" href="${esc(o.link.href)}">${esc(o.link.text)}</a>` : "";
+  return `<div class="toon-kicker${o.cls ? " " + esc(o.cls) : ""}"><span class="toon-kicker-num">${esc(num)}</span><span class="toon-kicker-label">${esc(label)}</span><span class="toon-kicker-rule" aria-hidden="true"></span>${link}</div>`;
+};
+var strip = (cells, o = {}) => {
+  if (!cells.length)
+    throw new Error("strip: at least one cell is required");
+  const items = cells.map((c) => {
+    if (!c.value.trim() || !c.label.trim())
+      throw new Error("strip: every cell needs a value and a label");
+    const fill = c.accent ? ` style="--toon-fill:${HEX[accentOf(c.accent)]}"` : "";
+    const inner = `<span class="toon-strip-value"${fill}>${esc(c.value)}</span><span class="toon-strip-label">${esc(c.label)}</span>`;
+    return `<li class="toon-strip-cell">${c.href ? `<a class="toon-strip-item" href="${esc(c.href)}">${inner}</a>` : `<div class="toon-strip-item">${inner}</div>`}</li>`;
+  }).join("");
+  return `<ul class="toon-strip${o.cls ? " " + esc(o.cls) : ""}" role="list"${o.label ? ` aria-label="${esc(o.label)}"` : ""} style="--toon-cols:${cells.length}">${items}</ul>`;
+};
+var ARROW = '<span class="toon-step-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="M2 8h10M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+var steps = (items, o = {}) => {
+  if (!items.length)
+    throw new Error("steps: at least one step is required");
+  const lis = items.map((s, i) => {
+    if (!s.title.trim() || !s.body.trim())
+      throw new Error("steps: every step needs a title and a body");
+    return `<li class="toon-step"><span class="toon-step-num" aria-hidden="true">${i + 1}</span><strong class="toon-step-title">${esc(s.title)}</strong><p class="toon-step-body">${esc(s.body)}</p>${i < items.length - 1 ? ARROW : ""}</li>`;
+  }).join("");
+  return `<ol class="toon-steps${o.cls ? " " + esc(o.cls) : ""}" role="list"${o.label ? ` aria-label="${esc(o.label)}"` : ""} style="--toon-cols:${items.length}">${lis}</ol>`;
+};
+var SFX_TURN = [-7, 4, -3, 8, -5, 2];
+var SFX_RISE = [0, -0.08, 0.06, -0.04, 0.1, -0.02];
+var SFX_SIZE = [1, 1.12, 0.92, 1.06, 0.96, 1.1];
+var sfx = (text, accent = "red", opts = {}) => {
+  accentOf(accent);
+  if (!text.trim())
+    throw new Error("sfx: text is required");
+  if (opts.size !== undefined && opts.size !== "sm" && opts.size !== "lg")
+    throw new Error(`unknown sfx size "${String(opts.size)}": use sm or lg`);
+  const cls = ["toon-sfx", opts.size ? `toon-sfx-${opts.size}` : "", opts.ghost ? "toon-sfx-ghost" : "", opts.cls ? esc(opts.cls) : ""].filter(Boolean).join(" ");
+  const spans = [...text].map((c, i) => `<span style="--n:${i};--r:${SFX_TURN[i % 6]}deg;--y:${SFX_RISE[i * 5 % 6]}em;--s:${SFX_SIZE[i * 7 % 6]}">${esc(c)}</span>`).join("");
+  return `<span class="${cls}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}" aria-hidden="true">${spans}</span>`;
+};
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
   $description: "Toonish design tokens in the W3C Design Tokens format (2025.10). Structure comes from the PeteDio house tokens; colour is the deliberate break from that set. Every fill carries ink text, which keeps contrast at 5.1:1 or better.",
@@ -389,10 +431,14 @@ export {
   figure,
   fitSize,
   initToonish,
+  kicker,
   letters,
   preset_default as preset,
   row,
+  sfx,
   shot,
   speedLines,
-  stat
+  stat,
+  steps,
+  strip
 };

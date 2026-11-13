@@ -13,6 +13,12 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 - Badge modifiers `toon-badge-paper` and `toon-badge-mist`, and `toon-badge-count` for a count inside a badge.
 - `badge()`, `chip()`, `stat()`, `row()` and `bars()` in `toonish-ui/markup`. `bars()` computes segment heights and the target position, labels each column for a screen reader, and throws on an empty chart.
 
+- Landing-page components: `toon-kicker` (a numbered section lead-in with a rule and an optional link), `toon-strip` (figure cells in one bordered panel, four across and two by two on a phone, each cell optionally a link), `toon-steps` (numbered panels with an arrow between them, a row from `md` and stacked below), and `toon-panel` (a large paper section panel with a hard shadow).
+- `toon-bubble-left` and `toon-bubble-up`, tail variants that point a bubble at a speaker beside or above it. The default bubble does not change.
+- `toon-tilt-l` and `toon-tilt-r`, a 2 degree turn from `sm` up. They use the `rotate` property, so scroll reveal, `toon-pop` and a hover lift do not replace the angle.
+- `toon-sfx`, floating sound-effect lettering in the comic face: each letter has its own turn, rise and size, derived from its index so the build is reproducible, and drifts in turn. It is decoration (`aria-hidden`, no pointer, no selection) and you position it. `toon-sfx-sm`, `toon-sfx-lg` and `toon-sfx-ghost` (outline only, for sitting behind content) modify it. The drift stops under reduced motion and `data-motion="off"`, and the letters keep their turn.
+- `kicker()`, `strip()`, `steps()` and `sfx()` in `toonish-ui/markup`. Each escapes its input and throws on an empty list or a blank label.
+
 ### Changed
 
 - `paper` is a cool grey off-white (`#eceff3`, was the cream `#f3efe6`), and `rule` is a matching cool grey (`#d3d8e0`, was `#ddd6c6`). Ink on paper is 16.9:1 and `muted` on paper is 6.9:1.
@@ -57,3 +63,4 @@ First release: the Toonish kit, extracted from `pdlabs-portfolio` (`tailwind.con
 ### Fixed
 
 - The documented contrast of paper on the ground is 15.6:1, not 16:1. A test now computes it.
+- Browser checks cover the new components at 1280 and 390 px: `toon-strip` is four across and then two by two, `toon-steps` is a row and then stacked with its arrows between the panels, the bubble tails point left and up, the tilt applies only from `sm`, and no figure overflows its cell.

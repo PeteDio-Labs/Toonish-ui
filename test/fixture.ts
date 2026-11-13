@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation page is /ui.html on pdlab.dev.
-import { badge, bars, burst, chip, esc, figure, letters, row, shot, speedLines, stat } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, kicker, letters, row, shot, speedLines, stat, steps, strip, sfx } from '../src/markup.ts';
 
 export const fixture = (): string => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -35,5 +35,13 @@ export const fixture = (): string => `<!doctype html>
 <dialog id="demo" class="toon-modal" aria-modal="true" aria-labelledby="demo-title"><div class="toon-modal-box">
 <div class="toon-modal-head"><h2 id="demo-title" class="toon-heading">POW!</h2><button type="button" class="toon-btn toon-btn-red toon-modal-x" data-toon-modal-close>Close</button></div>
 <div class="toon-modal-body"><p>Modal body.</p><a id="more" class="toon-link" href="/page?v=2" data-toon-modal>More</a></div></div></dialog></section>
+<section id="flow">
+${kicker('01', 'The work', { link: { href: '#flow', text: 'All case studies' } })}
+${strip([{ value: '1,200+', label: 'pull requests merged through the gate', href: '#flow' }, { value: 'Same day', label: 'platform rebuilt from code after a rack loss', href: '#flow' }, { value: '~594', label: 'packages patched across 21 guests in one run', href: '#flow' }, { value: '21', label: 'case studies, all with numbers', href: '#flow' }], { label: 'Proof' })}
+${steps([{ title: 'One task, one session, one branch.', body: 'Each task gets its own session and its own branch.' }, { title: 'Nothing merges unreviewed.', body: 'Every pull request gets a review, and no session approves its own work.' }, { title: 'Declared, not hand-run.', body: 'Terraform builds it, and a repair is a config change before it is ever a script.' }], { label: 'How I work' })}
+<div style="position:relative;height:120px" id="sfx-box">${sfx('MERGE!', 'red', { cls: 'left-0 top-0' })}${sfx('click', 'yellow', { size: 'sm' })}${sfx('SHIP!', 'blue', { size: 'lg', ghost: true })}</div>
+<div class="toon-panel" id="panel">${kicker('03', 'About')}<div class="toon-bubble toon-bubble-left" id="bubble-left">Left tail.</div><div class="toon-bubble toon-bubble-up" id="bubble-up">Up tail.</div>
+<img class="toon-tilt-l" id="tilt-l" alt="A tilted placeholder" width="120" height="120" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23ccc'/%3E%3C/svg%3E"><div class="toon-frame toon-tilt-r" id="tilt-r" style="width:120px">Tilt right</div></div>
+</section>
 </main><footer class="toon-footer"><p>Footer</p></footer></div>
 <script src="/dist/toonish.js"></script></body></html>`;
