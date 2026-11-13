@@ -99,6 +99,12 @@ try {
     eq(Math.abs(barBox.h[2]! - barBox.plot) <= 2 && Math.abs(barBox.h[0]! - barBox.plot * 0.6 / 1.1) <= 3, true, `${name}: segment heights follow their share of the scale (${barBox.h.map(Math.round)} in ${Math.round(barBox.plot)})`);
     eq(barBox.targetInside, true, `${name}: the target line sits inside the plot`);
     eq(await style('.toon-table-wrap', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-table-wrap fill is paper`);
+    // The second column and the header are the ones the base table right-aligns and keeps on one line.
+    eq(await style('.toon-table-text td:nth-child(2)', 'text-align'), 'left', `${name}: .toon-table-text second column is left-aligned`);
+    eq(await style('.toon-table-text td:nth-child(2)', 'white-space'), 'normal', `${name}: .toon-table-text second column wraps`);
+    eq(await style('.toon-table-text th:nth-child(2)', 'text-align'), 'left', `${name}: .toon-table-text header is left-aligned`);
+    eq(await style('.toon-table:not(.toon-table-text) td:nth-child(2)', 'text-align'), 'right', `${name}: a plain .toon-table still right-aligns figures`);
+    eq(await page.$eval('.toon-table-text', (t) => t.getBoundingClientRect().width <= (t.parentElement as HTMLElement).clientWidth + 1), true, `${name}: .toon-table-text fits its panel without scrolling`);
     eq(await page.$eval('.toon-table tfoot td', (e) => getComputedStyle(e).fontWeight), '700', `${name}: .toon-table total row is bold`);
 
     // Toggle group: pressing the second button moves aria-pressed.

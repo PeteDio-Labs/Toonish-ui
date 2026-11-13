@@ -969,6 +969,18 @@ html.toon-js .toon-reveal.toon-in {
   color: rgb(74 77 120 / var(--tw-text-opacity, 1));
 }
 
+/* Words, not figures: left-aligned, top-aligned and allowed to wrap, with the first column in bold. */
+
+.toon-table.toon-table-text th, .toon-table.toon-table-text td {
+  white-space: normal;
+  text-align: left;
+  vertical-align: top;
+}
+
+.toon-table.toon-table-text td:first-child {
+  font-weight: 700;
+}
+
 .toon-table tfoot td {
   border-bottom-width: 0px;
   border-top-width: 2px;

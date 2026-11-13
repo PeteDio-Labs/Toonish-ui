@@ -124,7 +124,7 @@ bars({
 ```
 
 `bars()` scales every height to `max`, which defaults to the tallest stack or the target. Segment tones are the badge tones plus `hatch`. Name what each colour means with a `<ul class="toon-bars-key">` below, setting `--toon-dot` on each `<i>`.
-For a table, put `<table class="toon-table">` in a `<div class="toon-table-wrap">`. Mark the current row with `aria-current`.
+For a table, put `<table class="toon-table">` in a `<div class="toon-table-wrap">`. Mark the current row with `aria-current`. Add `toon-table-text` to the table when the cells hold words: they left-align and wrap instead of staying on one line.
 The secondary-text tokens are `muted` on paper and `mist` on the ground.
 
 ### Shot
