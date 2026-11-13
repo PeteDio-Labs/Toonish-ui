@@ -18,24 +18,29 @@ A bump that changes the build output fails the `dist/` check until you run `bun 
 
 ## Branch protection
 
-This repository is public, so rulesets are available. Pedro sets them once; the click path is
-**Settings > Rules > Rulesets > New ruleset > New branch ruleset**.
+Two rulesets protect the repository (Settings > Rules > Rulesets). Pedro created them on 2026-11-13; read them back there to check.
 
-For `main`:
+**`main`** (ruleset `27183156`, active):
 
-- Require a pull request before merging, and require one approval.
-- Require the status check `check` to pass, and require the branch to be up to date.
-- Require linear history. Squash-merge only.
-- Block force pushes and deletion.
+- Changes arrive through a pull request. Zero approvals are required, and a push dismisses stale approvals.
+- Every review thread must be resolved before the merge.
+- The status check `check` must pass, and the branch must be up to date with `main`.
+- Force pushes and deletion are blocked.
+- Repository admins and pull request bypass are allowed. Treat a bypass as an exception and say so in the pull request.
 
-For tags, add **New tag ruleset** with target pattern `v*`: block deletion and updates, so a released tag never moves.
+**`release-tags`** (ruleset `27183230`, active, pattern `refs/tags/v*`):
+
+- A `v*` tag can be created, but not updated or deleted, so a released tag never moves.
+- Organization admins can bypass it.
+
+Squash-merge is the convention, but the ruleset allows merge, squash and rebase. Use squash.
 
 No session merges its own pull request in this repository without the gate in the vault's working agreement, section 5.
 
 ## Release
 
 1. Open a pull request that moves the `## [Unreleased]` entries under a new `## [X.Y.Z] - date` heading in `CHANGELOG.md` and sets `version` in `package.json`.
-2. Run `bun run build` and commit `dist/`. Merge after `check` passes.
+2. Run `bun run build` and commit `dist/`. Merge after `check` passes and every thread is resolved.
 3. Tag the merge commit on `main`: `git tag vX.Y.Z && git push origin vX.Y.Z`.
 4. The `release` workflow checks that the tag, `package.json` and the changelog agree and that the tag is on `main`. It then rebuilds, checks `dist/` again, runs the tests, and attaches `toonish-ui-X.Y.Z.tgz` and `SHA256SUMS` to a GitHub release.
 5. Read the release back: it must list two assets.
