@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { burst, esc, figure, fitSize, letters, speedLines } from '../src/markup.ts';
+import { burst, esc, figure, fitSize, letters, shot, speedLines } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -50,4 +50,33 @@ test('class names are escaped in every helper', () => {
 test('an unknown accent throws instead of writing a bad style value', () => {
   expect(() => letters('x', 'constructor' as never)).toThrow('unknown accent');
   expect(() => burst('nope' as never)).toThrow('unknown accent');
+});
+
+test('shot renders a figure with alt text, caption, badge and transcript', () => {
+  const html = shot({ src: '/a.png', alt: 'A chat', width: 800, height: 400, caption: 'Real exchange', badge: 'Real', transcript: 'You: hi\nBot: hello\n\n' });
+  expect(html).toContain('<figure class="toon-shot">');
+  expect(html).toContain('alt="A chat" width="800" height="400"');
+  expect(html).toContain('loading="lazy"');
+  expect(html).toContain('<figcaption class="toon-shot-cap"><span class="toon-caption">Real exchange</span>');
+  expect(html).toContain('toon-shot-badge');
+  expect(html.match(/<p>/g)?.length).toBe(2);
+  expect(html).not.toContain(' open');
+});
+
+test('shot omits optional parts and honours eager and open', () => {
+  const html = shot({ src: '/a.png', alt: 'x', width: 1, height: 1, eager: true });
+  expect(html).not.toContain('loading=');
+  expect(html).not.toContain('figcaption');
+  expect(html).not.toContain('details');
+  expect(shot({ src: '/a.png', alt: 'x', width: 1, height: 1, transcript: 'a', open: true })).toContain('<details class="toon-shot-text" open>');
+});
+
+test('shot escapes every string and rejects missing alt and bad sizes', () => {
+  const evil = '"><img src=x onerror=alert(1)>';
+  const html = shot({ src: evil, alt: evil, width: 1, height: 1, caption: evil, badge: evil, transcript: evil, cls: evil });
+  expect(html.match(/<img/g)?.length).toBe(1);
+  expect(html).not.toContain('onerror=alert(1)>');
+  expect(() => shot({ src: '/a', alt: '  ', width: 1, height: 1 })).toThrow('alt text');
+  expect(() => shot({ src: '/a', alt: 'x', width: 0, height: 1 })).toThrow('positive integers');
+  expect(() => shot({ src: '/a', alt: 'x', width: 1, height: 1, accent: 'nope' as never })).toThrow('unknown accent');
 });

@@ -18,6 +18,10 @@
      ink, so nothing visible changes except the sliver. */
   .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head { background-clip: padding-box; }
+  /* The precompiled build has no Tailwind reset, which is where `border-style: solid` normally comes from. Without it a
+     bordered div or figure draws no border at all. */
+  .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
+  .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text { border-style: solid; }
   :focus-visible { @apply outline outline-2 outline-offset-2 outline-toon-yellow; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 }
@@ -195,6 +199,19 @@
     @apply relative overflow-hidden rounded-toon border-toon border-toon-ink bg-toon-paper shadow-toon-blue;
   }
   .toon-frame > img, .toon-frame > svg { @apply block h-auto w-full; }
+
+  /* 9b. Shot: a screenshot in a comic panel. Ink border, hard shadow, an optional badge on the corner, a caption box,
+     and the transcript as text below, so the picture is never the only copy of what it says. */
+  .toon-shot { @apply m-0 grid gap-s3; }
+  .toon-shot-panel {
+    @apply relative rounded-toon border-toon border-toon-ink bg-toon-paper shadow-toon-yellow;
+  }
+  .toon-shot-panel > img { @apply block h-auto w-full rounded-[inherit]; }
+  .toon-shot-badge { @apply absolute -left-s3 -top-s3 -rotate-3; }
+  .toon-shot-cap { @apply m-0; }
+  .toon-shot-text { @apply rounded-toon border-[3px] border-toon-ink bg-toon-paper px-s4 py-s3 text-toon-ink; }
+  .toon-shot-text > summary { @apply cursor-pointer font-bold; }
+  .toon-shot-text p { @apply mt-s2; }
 
   /* 10. Speech bubble */
   .toon-bubble {

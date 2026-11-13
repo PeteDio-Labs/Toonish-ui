@@ -252,6 +252,14 @@ body {
   background-clip: padding-box;
 }
 
+/* The precompiled build has no Tailwind reset, which is where `border-style: solid` normally comes from. Without it a
+     bordered div or figure draws no border at all. */
+
+.toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
+  .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text {
+  border-style: solid;
+}
+
 :focus-visible {
   outline-style: solid;
   outline-width: 2px;
@@ -1029,6 +1037,73 @@ html.toon-modal-open {
   display: block;
   height: auto;
   width: 100%;
+}
+
+/* 9b. Shot: a screenshot in a comic panel. Ink border, hard shadow, an optional badge on the corner, a caption box,
+     and the transcript as text below, so the picture is never the only copy of what it says. */
+
+.toon-shot {
+  margin: 0px;
+  display: grid;
+  gap: 12px;
+}
+
+.toon-shot-panel {
+  position: relative;
+  border-radius: 10px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  --tw-shadow: 4px 4px 0 #f2c94c;
+  --tw-shadow-colored: 4px 4px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-color: #f2c94c;
+  --tw-shadow: var(--tw-shadow-colored);
+}
+
+.toon-shot-panel > img {
+  display: block;
+  height: auto;
+  width: 100%;
+  border-radius: inherit;
+}
+
+.toon-shot-badge {
+  position: absolute;
+  left: -12px;
+  top: -12px;
+  --tw-rotate: -3deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.toon-shot-cap {
+  margin: 0px;
+}
+
+.toon-shot-text {
+  border-radius: 10px;
+  border-width: 3px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+}
+
+.toon-shot-text > summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.toon-shot-text p {
+  margin-top: 8px;
 }
 
 /* 10. Speech bubble */

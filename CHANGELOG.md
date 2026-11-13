@@ -5,6 +5,17 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-13
+
+### Added
+
+- `toon-shot`, a picture border for screenshots: an ink-bordered panel with a hard shadow, an optional corner badge, a caption box and a transcript below the image.
+- `shot()` in `toonish-ui/markup`, which returns the `<figure>` markup. It requires alt text and the image's width and height, escapes every string, and lazy-loads by default.
+
+### Fixed
+
+- In the precompiled `toonish.css`, bordered `div` and `figure` components drew no border, because the build has no Tailwind reset to set `border-style`. A test now reads `.toon-card`'s border width.
+
 ## [0.1.0] - 2026-11-13
 
 First release: the Toonish kit, extracted from `pdlabs-portfolio` (`tailwind.config.js`, `ui/toonish.css` and the kit helpers in `src/`).
