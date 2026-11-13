@@ -28,3 +28,22 @@ export declare const letters: (text: string, accent?: Accent, opts?: LettersOpti
 export declare const fitSize: (value: string, max: number, avail: number) => number;
 /** A figure on a paper card: the display type, flat and heavy. It shrinks as the value gets longer, so it stays inside the card. */
 export declare const figure: (value: string, accent: Accent, max: number, avail: number) => string;
+export interface ShotOptions {
+    src: string;
+    /** What the image shows, for people who cannot see it. Required: an empty alt would hide the picture. */
+    alt: string;
+    width: number;
+    height: number;
+    caption?: string;
+    badge?: string;
+    accent?: Accent;
+    /** The text of the image, one line per message. Rendered below the image in a disclosure. */
+    transcript?: string;
+    /** Show the transcript expanded. */
+    open?: boolean;
+    /** Load the image at once. Use it for a shot above the fold; the default is lazy. */
+    eager?: boolean;
+    cls?: string;
+}
+/** A screenshot in a comic panel: `<figure>` with the image, an optional corner badge, a caption and a transcript. */
+export declare const shot: (o: ShotOptions) => string;

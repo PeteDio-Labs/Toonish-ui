@@ -18,7 +18,7 @@ The package installs from a tagged commit of this repository. `dist/` is committ
 a dependency's build scripts.
 
 ```sh
-bun add github:PeteDio-Labs/toonish-ui#v0.1.0
+bun add github:PeteDio-Labs/toonish-ui#v0.2.0
 ```
 
 Pin a tag, not `main`. Each release also attaches a tarball, with checksums, to its
@@ -102,10 +102,27 @@ deliberate break from them. Shadows and fluid sizes are plain CSS strings, becau
 
 `toon-btn` (plus `-red`, `-yellow`, `-paper`, and `toon-wiggle`), `toon-card` (plus `toon-corner`, `toon-pop`),
 `toon-heading` (plus `-xl`), `toon-link`, `toon-badge` (plus `-blue`, `-yellow`, `-violet`), `toon-nav`, `toon-callout`,
-`toon-footer`, `toon-modal`, `toon-frame`, `toon-bubble`, `toon-caption`, `toon-burst`, `toon-speed` and `toon-type`
+`toon-footer`, `toon-modal`, `toon-frame`, `toon-shot`, `toon-bubble`, `toon-caption`, `toon-burst`, `toon-speed` and `toon-type`
 (plus `-comic`, `-flat`).
 
 Every animation and transition stops under `prefers-reduced-motion`, and under `data-motion="off"` on `<html>`.
+
+### Shot
+
+`shot()` renders a screenshot in a comic panel. Alt text, width and height are required: the size reserves the space so the page does not jump, and an empty alt would hide the picture from a screen reader.
+
+```ts
+import { shot } from 'toonish-ui/markup';
+
+shot({
+  src: '/studies/media-assistant/shot-1-library.png', alt: 'The assistant answers that The Bear is in the library.',
+  width: 1400, height: 760, badge: 'Real', accent: 'red',
+  caption: 'Real exchange, names redacted',
+  transcript: 'You: do I have The Bear\nAssistant: Yes.',
+});
+```
+
+The output is a `<figure class="toon-shot">` with `toon-shot-panel` (the image and the optional `toon-shot-badge`), a `<figcaption>` and a `<details class="toon-shot-text">` holding one `<p>` per transcript line. Pass `open: true` to show the transcript expanded, and `eager: true` for an image above the fold.
 
 ### Modal
 

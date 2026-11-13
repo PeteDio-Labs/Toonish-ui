@@ -59,3 +59,37 @@ export const fitSize = (value: string, max: number, avail: number): number => {
 /** A figure on a paper card: the display type, flat and heavy. It shrinks as the value gets longer, so it stays inside the card. */
 export const figure = (value: string, accent: Accent, max: number, avail: number): string =>
   letters(value, accent, { flat: true, cls: 'block max-w-full leading-none', size: fitSize(value, max, avail) });
+
+export interface ShotOptions {
+  src: string;
+  /** What the image shows, for people who cannot see it. Required: an empty alt would hide the picture. */
+  alt: string;
+  width: number;
+  height: number;
+  caption?: string;
+  badge?: string;
+  accent?: Accent;
+  /** The text of the image, one line per message. Rendered below the image in a disclosure. */
+  transcript?: string;
+  /** Show the transcript expanded. */
+  open?: boolean;
+  /** Load the image at once. Use it for a shot above the fold; the default is lazy. */
+  eager?: boolean;
+  cls?: string;
+}
+
+/** A screenshot in a comic panel: `<figure>` with the image, an optional corner badge, a caption and a transcript. */
+export const shot = (o: ShotOptions): string => {
+  if (!o.alt.trim()) throw new Error('shot: alt text is required');
+  if (!Number.isInteger(o.width) || !Number.isInteger(o.height) || o.width <= 0 || o.height <= 0)
+    throw new Error('shot: width and height must be positive integers');
+  const accent = accentOf(o.accent ?? 'red');
+  const badge = o.badge ? `<span class="toon-badge ${BADGE[accent]} toon-shot-badge">${esc(o.badge)}</span>` : '';
+  const img = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? '' : ' loading="lazy"'}>`;
+  const cap = o.caption ? `<figcaption class="toon-shot-cap"><span class="toon-caption">${esc(o.caption)}</span></figcaption>` : '';
+  const lines = (o.transcript ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
+  const text = lines.length
+    ? `<details class="toon-shot-text"${o.open ? ' open' : ''}><summary>Transcript</summary>${lines.map((l) => `<p>${esc(l)}</p>`).join('')}</details>`
+    : '';
+  return `<figure class="toon-shot${o.cls ? ' ' + esc(o.cls) : ''}"><div class="toon-shot-panel">${img}${badge}</div>${cap}${text}</figure>`;
+};

@@ -56,6 +56,7 @@ try {
     eq(await style('.toon-btn', 'background-color'), 'rgb(95, 141, 255)', `${name}: .toon-btn fill is blue`);
     eq(await style('.toon-btn', 'border-top-width'), '2px', `${name}: .toon-btn border is 2px`);
     eq(await style('.toon-btn', 'color'), 'rgb(10, 10, 31)', `${name}: .toon-btn text is ink`);
+    eq(await style('.toon-card', 'border-top-width'), '2px', `${name}: .toon-card draws its border`);
     eq(await style('.toon-card', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-card fill is paper`);
     eq(await style('body', 'background-color'), 'rgb(12, 18, 64)', `${name}: body is the navy ground`);
     eq(await style('.toon-btn', 'font-family'), '"DM Sans", system-ui, sans-serif', `${name}: .toon-btn uses the body family`);
@@ -63,6 +64,20 @@ try {
     // Nothing may widen the page: a phone browser stretches its layout viewport to fit any overflow.
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     eq(overflow <= 0, true, `${name}: no horizontal overflow (scrollWidth - innerWidth = ${overflow})`);
+
+    // Shot: the panel keeps the ink border and paper fill, the image fits the panel, the badge overlaps the corner, the transcript is text.
+    eq(await style('.toon-shot-panel', 'border-top-width'), '2px', `${name}: .toon-shot-panel border is 2px`);
+    eq(await style('.toon-shot-panel', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-shot-panel fill is paper`);
+    const shotBox = await page.evaluate(() => {
+      const panel = document.querySelector('.toon-shot-panel')!.getBoundingClientRect();
+      const img = document.querySelector('.toon-shot-panel img') as HTMLImageElement;
+      const badge = document.querySelector('.toon-shot-badge')!.getBoundingClientRect();
+      return { fits: img.getBoundingClientRect().width <= panel.width, tall: img.getBoundingClientRect().height > 0, loaded: img.complete && img.naturalWidth > 0, overlaps: badge.top < panel.top && badge.left < panel.left + 20 };
+    });
+    eq(shotBox.fits, true, `${name}: shot image fits its panel`);
+    eq(shotBox.loaded && shotBox.tall, true, `${name}: shot image loaded with a height`);
+    eq(shotBox.overlaps, true, `${name}: shot badge sits on the panel corner`);
+    eq(await page.$eval('.toon-shot-text', (d) => (d as HTMLDetailsElement).open && d.querySelectorAll('p').length), 2, `${name}: shot transcript is open with 2 lines`);
 
     // Toggle group: pressing the second button moves aria-pressed.
     await page.click('.toon-nav button:nth-child(2)');

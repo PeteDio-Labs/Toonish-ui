@@ -172,6 +172,20 @@ var fitSize = (value, max, avail) => {
   return Math.max(18, Math.min(max, Math.floor(avail / (longest * 0.6))));
 };
 var figure = (value, accent, max, avail) => letters(value, accent, { flat: true, cls: "block max-w-full leading-none", size: fitSize(value, max, avail) });
+var shot = (o) => {
+  if (!o.alt.trim())
+    throw new Error("shot: alt text is required");
+  if (!Number.isInteger(o.width) || !Number.isInteger(o.height) || o.width <= 0 || o.height <= 0)
+    throw new Error("shot: width and height must be positive integers");
+  const accent = accentOf(o.accent ?? "red");
+  const badge = o.badge ? `<span class="toon-badge ${BADGE[accent]} toon-shot-badge">${esc(o.badge)}</span>` : "";
+  const img = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? "" : ' loading="lazy"'}>`;
+  const cap = o.caption ? `<figcaption class="toon-shot-cap"><span class="toon-caption">${esc(o.caption)}</span></figcaption>` : "";
+  const lines = (o.transcript ?? "").split(`
+`).map((l) => l.trim()).filter(Boolean);
+  const text = lines.length ? `<details class="toon-shot-text"${o.open ? " open" : ""}><summary>Transcript</summary>${lines.map((l) => `<p>${esc(l)}</p>`).join("")}</details>` : "";
+  return `<figure class="toon-shot${o.cls ? " " + esc(o.cls) : ""}"><div class="toon-shot-panel">${img}${badge}</div>${cap}${text}</figure>`;
+};
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
   $description: "Toonish design tokens in the W3C Design Tokens format (2025.10). Structure comes from the PeteDio house tokens; colour is the deliberate break from that set. Every fill carries ink text, which keeps contrast at 5.1:1 or better.",
@@ -330,5 +344,6 @@ export {
   initToonish,
   letters,
   preset_default as preset,
+  shot,
   speedLines
 };
