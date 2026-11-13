@@ -1054,6 +1054,26 @@ html.toon-js .toon-reveal.toon-in {
   border-top-right-radius: 4px;
 }
 
+/* A 2px outline around the whole stack and 1px dividers inside it. The stack is column-reverse,
+     so the first segment is the bottom one. A hatch segment meets its neighbour with no divider. */
+
+.toon-bar-stack > .toon-bar-seg {
+  border-width: 0 2px 1px;
+}
+
+.toon-bar-stack > .toon-bar-seg:first-child {
+  border-bottom-width: 2px;
+}
+
+.toon-bar-stack > .toon-bar-seg:last-child {
+  border-top-width: 2px;
+}
+
+.toon-bar-stack > .toon-bar-seg-hatch:not(:first-child),
+  .toon-bar-stack > .toon-bar-seg-hatch + .toon-bar-seg {
+  border-bottom-width: 0;
+}
+
 .toon-bar-seg-red {
   --tw-bg-opacity: 1;
   background-color: rgb(242 112 106 / var(--tw-bg-opacity, 1));

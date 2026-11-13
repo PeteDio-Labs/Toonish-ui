@@ -16,6 +16,7 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - In `toon-bars`, the red underline under the current day overlapped the date below it. Each day label now has 8px of bottom padding, so the underline sits clear of the date.
+- In `toon-bars`, adjacent segments drew a 4px line between colours. The stack now has a 2px outline with 1px dividers inside, and a hatch segment meets its neighbour with no divider.
 - In `toon-bars`, a column with no segments sat its labels 2px higher than the others, because its empty total was shorter than one line. The total's minimum height is now one line.
 
 ## [0.2.0] - 2026-11-13

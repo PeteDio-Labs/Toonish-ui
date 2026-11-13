@@ -200,6 +200,13 @@
   .toon-bar-stack { @apply absolute inset-x-[22%] inset-y-0 flex flex-col-reverse gap-0; }
   .toon-bar-seg { @apply box-border min-h-0 border-toon border-toon-ink bg-toon-blue; height: calc(var(--h, 0) * 1%); }
   .toon-bar-stack > .toon-bar-seg:last-child { @apply rounded-t-[4px]; }
+  /* A 2px outline around the whole stack and 1px dividers inside it. The stack is column-reverse,
+     so the first segment is the bottom one. A hatch segment meets its neighbour with no divider. */
+  .toon-bar-stack > .toon-bar-seg { border-width: 0 2px 1px; }
+  .toon-bar-stack > .toon-bar-seg:first-child { border-bottom-width: 2px; }
+  .toon-bar-stack > .toon-bar-seg:last-child { border-top-width: 2px; }
+  .toon-bar-stack > .toon-bar-seg-hatch:not(:first-child),
+  .toon-bar-stack > .toon-bar-seg-hatch + .toon-bar-seg { border-bottom-width: 0; }
   .toon-bar-seg-red { @apply bg-toon-red; }
   .toon-bar-seg-yellow { @apply bg-toon-yellow; }
   .toon-bar-seg-violet { @apply bg-toon-violet; }
