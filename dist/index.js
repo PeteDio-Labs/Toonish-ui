@@ -11,6 +11,166 @@ function clean(node) {
   }
   return node;
 }
+var DECK_QUERY = "(min-width: 768px)";
+function initDeck(deck) {
+  const pile = deck.querySelector(".toon-deck-pile");
+  const cards = pile ? [...pile.children].filter((c) => c instanceof HTMLElement && c.classList.contains("toon-deck-card")) : [];
+  const count = deck.querySelector(".toon-deck-count");
+  if (!pile || cards.length < 2)
+    return;
+  const n = cards.length;
+  const always = deck.dataset.toonDeck === "always";
+  const mq = window.matchMedia(DECK_QUERY);
+  const flies = new Map;
+  let i = 0;
+  const on = () => deck.hasAttribute("data-toon-deck-on");
+  const render = () => {
+    cards.forEach((c, k) => {
+      const pos = (k - i + n) % n;
+      c.dataset.pos = String(Math.min(pos, 3));
+      c.inert = pos !== 0;
+    });
+    if (count)
+      count.textContent = `${i + 1} / ${n}`;
+  };
+  const apply = () => {
+    if (always || !mq.matches) {
+      deck.setAttribute("data-toon-deck-on", "");
+      render();
+    } else {
+      end(false);
+      deck.removeAttribute("data-toon-deck-on");
+      cards.forEach((c) => {
+        delete c.dataset.pos;
+        delete c.dataset.dragging;
+        delete c.dataset.fly;
+        c.inert = false;
+      });
+    }
+  };
+  const fly = (card, kind, dir) => {
+    window.clearTimeout(flies.get(card));
+    delete card.dataset.fly;
+    card.offsetWidth;
+    card.style.setProperty("--dir", String(dir));
+    card.dataset.fly = kind;
+    flies.set(card, window.setTimeout(() => {
+      delete card.dataset.fly;
+      card.style.removeProperty("--dx");
+      card.style.removeProperty("--rot");
+    }, 320));
+  };
+  const go = (d, dir) => {
+    if (!on())
+      return;
+    const top = cards[i];
+    i = (i + d + n) % n;
+    render();
+    fly(d === 1 ? top : cards[i], d === 1 ? "out" : "in", dir);
+  };
+  deck.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b || !deck.contains(b))
+      return;
+    if (b.hasAttribute("data-toon-deck-next"))
+      go(1, -1);
+    else if (b.hasAttribute("data-toon-deck-prev"))
+      go(-1, 1);
+  });
+  deck.addEventListener("keydown", (e) => {
+    const t = e.target;
+    if (!on() || !t.closest(".toon-deck-controls") || e.altKey || e.ctrlKey || e.metaKey)
+      return;
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      go(1, -1);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      go(-1, 1);
+    }
+  });
+  let drag = null;
+  let suppress = false;
+  let suppressTimer = 0;
+  const end = (flip) => {
+    const d = drag;
+    drag = null;
+    if (!d)
+      return;
+    if (d.horizontal) {
+      try {
+        pile.releasePointerCapture(d.id);
+      } catch {}
+      delete d.card.dataset.dragging;
+      if (flip) {
+        suppress = true;
+        window.clearTimeout(suppressTimer);
+        suppressTimer = window.setTimeout(() => {
+          suppress = false;
+        }, 400);
+        d.card.style.setProperty("--dx", `${d.dx}px`);
+        d.card.style.setProperty("--rot", `${d.dx / 20}deg`);
+        go(1, d.dx < 0 ? -1 : 1);
+        return;
+      }
+    }
+    d.card.style.removeProperty("--dx");
+    d.card.style.removeProperty("--rot");
+  };
+  pile.addEventListener("pointerdown", (e) => {
+    if (!on() || !e.isPrimary || e.pointerType === "mouse" && e.button !== 0)
+      return;
+    suppress = false;
+    if (drag)
+      end(false);
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, card: cards[i], horizontal: false, dx: 0 };
+  });
+  pile.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id)
+      return;
+    const dx = e.clientX - drag.x;
+    const dy = e.clientY - drag.y;
+    if (!drag.horizontal) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10)
+        return;
+      if (Math.abs(dx) <= Math.abs(dy) * 1.5) {
+        drag = null;
+        return;
+      }
+      drag.horizontal = true;
+      pile.setPointerCapture(e.pointerId);
+      drag.card.dataset.dragging = "";
+    }
+    drag.dx = dx;
+    drag.card.style.setProperty("--dx", `${dx}px`);
+    drag.card.style.setProperty("--rot", `${dx / 20}deg`);
+  });
+  pile.addEventListener("pointerup", (e) => {
+    if (!drag || e.pointerId !== drag.id)
+      return;
+    const dt = Math.max(1, e.timeStamp - drag.t);
+    const speed = Math.abs(drag.dx) / dt;
+    end(drag.horizontal && (Math.abs(drag.dx) >= 48 || Math.abs(drag.dx) >= 20 && speed > 0.5));
+  });
+  pile.addEventListener("pointercancel", () => end(false));
+  pile.addEventListener("lostpointercapture", (e) => {
+    if (e.target === pile)
+      end(false);
+  });
+  pile.addEventListener("click", (e) => {
+    if (!suppress)
+      return;
+    suppress = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+  pile.addEventListener("dragstart", (e) => e.preventDefault());
+  if (mq.addEventListener)
+    mq.addEventListener("change", apply);
+  else
+    mq.addListener(apply);
+  apply();
+}
 function initToonish(root = document) {
   if (started.has(root))
     return;
@@ -31,6 +191,7 @@ function initToonish(root = document) {
       io.observe(n);
     });
   }
+  root.querySelectorAll("[data-toon-deck]").forEach(initDeck);
   root.querySelectorAll("[data-toon-toggle]").forEach((group) => {
     group.addEventListener("click", (e) => {
       const b = e.target.closest("button");
@@ -178,13 +339,18 @@ var shot = (o) => {
   if (!Number.isInteger(o.width) || !Number.isInteger(o.height) || o.width <= 0 || o.height <= 0)
     throw new Error("shot: width and height must be positive integers");
   const accent = accentOf(o.accent ?? "red");
+  if (o.href !== undefined && !o.hrefLabel?.trim())
+    throw new Error("shot: hrefLabel is required with href");
   const badge = o.badge ? `<span class="toon-badge ${BADGE[accent]} toon-shot-badge">${esc(o.badge)}</span>` : "";
-  const img = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? "" : ' loading="lazy"'}>`;
+  const corner = o.corner ? `<span class="toon-badge toon-badge-paper toon-shot-badge toon-shot-badge-end">${esc(o.corner)}</span>` : "";
+  const hint = o.hint ? `<span class="toon-badge toon-badge-paper toon-shot-hint" aria-hidden="true">${esc(o.hint)}</span>` : "";
+  const img0 = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? "" : ' loading="lazy"'}>`;
+  const img = o.href !== undefined ? `<a class="toon-shot-link" href="${esc(o.href)}" target="_blank" rel="noopener" aria-label="${esc(o.hrefLabel)}">${img0}</a>` : img0;
   const cap = o.caption ? `<figcaption class="toon-shot-cap"><span class="toon-caption">${esc(o.caption)}</span></figcaption>` : "";
   const lines = (o.transcript ?? "").split(`
 `).map((l) => l.trim()).filter(Boolean);
   const text = lines.length ? `<details class="toon-shot-text"${o.open ? " open" : ""}><summary>Transcript</summary>${lines.map((l) => `<p>${esc(l)}</p>`).join("")}</details>` : "";
-  return `<figure class="toon-shot${o.cls ? " " + esc(o.cls) : ""}"><div class="toon-shot-panel">${img}${badge}</div>${cap}${text}</figure>`;
+  return `<figure class="toon-shot${o.cls ? " " + esc(o.cls) : ""}"><div class="toon-shot-panel">${img}${badge}${corner}${hint}</div>${cap}${text}</figure>`;
 };
 var TONE_CLASS = { ...BADGE, paper: "toon-badge-paper", mist: "toon-badge-mist" };
 var toneOf = (tone) => {
@@ -267,6 +433,21 @@ var sfx = (text, accent = "red", opts = {}) => {
   const cls = ["toon-sfx", opts.size ? `toon-sfx-${opts.size}` : "", opts.ghost ? "toon-sfx-ghost" : "", opts.cls ? esc(opts.cls) : ""].filter(Boolean).join(" ");
   const spans = [...text].map((c, i) => `<span style="--n:${i};--r:${SFX_TURN[i % 6]}deg;--y:${SFX_RISE[i * 5 % 6]}em;--s:${SFX_SIZE[i * 7 % 6]}">${esc(c)}</span>`).join("");
   return `<span class="${cls}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}" aria-hidden="true">${spans}</span>`;
+};
+var CHEVRON = (d) => `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+var deck = (cards, o) => {
+  if (!o.label?.trim())
+    throw new Error("deck: label is required");
+  if (!cards.length)
+    throw new Error("deck: at least one card is required");
+  const cols = o.cols ?? 3;
+  if (!Number.isInteger(cols) || cols < 1 || cols > 6)
+    throw new Error("deck: cols must be a whole number from 1 to 6");
+  const items = cards.map((c, i) => `<div class="toon-deck-card" role="group" aria-label="${i + 1} of ${cards.length}">${c}</div>`).join("");
+  const prev = o.prevLabel ?? "Previous";
+  const next = o.nextLabel ?? "Next";
+  const controls = `<div class="toon-deck-controls"><button type="button" class="toon-btn toon-btn-paper toon-deck-btn" data-toon-deck-prev>${CHEVRON("M10 3 5 8l5 5")}${esc(prev)}</button><span class="toon-deck-count" role="status" aria-live="polite" aria-atomic="true">1 / ${cards.length}</span><button type="button" class="toon-btn toon-btn-yellow toon-deck-btn" data-toon-deck-next>${esc(next)}${CHEVRON("m6 3 5 5-5 5")}</button></div>`;
+  return `<div class="toon-deck${o.cls ? " " + esc(o.cls) : ""}" data-toon-deck="${o.always ? "always" : "phone"}" style="--toon-cols:${cols}"><div class="toon-deck-pile" role="group" aria-roledescription="carousel" aria-label="${esc(o.label)}">${items}</div>${controls}</div>`;
 };
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
@@ -427,6 +608,7 @@ export {
   bars,
   burst,
   chip,
+  deck,
   esc,
   figure,
   fitSize,

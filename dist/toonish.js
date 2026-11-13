@@ -12,6 +12,166 @@
     }
     return node;
   }
+  var DECK_QUERY = "(min-width: 768px)";
+  function initDeck(deck) {
+    const pile = deck.querySelector(".toon-deck-pile");
+    const cards = pile ? [...pile.children].filter((c) => c instanceof HTMLElement && c.classList.contains("toon-deck-card")) : [];
+    const count = deck.querySelector(".toon-deck-count");
+    if (!pile || cards.length < 2)
+      return;
+    const n = cards.length;
+    const always = deck.dataset.toonDeck === "always";
+    const mq = window.matchMedia(DECK_QUERY);
+    const flies = new Map;
+    let i = 0;
+    const on = () => deck.hasAttribute("data-toon-deck-on");
+    const render = () => {
+      cards.forEach((c, k) => {
+        const pos = (k - i + n) % n;
+        c.dataset.pos = String(Math.min(pos, 3));
+        c.inert = pos !== 0;
+      });
+      if (count)
+        count.textContent = `${i + 1} / ${n}`;
+    };
+    const apply = () => {
+      if (always || !mq.matches) {
+        deck.setAttribute("data-toon-deck-on", "");
+        render();
+      } else {
+        end(false);
+        deck.removeAttribute("data-toon-deck-on");
+        cards.forEach((c) => {
+          delete c.dataset.pos;
+          delete c.dataset.dragging;
+          delete c.dataset.fly;
+          c.inert = false;
+        });
+      }
+    };
+    const fly = (card, kind, dir) => {
+      window.clearTimeout(flies.get(card));
+      delete card.dataset.fly;
+      card.offsetWidth;
+      card.style.setProperty("--dir", String(dir));
+      card.dataset.fly = kind;
+      flies.set(card, window.setTimeout(() => {
+        delete card.dataset.fly;
+        card.style.removeProperty("--dx");
+        card.style.removeProperty("--rot");
+      }, 320));
+    };
+    const go = (d, dir) => {
+      if (!on())
+        return;
+      const top = cards[i];
+      i = (i + d + n) % n;
+      render();
+      fly(d === 1 ? top : cards[i], d === 1 ? "out" : "in", dir);
+    };
+    deck.addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b || !deck.contains(b))
+        return;
+      if (b.hasAttribute("data-toon-deck-next"))
+        go(1, -1);
+      else if (b.hasAttribute("data-toon-deck-prev"))
+        go(-1, 1);
+    });
+    deck.addEventListener("keydown", (e) => {
+      const t = e.target;
+      if (!on() || !t.closest(".toon-deck-controls") || e.altKey || e.ctrlKey || e.metaKey)
+        return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        go(1, -1);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        go(-1, 1);
+      }
+    });
+    let drag = null;
+    let suppress = false;
+    let suppressTimer = 0;
+    const end = (flip) => {
+      const d = drag;
+      drag = null;
+      if (!d)
+        return;
+      if (d.horizontal) {
+        try {
+          pile.releasePointerCapture(d.id);
+        } catch {}
+        delete d.card.dataset.dragging;
+        if (flip) {
+          suppress = true;
+          window.clearTimeout(suppressTimer);
+          suppressTimer = window.setTimeout(() => {
+            suppress = false;
+          }, 400);
+          d.card.style.setProperty("--dx", `${d.dx}px`);
+          d.card.style.setProperty("--rot", `${d.dx / 20}deg`);
+          go(1, d.dx < 0 ? -1 : 1);
+          return;
+        }
+      }
+      d.card.style.removeProperty("--dx");
+      d.card.style.removeProperty("--rot");
+    };
+    pile.addEventListener("pointerdown", (e) => {
+      if (!on() || !e.isPrimary || e.pointerType === "mouse" && e.button !== 0)
+        return;
+      suppress = false;
+      if (drag)
+        end(false);
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, card: cards[i], horizontal: false, dx: 0 };
+    });
+    pile.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id)
+        return;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      if (!drag.horizontal) {
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10)
+          return;
+        if (Math.abs(dx) <= Math.abs(dy) * 1.5) {
+          drag = null;
+          return;
+        }
+        drag.horizontal = true;
+        pile.setPointerCapture(e.pointerId);
+        drag.card.dataset.dragging = "";
+      }
+      drag.dx = dx;
+      drag.card.style.setProperty("--dx", `${dx}px`);
+      drag.card.style.setProperty("--rot", `${dx / 20}deg`);
+    });
+    pile.addEventListener("pointerup", (e) => {
+      if (!drag || e.pointerId !== drag.id)
+        return;
+      const dt = Math.max(1, e.timeStamp - drag.t);
+      const speed = Math.abs(drag.dx) / dt;
+      end(drag.horizontal && (Math.abs(drag.dx) >= 48 || Math.abs(drag.dx) >= 20 && speed > 0.5));
+    });
+    pile.addEventListener("pointercancel", () => end(false));
+    pile.addEventListener("lostpointercapture", (e) => {
+      if (e.target === pile)
+        end(false);
+    });
+    pile.addEventListener("click", (e) => {
+      if (!suppress)
+        return;
+      suppress = false;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+    pile.addEventListener("dragstart", (e) => e.preventDefault());
+    if (mq.addEventListener)
+      mq.addEventListener("change", apply);
+    else
+      mq.addListener(apply);
+    apply();
+  }
   function initToonish(root = document) {
     if (started.has(root))
       return;
@@ -32,6 +192,7 @@
         io.observe(n);
       });
     }
+    root.querySelectorAll("[data-toon-deck]").forEach(initDeck);
     root.querySelectorAll("[data-toon-toggle]").forEach((group) => {
       group.addEventListener("click", (e) => {
         const b = e.target.closest("button");

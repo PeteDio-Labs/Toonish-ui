@@ -229,6 +229,155 @@ try {
     await ctx.close();
   }
 
+  // Deck: a pile on a phone, a grid from md. Each case runs in a fresh context so a failed flip cannot leak into the next.
+  const deckPage = async (width: number, opts: Parameters<typeof browser.newContext>[0] = {}) => {
+    const c = await browser.newContext({ viewport: { width, height: 844 }, hasTouch: true, ...opts });
+    const p = await c.newPage();
+    const problems: string[] = [];
+    p.on('console', (m) => { if (m.type() === 'error') problems.push(m.text()); });
+    p.on('pageerror', (e) => problems.push(e.message));
+    await p.goto(server.url.href, { waitUntil: 'networkidle' });
+    return { c, p, problems };
+  };
+  const state = (p: Awaited<ReturnType<typeof deckPage>>['p'], sel = '#deck-demo .toon-deck') => p.$eval(sel, (d) => {
+    const cards = [...d.querySelectorAll<HTMLElement>('.toon-deck-card')];
+    const ctl = d.querySelector('.toon-deck-controls') as HTMLElement;
+    return {
+      on: d.hasAttribute('data-toon-deck-on'),
+      top: cards.findIndex((c) => !c.inert),
+      inert: cards.filter((c) => c.inert).length,
+      count: d.querySelector('.toon-deck-count')!.textContent,
+      controls: getComputedStyle(ctl).display,
+      pan: getComputedStyle(d.querySelector('.toon-deck-pile')!).touchAction,
+      tops: cards.map((c) => Math.round(c.offsetTop)),
+      lefts: cards.map((c) => c.offsetLeft),
+      heights: cards.map((c) => c.offsetHeight),
+    };
+  });
+  const overflowOf = (p: Awaited<ReturnType<typeof deckPage>>['p']) => p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  {
+    // 390 px: the pile.
+    const { c, p, problems } = await deckPage(390);
+    let st = await state(p);
+    eq(st.on, true, 'deck 390: the pile is on');
+    eq(st.top === 0 && st.inert === 2, true, `deck 390: the first card is active and the other two are inert (top ${st.top}, inert ${st.inert})`);
+    eq(st.count, '1 / 3', 'deck 390: the counter starts at 1 / 3');
+    eq(st.controls, 'flex', 'deck 390: the controls show');
+    eq(st.pan, 'pan-y', 'deck 390: the pile allows vertical panning only');
+    eq(new Set(st.heights).size, 1, `deck 390: every card is as tall as the tallest (${st.heights})`);
+    eq(await p.$$eval('#deck-demo .toon-deck-btn', (bs) => bs.every((b) => b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 44)), true, 'deck 390: both buttons are at least 44 px');
+    eq(await p.$eval('#deck-demo .toon-deck-pile', (el) => el.getAttribute('role') + '/' + el.getAttribute('aria-roledescription')), 'group/carousel', 'deck 390: the pile is a carousel group');
+    eq(await p.$$eval('#deck-demo > .toon-deck:first-child .toon-deck-card', (cs) => cs.map((x) => x.getAttribute('aria-label')).join()), '1 of 3,2 of 3,3 of 3', 'deck 390: each card is labelled "n of 3"');
+    // The under-cards peek: card 2 and 3 reach past the top card's right and bottom edges.
+    const peek = await p.$$eval('#deck-demo .toon-deck-card', (cs) => cs.map((x) => { const r = x.getBoundingClientRect(); return [Math.round(r.right), Math.round(r.bottom)]; }));
+    eq(peek[1]![0]! > peek[0]![0]! && peek[2]![0]! > peek[1]![0]! && peek[1]![1]! > peek[0]![1]! && peek[2]![1]! > peek[1]![1]!, true, `deck 390: the under-cards peek out down and to the right (${JSON.stringify(peek)})`);
+    await p.$eval('#deck-demo', (e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await p.screenshot({ path: 'test/out/deck-390-1.png' });
+    await p.focus('#deck-demo [data-toon-deck-next]');
+    await p.click('#deck-demo [data-toon-deck-next]');
+    eq((await overflowOf(p)) <= 0, true, 'deck 390: no horizontal overflow while a card flies out');
+    st = await state(p);
+    eq(st.top === 1 && st.inert === 2 && st.count === '2 / 3', true, `deck 390: Next flips to card 2 (top ${st.top}, ${st.count})`);
+    eq(await p.evaluate(() => document.activeElement?.hasAttribute('data-toon-deck-next')), true, 'deck 390: focus stays on Next after a flip');
+    await p.click('#deck-demo [data-toon-deck-next]');
+    await p.click('#deck-demo [data-toon-deck-next]');
+    st = await state(p);
+    eq(st.top === 0 && st.count === '1 / 3', true, `deck 390: Next on the last card wraps to the first (top ${st.top}, ${st.count})`);
+    await p.click('#deck-demo [data-toon-deck-prev]');
+    eq((await overflowOf(p)) <= 0, true, 'deck 390: no horizontal overflow while a card flies in');
+    st = await state(p);
+    eq(st.top === 2 && st.count === '3 / 3', true, `deck 390: Previous on the first card wraps to the last (top ${st.top}, ${st.count})`);
+    await p.keyboard.press('ArrowRight');
+    st = await state(p);
+    eq(st.top === 0 && st.count === '1 / 3', true, 'deck 390: ArrowRight on a control flips forward');
+    await p.keyboard.press('ArrowLeft');
+    st = await state(p);
+    eq(st.top === 2, true, 'deck 390: ArrowLeft on a control flips back');
+    await p.screenshot({ path: 'test/out/deck-390-2.png' });
+    eq((await overflowOf(p)) <= 0, true, 'deck 390: no horizontal overflow after flipping');
+    eq(problems.length, 0, `deck 390: no console errors (${problems.join('; ')})`);
+    await c.close();
+  }
+  {
+    // Touch: a horizontal swipe flips, a vertical drag scrolls the page, a tap on a link navigates.
+    const { c, p, problems } = await deckPage(390);
+    await p.$eval('#deck-demo', (e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    const cdp = await c.newCDPSession(p);
+    const touch = async (type: 'touchStart' | 'touchMove' | 'touchEnd', x?: number, y?: number) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: x === undefined ? [] : [{ x, y: y! }] });
+    const drag = async (x0: number, y0: number, dx: number, dy: number, steps = 8) => {
+      await touch('touchStart', x0, y0);
+      for (let k = 1; k <= steps; k++) await touch('touchMove', x0 + (dx * k) / steps, y0 + (dy * k) / steps);
+      await touch('touchEnd');
+      await p.waitForTimeout(450);
+    };
+    const box = (await (await p.$('#deck-demo .toon-deck-pile'))!.boundingBox())!;
+    const cx = box.x + box.width / 2;
+    const cy = box.y + box.height / 2;
+    await drag(cx + 60, cy, -140, 6);
+    let st = await state(p);
+    eq(st.top === 1 && st.count === '2 / 3', true, `deck swipe: a swipe left flips to card 2 (top ${st.top}, ${st.count})`);
+    await drag(cx - 60, cy, 140, -6);
+    st = await state(p);
+    eq(st.top === 2 && st.count === '3 / 3', true, `deck swipe: a swipe right flips on to card 3 (top ${st.top}, ${st.count})`);
+    await drag(cx, cy, 20, 4); // short and slow: springs back
+    st = await state(p);
+    eq(st.top === 2, true, `deck swipe: a short drag springs back (top ${st.top})`);
+    const y0 = await p.evaluate(() => scrollY);
+    await drag(cx, cy + 10, 6, 160);
+    const y1 = await p.evaluate(() => scrollY);
+    st = await state(p);
+    eq(y1 < y0 - 40, true, `deck swipe: a vertical drag that starts on the deck scrolls the page (scrollY ${y0} -> ${y1})`);
+    eq(st.top === 2, true, 'deck swipe: a vertical drag does not flip');
+    // Tap a link in the top card. Bring card 1 up first, then tap its link.
+    await p.click('#deck-demo [data-toon-deck-next]');
+    await p.$eval('#deck-demo', (e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    const lb = (await (await p.$('#deck-link'))!.boundingBox())!;
+    await p.touchscreen.tap(lb.x + lb.width / 2, lb.y + lb.height / 2);
+    eq(await p.evaluate(() => location.hash), '#tapped', 'deck swipe: a tap on a link in the top card navigates');
+    eq((await overflowOf(p)) <= 0, true, 'deck swipe: no horizontal overflow');
+    eq(problems.length, 0, `deck swipe: no console errors (${problems.join('; ')})`);
+    await c.close();
+  }
+  {
+    // 1280 px: no pile, a grid of three. The `always` deck stays on.
+    const { c, p, problems } = await deckPage(1280);
+    const st = await state(p);
+    eq(st.on, false, 'deck 1280: the pile is off');
+    eq(st.inert, 0, 'deck 1280: no card is inert');
+    eq(st.controls, 'none', 'deck 1280: the controls are hidden');
+    eq(new Set(st.tops).size === 1 && new Set(st.lefts).size === 3, true, `deck 1280: the cards lay out in a row of three (tops ${st.tops}, lefts ${st.lefts})`);
+    const al = await state(p, '#deck-demo .deck-always');
+    eq(al.on && al.inert === 1 && al.controls === 'flex', true, `deck 1280: an "always" deck stays a pile (on ${al.on}, inert ${al.inert}, controls ${al.controls})`);
+    // Crossing the breakpoint updates the pile without a reload.
+    await p.setViewportSize({ width: 390, height: 844 });
+    await p.waitForTimeout(150);
+    let sm = await state(p);
+    eq(sm.on && sm.inert === 2, true, `deck resize: narrowing to 390 turns the pile on (on ${sm.on}, inert ${sm.inert})`);
+    await p.click('#deck-demo [data-toon-deck-next]');
+    await p.setViewportSize({ width: 1280, height: 844 });
+    await p.waitForTimeout(150);
+    sm = await state(p);
+    eq(!sm.on && sm.inert === 0 && sm.controls === 'none', true, `deck resize: widening to 1280 turns it off and clears inert (on ${sm.on}, inert ${sm.inert})`);
+    await p.setViewportSize({ width: 390, height: 844 });
+    await p.waitForTimeout(150);
+    sm = await state(p);
+    eq(sm.on && sm.top === 1 && sm.count === '2 / 3', true, `deck resize: the pile keeps its place when it returns (top ${sm.top}, ${sm.count})`);
+    eq(problems.length, 0, `deck 1280: no console errors (${problems.join('; ')})`);
+    await c.close();
+  }
+  for (const [what, opts] of [['reduced motion', { reducedMotion: 'reduce' }], ['data-motion=off', {}]] as const) {
+    // With motion off a flip still completes, because the state does not wait on an animation.
+    const { c, p } = await deckPage(390, opts);
+    if (what === 'data-motion=off') await p.evaluate(() => { document.documentElement.dataset.motion = 'off'; });
+    await p.click('#deck-demo [data-toon-deck-next]');
+    const st = await state(p);
+    eq(st.top === 1 && st.count === '2 / 3', true, `deck ${what}: a click still flips (top ${st.top}, ${st.count})`);
+    eq(await p.$eval('#deck-demo .toon-deck-card', (x) => getComputedStyle(x).animationName), 'none', `deck ${what}: the flip animation is off`);
+    eq(await p.$eval('#deck-demo .toon-deck-card', (x) => getComputedStyle(x).transitionDuration), '0s', `deck ${what}: the card transition is off`);
+    eq(await p.$eval('#deck-demo .toon-deck-card[data-pos="1"]', (x) => getComputedStyle(x).transform !== 'none'), true, `deck ${what}: the under-cards keep their resting tilt`);
+    await c.close();
+  }
+
   // Reduced motion: every animation stops.
   const ctx = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await ctx.newPage();
@@ -254,4 +403,4 @@ if (fail.length) {
   console.error(`browser check FAILED, ${fail.length} of ${checks} checks:\n- ${fail.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`browser check passed: ${checks} checks at 1280 px and 390 px, plus reduced motion; screenshots in test/out/`);
+console.log(`browser check passed: ${checks} checks at 1280 px and 390 px, plus the deck, and reduced motion; screenshots in test/out/`);

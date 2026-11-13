@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation page is /ui.html on pdlab.dev.
-import { badge, bars, burst, chip, esc, figure, kicker, letters, row, shot, speedLines, stat, steps, strip, sfx } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, row, shot, speedLines, stat, steps, strip, sfx } from '../src/markup.ts';
 
 export const fixture = (): string => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -42,6 +42,15 @@ ${steps([{ title: 'One task, one session, one branch.', body: 'Each task gets it
 <div style="position:relative;height:120px" id="sfx-box">${sfx('MERGE!', 'red', { cls: 'left-0 top-0' })}${sfx('click', 'yellow', { size: 'sm' })}${sfx('SHIP!', 'blue', { size: 'lg', ghost: true })}</div>
 <div class="toon-panel" id="panel">${kicker('03', 'About')}<div class="toon-bubble toon-bubble-left" id="bubble-left">Left tail.</div><div class="toon-bubble toon-bubble-up" id="bubble-up">Up tail.</div>
 <img class="toon-tilt-l" id="tilt-l" alt="A tilted placeholder" width="120" height="120" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23ccc'/%3E%3C/svg%3E"><div class="toon-frame toon-tilt-r" id="tilt-r" style="width:120px">Tilt right</div></div>
+</section>
+<section id="deck-demo">
+${deck([
+  '<article class="toon-card"><h3 class="m-0">Card one</h3><p>Short card.</p><a class="toon-link" id="deck-link" href="#tapped">Read one</a></article>',
+  '<article class="toon-card"><h3 class="m-0">Card two</h3><p>A longer card with more words so the pile has a tallest card that sets the height of every other card in the stack.</p><a class="toon-link" href="#two">Read two</a></article>',
+  '<article class="toon-card"><h3 class="m-0">Card three</h3><p>Third card.</p></article>',
+], { label: 'Sample cards' })}
+<p>Text after the deck.</p>
+${deck(['<div class="toon-card">Always one</div>', '<div class="toon-card">Always two</div>'], { label: 'Always on', always: true, cols: 2, cls: 'deck-always' })}
 </section>
 </main><footer class="toon-footer"><p>Footer</p></footer></div>
 <script src="/dist/toonish.js"></script></body></html>`;

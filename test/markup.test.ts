@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, steps, sfx } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, steps, sfx, deck } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -200,4 +200,48 @@ test('sfx escapes its text and class and rejects bad input', () => {
   expect(() => sfx('  ')).toThrow('required');
   expect(() => sfx('x', 'nope' as never)).toThrow('unknown accent');
   expect(() => sfx('x', 'red', { size: 'huge' as never })).toThrow('unknown sfx size');
+});
+
+test('deck wraps each card in a labelled group and leaves card HTML as written', () => {
+  const html = deck(['<p>one</p>', '<p>two</p>', '<p>three</p>'], { label: 'Recent work' });
+  expect(html.match(/class="toon-deck-card"/g)).toHaveLength(3);
+  expect(html).toContain('aria-label="1 of 3"');
+  expect(html).toContain('aria-label="3 of 3"');
+  expect(html).toContain('<p>two</p>');
+  expect(html).toContain('role="group" aria-roledescription="carousel" aria-label="Recent work"');
+  expect(html).toContain('data-toon-deck="phone"');
+  expect(html).toContain('--toon-cols:3');
+});
+
+test('deck writes two real buttons and a polite counter, and an option keeps it on at every width', () => {
+  const html = deck(['a', 'b'], { label: 'x', always: true, cols: 2, prevLabel: 'Back', nextLabel: 'Forward' });
+  expect(html.match(/<button type="button"/g)).toHaveLength(2);
+  expect(html).toContain('data-toon-deck-prev');
+  expect(html).toContain('data-toon-deck-next');
+  expect(html).toContain('aria-live="polite"');
+  expect(html).toContain('>1 / 2<');
+  expect(html).toContain('data-toon-deck="always"');
+  expect(html).toContain('--toon-cols:2');
+  expect(html).toContain('Back');
+  expect(html).toContain('Forward');
+});
+
+test('deck escapes its label, button text and class, and throws on an empty pile or a blank label', () => {
+  const evil = '"><img src=x onerror=alert(1)>';
+  const html = deck(['a'], { label: evil, prevLabel: evil, nextLabel: evil, cls: evil });
+  expect(html.includes('<img')).toBe(false);
+  expect(html).toContain('&quot;&gt;&lt;img');
+  expect(() => deck([], { label: 'x' })).toThrow('at least one card');
+  expect(() => deck(['a'], { label: '  ' })).toThrow('label is required');
+  expect(() => deck(['a'], { label: 'x', cols: 0 })).toThrow('cols');
+});
+
+test('shot can link its picture and add a corner number and a hint, and requires a name for the link', () => {
+  const base = { src: '/a.png', alt: 'A', width: 10, height: 10, caption: 'c' };
+  const html = shot({ ...base, href: '/a.png', hrefLabel: 'Open the full-size picture', corner: '1 / 4', hint: 'Tap to enlarge' });
+  expect(html).toContain('<a class="toon-shot-link" href="/a.png" target="_blank" rel="noopener" aria-label="Open the full-size picture"><img');
+  expect(html).toContain('toon-shot-badge-end">1 / 4<');
+  expect(html).toContain('toon-shot-hint" aria-hidden="true">Tap to enlarge<');
+  expect(() => shot({ ...base, href: '/a.png' })).toThrow('hrefLabel');
+  expect(shot(base)).not.toContain('toon-shot-link');
 });

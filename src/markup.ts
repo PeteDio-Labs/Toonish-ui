@@ -73,25 +73,37 @@ export interface ShotOptions {
   transcript?: string;
   /** Show the transcript expanded. */
   open?: boolean;
+  /** Makes the whole picture a link to this URL (the full-size file), opened in a new tab. Needs `hrefLabel`. */
+  href?: string;
+  /** The link's accessible name, such as "Open the full-size picture". Required with `href`. */
+  hrefLabel?: string;
+  /** A short second badge on the top right corner, such as "1 / 4" for a picture in a sequence. */
+  corner?: string;
+  /** A "Tap to enlarge" style hint on the bottom right corner. It hides from `lg`. Use it with `href`. */
+  hint?: string;
   /** Load the image at once. Use it for a shot above the fold; the default is lazy. */
   eager?: boolean;
   cls?: string;
 }
 
-/** A screenshot in a comic panel: `<figure>` with the image, an optional corner badge, a caption and a transcript. */
+/** A screenshot in a comic panel: `<figure>` with the image, optional corner badges, a caption and a transcript. With `href`, the image is a link. */
 export const shot = (o: ShotOptions): string => {
   if (!o.alt.trim()) throw new Error('shot: alt text is required');
   if (!Number.isInteger(o.width) || !Number.isInteger(o.height) || o.width <= 0 || o.height <= 0)
     throw new Error('shot: width and height must be positive integers');
   const accent = accentOf(o.accent ?? 'red');
+  if (o.href !== undefined && !o.hrefLabel?.trim()) throw new Error('shot: hrefLabel is required with href');
   const badge = o.badge ? `<span class="toon-badge ${BADGE[accent]} toon-shot-badge">${esc(o.badge)}</span>` : '';
-  const img = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? '' : ' loading="lazy"'}>`;
+  const corner = o.corner ? `<span class="toon-badge toon-badge-paper toon-shot-badge toon-shot-badge-end">${esc(o.corner)}</span>` : '';
+  const hint = o.hint ? `<span class="toon-badge toon-badge-paper toon-shot-hint" aria-hidden="true">${esc(o.hint)}</span>` : '';
+  const img0 = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? '' : ' loading="lazy"'}>`;
+  const img = o.href !== undefined ? `<a class="toon-shot-link" href="${esc(o.href)}" target="_blank" rel="noopener" aria-label="${esc(o.hrefLabel!)}">${img0}</a>` : img0;
   const cap = o.caption ? `<figcaption class="toon-shot-cap"><span class="toon-caption">${esc(o.caption)}</span></figcaption>` : '';
   const lines = (o.transcript ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
   const text = lines.length
     ? `<details class="toon-shot-text"${o.open ? ' open' : ''}><summary>Transcript</summary>${lines.map((l) => `<p>${esc(l)}</p>`).join('')}</details>`
     : '';
-  return `<figure class="toon-shot${o.cls ? ' ' + esc(o.cls) : ''}"><div class="toon-shot-panel">${img}${badge}</div>${cap}${text}</figure>`;
+  return `<figure class="toon-shot${o.cls ? ' ' + esc(o.cls) : ''}"><div class="toon-shot-panel">${img}${badge}${corner}${hint}</div>${cap}${text}</figure>`;
 };
 
 /** A badge colour: an accent, or `paper` or `mist` for a neutral. */
@@ -266,4 +278,38 @@ export const sfx = (text: string, accent: Accent = 'red', opts: SfxOptions = {})
   const cls = ['toon-sfx', opts.size ? `toon-sfx-${opts.size}` : '', opts.ghost ? 'toon-sfx-ghost' : '', opts.cls ? esc(opts.cls) : ''].filter(Boolean).join(' ');
   const spans = [...text].map((c, i) => `<span style="--n:${i};--r:${SFX_TURN[i % 6]}deg;--y:${SFX_RISE[(i * 5) % 6]}em;--s:${SFX_SIZE[(i * 7) % 6]}">${esc(c)}</span>`).join('');
   return `<span class="${cls}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}" aria-hidden="true">${spans}</span>`;
+};
+
+export interface DeckOptions {
+  /** Names the pile for a screen reader, such as "More recent case studies". Required. */
+  label: string;
+  /** Keep the pile at every width. By default it turns off from `md`, and the cards lay out as a grid. */
+  always?: boolean;
+  /** Columns of the grid from `md` up. Defaults to 3. */
+  cols?: number;
+  /** Text of the previous and next buttons. Default "Previous" and "Next". */
+  prevLabel?: string;
+  nextLabel?: string;
+  cls?: string;
+}
+
+const CHEVRON = (d: string) => `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/**
+ * A pile of cards you flip through on a phone, and a grid from `md` up. Pass each card as HTML: the helper wraps it and
+ * does NOT escape it, because a card is markup you wrote, so escape any text you put in a card yourself. It does escape
+ * `label` and every other string option. `initToonish` (dist/toonish.js) builds the pile; without script the cards
+ * are a plain list and the controls stay hidden. Each card is a group labelled "1 of 3" and every card but the top one
+ * is `inert` while the pile is on.
+ */
+export const deck = (cards: string[], o: DeckOptions): string => {
+  if (!o.label?.trim()) throw new Error('deck: label is required');
+  if (!cards.length) throw new Error('deck: at least one card is required');
+  const cols = o.cols ?? 3;
+  if (!Number.isInteger(cols) || cols < 1 || cols > 6) throw new Error('deck: cols must be a whole number from 1 to 6');
+  const items = cards.map((c, i) => `<div class="toon-deck-card" role="group" aria-label="${i + 1} of ${cards.length}">${c}</div>`).join('');
+  const prev = o.prevLabel ?? 'Previous';
+  const next = o.nextLabel ?? 'Next';
+  const controls = `<div class="toon-deck-controls"><button type="button" class="toon-btn toon-btn-paper toon-deck-btn" data-toon-deck-prev>${CHEVRON('M10 3 5 8l5 5')}${esc(prev)}</button><span class="toon-deck-count" role="status" aria-live="polite" aria-atomic="true">1 / ${cards.length}</span><button type="button" class="toon-btn toon-btn-yellow toon-deck-btn" data-toon-deck-next>${esc(next)}${CHEVRON('m6 3 5 5-5 5')}</button></div>`;
+  return `<div class="toon-deck${o.cls ? ' ' + esc(o.cls) : ''}" data-toon-deck="${o.always ? 'always' : 'phone'}" style="--toon-cols:${cols}"><div class="toon-deck-pile" role="group" aria-roledescription="carousel" aria-label="${esc(o.label)}">${items}</div>${controls}</div>`;
 };

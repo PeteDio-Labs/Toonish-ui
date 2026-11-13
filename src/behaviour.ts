@@ -1,4 +1,4 @@
-// Browser behaviour for the kit: toggle groups, modals and scroll reveal. No framework, no dependencies.
+// Browser behaviour for the kit: toggle groups, modals, scroll reveal and the card deck. No framework, no dependencies.
 // dist/toonish.js runs it on load. Import `initToonish` from the package instead to run it yourself.
 //
 // Modals: a native <dialog> gives the focus trap, Esc and an inert page. This adds opening, backdrop taps, scroll lock,
@@ -17,6 +17,152 @@ function clean(node: Node): Node {
     }
   }
   return node;
+}
+
+const DECK_QUERY = '(min-width: 768px)';
+
+/**
+ * A card deck (see `deck()` in markup.ts). The pile is on at phone width, or at every width when the value is `always`.
+ * The breakpoint is the one in the CSS, read through matchMedia, so a rotated phone or a resized window updates it.
+ * State changes at once on every flip. The slide is a CSS animation that the motion rules cancel, so nothing here waits on
+ * `transitionend` or `animationend`.
+ */
+function initDeck(deck: HTMLElement): void {
+  const pile = deck.querySelector<HTMLElement>('.toon-deck-pile');
+  const cards = pile ? [...pile.children].filter((c): c is HTMLElement => c instanceof HTMLElement && c.classList.contains('toon-deck-card')) : [];
+  const count = deck.querySelector<HTMLElement>('.toon-deck-count');
+  if (!pile || cards.length < 2) return;
+  const n = cards.length;
+  const always = deck.dataset.toonDeck === 'always';
+  const mq = window.matchMedia(DECK_QUERY);
+  const flies = new Map<HTMLElement, number>();
+  let i = 0;
+
+  const on = () => deck.hasAttribute('data-toon-deck-on');
+  const render = () => {
+    cards.forEach((c, k) => {
+      const pos = (k - i + n) % n;
+      c.dataset.pos = String(Math.min(pos, 3));
+      c.inert = pos !== 0;
+    });
+    if (count) count.textContent = `${i + 1} / ${n}`;
+  };
+  const apply = () => {
+    if (always || !mq.matches) {
+      deck.setAttribute('data-toon-deck-on', '');
+      render();
+    } else {
+      end(false); // the breakpoint changed mid-drag
+      deck.removeAttribute('data-toon-deck-on');
+      cards.forEach((c) => {
+        delete c.dataset.pos;
+        delete c.dataset.dragging;
+        delete c.dataset.fly;
+        c.inert = false;
+      });
+    }
+  };
+  const fly = (card: HTMLElement, kind: 'in' | 'out', dir: number) => {
+    window.clearTimeout(flies.get(card));
+    delete card.dataset.fly;
+    void card.offsetWidth; // restart the animation on a quick second flip
+    card.style.setProperty('--dir', String(dir));
+    card.dataset.fly = kind;
+    flies.set(card, window.setTimeout(() => {
+      delete card.dataset.fly;
+      card.style.removeProperty('--dx');
+      card.style.removeProperty('--rot');
+    }, 320));
+  };
+  /** Moves by `d` cards. Forward, the top card leaves toward `dir`. Back, the card that returns arrives from `dir`. */
+  const go = (d: 1 | -1, dir: number) => {
+    if (!on()) return;
+    const top = cards[i]!;
+    i = (i + d + n) % n;
+    render();
+    fly(d === 1 ? top : cards[i]!, d === 1 ? 'out' : 'in', dir);
+  };
+
+  deck.addEventListener('click', (e) => {
+    const b = (e.target as Element).closest('button');
+    if (!b || !deck.contains(b)) return;
+    if (b.hasAttribute('data-toon-deck-next')) go(1, -1);
+    else if (b.hasAttribute('data-toon-deck-prev')) go(-1, 1);
+  });
+  deck.addEventListener('keydown', (e) => {
+    const t = e.target as Element;
+    if (!on() || !t.closest('.toon-deck-controls') || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(1, -1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1, 1); }
+  });
+
+  // Swipe. A drag is tracked from pointerdown but the pointer is captured only once it is clearly horizontal, so a vertical
+  // drag is never touched and the page scrolls (touch-action: pan-y does the rest). A tap on a link still navigates: the
+  // click is suppressed only after a drag that flipped.
+  let drag: { id: number; x: number; y: number; t: number; card: HTMLElement; horizontal: boolean; dx: number } | null = null;
+  let suppress = false;
+  let suppressTimer = 0;
+  const end = (flip: boolean) => {
+    const d = drag;
+    drag = null;
+    if (!d) return;
+    if (d.horizontal) {
+      try { pile.releasePointerCapture(d.id); } catch { /* the pointer is already gone */ }
+      delete d.card.dataset.dragging;
+      if (flip) {
+        suppress = true;
+        window.clearTimeout(suppressTimer);
+        suppressTimer = window.setTimeout(() => { suppress = false; }, 400);
+        d.card.style.setProperty('--dx', `${d.dx}px`);
+        d.card.style.setProperty('--rot', `${d.dx / 20}deg`);
+        go(1, d.dx < 0 ? -1 : 1);
+        return;
+      }
+    }
+    d.card.style.removeProperty('--dx');
+    d.card.style.removeProperty('--rot');
+  };
+  pile.addEventListener('pointerdown', (e) => {
+    if (!on() || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    suppress = false; // a press starts fresh: a swipe that fired no click must not swallow this tap
+    if (drag) end(false); // a press released outside the pile sent no pointerup, so drop its stale drag
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, card: cards[i]!, horizontal: false, dx: 0 };
+  });
+  pile.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x;
+    const dy = e.clientY - drag.y;
+    if (!drag.horizontal) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      if (Math.abs(dx) <= Math.abs(dy) * 1.5) { drag = null; return; } // vertical, or too diagonal: leave it to the page
+      drag.horizontal = true;
+      pile.setPointerCapture(e.pointerId);
+      drag.card.dataset.dragging = '';
+    }
+    drag.dx = dx;
+    drag.card.style.setProperty('--dx', `${dx}px`);
+    drag.card.style.setProperty('--rot', `${dx / 20}deg`);
+  });
+  pile.addEventListener('pointerup', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dt = Math.max(1, e.timeStamp - drag.t);
+    const speed = Math.abs(drag.dx) / dt; // px per ms
+    end(drag.horizontal && (Math.abs(drag.dx) >= 48 || (Math.abs(drag.dx) >= 20 && speed > 0.5)));
+  });
+  pile.addEventListener('pointercancel', () => end(false));
+  // The event bubbles, and the browser also reports the release of its implicit capture on the card, so only the pile's own counts.
+  pile.addEventListener('lostpointercapture', (e) => { if (e.target === pile) end(false); });
+  pile.addEventListener('click', (e) => {
+    if (!suppress) return;
+    suppress = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+  pile.addEventListener('dragstart', (e) => e.preventDefault()); // a link or picture must not start a native drag
+
+  if (mq.addEventListener) mq.addEventListener('change', apply);
+  else mq.addListener(apply);
+  apply();
 }
 
 export function initToonish(root: Document = document): void {
@@ -43,6 +189,8 @@ export function initToonish(root: Document = document): void {
       io.observe(n);
     });
   }
+
+  root.querySelectorAll<HTMLElement>('[data-toon-deck]').forEach(initDeck);
 
   // Toggle groups: one pressed button at a time, with a bounce on the newly pressed one.
   root.querySelectorAll<HTMLElement>('[data-toon-toggle]').forEach((group) => {
