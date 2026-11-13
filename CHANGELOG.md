@@ -19,6 +19,10 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 - In `toon-bars`, adjacent segments drew a 4px line between colours. The stack now has a 2px outline with 1px dividers inside, and a hatch segment meets its neighbour with no divider.
 - In `toon-bars`, a column with no segments sat its labels 2px higher than the others, because its empty total was shorter than one line. The total's minimum height is now one line.
 
+### Tests
+
+- Browser checks cover the `toon-bars` divider rules (a hatch at the bottom, in the middle and beside another hatch), the label alignment across an empty column, and the room under the current day's label.
+
 ## [0.2.0] - 2026-11-13
 
 ### Added
