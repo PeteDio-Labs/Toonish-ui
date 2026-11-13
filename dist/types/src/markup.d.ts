@@ -41,11 +41,19 @@ export interface ShotOptions {
     transcript?: string;
     /** Show the transcript expanded. */
     open?: boolean;
+    /** Makes the whole picture a link to this URL (the full-size file), opened in a new tab. Needs `hrefLabel`. */
+    href?: string;
+    /** The link's accessible name, such as "Open the full-size picture". Required with `href`. */
+    hrefLabel?: string;
+    /** A short second badge on the top right corner, such as "1 / 4" for a picture in a sequence. */
+    corner?: string;
+    /** A "Tap to enlarge" style hint on the bottom right corner. It hides from `lg`. Use it with `href`. */
+    hint?: string;
     /** Load the image at once. Use it for a shot above the fold; the default is lazy. */
     eager?: boolean;
     cls?: string;
 }
-/** A screenshot in a comic panel: `<figure>` with the image, an optional corner badge, a caption and a transcript. */
+/** A screenshot in a comic panel: `<figure>` with the image, optional corner badges, a caption and a transcript. With `href`, the image is a link. */
 export declare const shot: (o: ShotOptions) => string;
 /** A badge colour: an accent, or `paper` or `mist` for a neutral. */
 export type Tone = Accent | 'paper' | 'mist';
@@ -144,3 +152,23 @@ export interface SfxOptions {
  * Decoration only: it is `aria-hidden`, so put real meaning in text elsewhere. Place it with `absolute` inside a `relative` parent.
  */
 export declare const sfx: (text: string, accent?: Accent, opts?: SfxOptions) => string;
+export interface DeckOptions {
+    /** Names the pile for a screen reader, such as "More recent case studies". Required. */
+    label: string;
+    /** Keep the pile at every width. By default it turns off from `md`, and the cards lay out as a grid. */
+    always?: boolean;
+    /** Columns of the grid from `md` up. Defaults to 3. */
+    cols?: number;
+    /** Text of the previous and next buttons. Default "Previous" and "Next". */
+    prevLabel?: string;
+    nextLabel?: string;
+    cls?: string;
+}
+/**
+ * A pile of cards you flip through on a phone, and a grid from `md` up. Pass each card as HTML: the helper wraps it and
+ * does NOT escape it, because a card is markup you wrote, so escape any text you put in a card yourself. It does escape
+ * `label` and every other string option. `initToonish` (dist/toonish.js) builds the pile; without script the cards
+ * are a plain list and the controls stay hidden. Each card is a group labelled "1 of 3" and every card but the top one
+ * is `inert` while the pile is on.
+ */
+export declare const deck: (cards: string[], o: DeckOptions) => string;
