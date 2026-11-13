@@ -1,11 +1,15 @@
 name: release
 
-# A push of a v* tag builds the package, checks it, and attaches it to a GitHub release.
+# Two ways to start it, with the same checks:
+# - Push a v* tag. The workflow builds the package and attaches it to a GitHub release.
+# - Run it by hand on main (Actions > release > Run workflow). The workflow creates the tag vX.Y.Z from
+#   package.json at the head of main, then builds and releases. A tag created this way does not start a second run.
 # Consumers install the tag itself: bun add github:PeteDio-Labs/toonish-ui#vX.Y.Z
 
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,9 +29,15 @@ jobs:
       - name: Check the tag, the version and the changelog agree
         run: |
           set -eu
-          tag="${GITHUB_REF_NAME}"
           version=$(bun -e 'console.log(require("./package.json").version)')
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            test "$GITHUB_REF" = "refs/heads/main" || { echo "run this workflow on main, not on $GITHUB_REF"; exit 1; }
+            tag="v$version"
+          fi
           test "$tag" = "v$version" || { echo "tag $tag does not match package.json version $version"; exit 1; }
+          echo "TAG=$tag" >> "$GITHUB_ENV"
           awk -v v="$version" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md > release-notes.md
           test -s release-notes.md || { echo "CHANGELOG.md has no section for $version"; exit 1; }
           echo "release notes: $(wc -l < release-notes.md) lines for $version"
@@ -69,5 +79,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -eu
-          gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md toonish-ui-*.tgz SHA256SUMS
-          gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets | length' | xargs -I{} echo "release has {} assets"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            gh release create "$TAG" --verify-tag --title "$TAG" --notes-file release-notes.md toonish-ui-*.tgz SHA256SUMS
+          else
+            # The tag does not exist yet: create it at the commit this run built.
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file release-notes.md toonish-ui-*.tgz SHA256SUMS
+          fi
+          gh release view "$TAG" --json assets --jq '.assets | length' | xargs -I{} echo "release has {} assets"
