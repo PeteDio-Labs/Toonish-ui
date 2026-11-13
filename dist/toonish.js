@@ -39,6 +39,7 @@
         deck.setAttribute("data-toon-deck-on", "");
         render();
       } else {
+        end(false);
         deck.removeAttribute("data-toon-deck-on");
         cards.forEach((c) => {
           delete c.dataset.pos;
@@ -91,6 +92,7 @@
     });
     let drag = null;
     let suppress = false;
+    let suppressTimer = 0;
     const end = (flip) => {
       const d = drag;
       drag = null;
@@ -103,7 +105,8 @@
         delete d.card.dataset.dragging;
         if (flip) {
           suppress = true;
-          window.setTimeout(() => {
+          window.clearTimeout(suppressTimer);
+          suppressTimer = window.setTimeout(() => {
             suppress = false;
           }, 400);
           d.card.style.setProperty("--dx", `${d.dx}px`);
@@ -116,8 +119,11 @@
       d.card.style.removeProperty("--rot");
     };
     pile.addEventListener("pointerdown", (e) => {
-      if (!on() || !e.isPrimary || e.pointerType === "mouse" && e.button !== 0 || drag)
+      if (!on() || !e.isPrimary || e.pointerType === "mouse" && e.button !== 0)
         return;
+      suppress = false;
+      if (drag)
+        end(false);
       drag = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, card: cards[i], horizontal: false, dx: 0 };
     });
     pile.addEventListener("pointermove", (e) => {

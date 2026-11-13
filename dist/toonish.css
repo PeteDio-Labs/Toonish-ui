@@ -1565,6 +1565,12 @@ html.toon-modal-open {
   line-height: 1.375;
 }
 
+/* Both sit over the linked picture, so a tap on either must reach the link under it. */
+
+.toon-shot-badge-end, .toon-shot-hint {
+  pointer-events: none;
+}
+
 @media (min-width: 1024px) {
   .toon-shot-hint {
     display: none;

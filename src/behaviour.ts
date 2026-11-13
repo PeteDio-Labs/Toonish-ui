@@ -52,6 +52,7 @@ function initDeck(deck: HTMLElement): void {
       deck.setAttribute('data-toon-deck-on', '');
       render();
     } else {
+      end(false); // the breakpoint changed mid-drag
       deck.removeAttribute('data-toon-deck-on');
       cards.forEach((c) => {
         delete c.dataset.pos;
@@ -100,6 +101,7 @@ function initDeck(deck: HTMLElement): void {
   // click is suppressed only after a drag that flipped.
   let drag: { id: number; x: number; y: number; t: number; card: HTMLElement; horizontal: boolean; dx: number } | null = null;
   let suppress = false;
+  let suppressTimer = 0;
   const end = (flip: boolean) => {
     const d = drag;
     drag = null;
@@ -109,7 +111,8 @@ function initDeck(deck: HTMLElement): void {
       delete d.card.dataset.dragging;
       if (flip) {
         suppress = true;
-        window.setTimeout(() => { suppress = false; }, 400);
+        window.clearTimeout(suppressTimer);
+        suppressTimer = window.setTimeout(() => { suppress = false; }, 400);
         d.card.style.setProperty('--dx', `${d.dx}px`);
         d.card.style.setProperty('--rot', `${d.dx / 20}deg`);
         go(1, d.dx < 0 ? -1 : 1);
@@ -120,7 +123,9 @@ function initDeck(deck: HTMLElement): void {
     d.card.style.removeProperty('--rot');
   };
   pile.addEventListener('pointerdown', (e) => {
-    if (!on() || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0) || drag) return;
+    if (!on() || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    suppress = false; // a press starts fresh: a swipe that fired no click must not swallow this tap
+    if (drag) end(false); // a press released outside the pile sent no pointerup, so drop its stale drag
     drag = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, card: cards[i]!, horizontal: false, dx: 0 };
   });
   pile.addEventListener('pointermove', (e) => {

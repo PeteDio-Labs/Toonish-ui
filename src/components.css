@@ -302,6 +302,8 @@
   .toon-shot-hint { @apply absolute -bottom-s3 -right-s3 rotate-3; }
   /* Both sit on a picture that can be a strip 60px tall on a phone, so they are smaller than a regular badge. */
   .toon-shot-badge-end, .toon-shot-hint { @apply border-2 px-s2 py-0 text-[.6875rem] leading-snug; }
+  /* Both sit over the linked picture, so a tap on either must reach the link under it. */
+  .toon-shot-badge-end, .toon-shot-hint { pointer-events: none; }
   @media (min-width: 1024px) { .toon-shot-hint { @apply hidden; } }
   .toon-shot-link { @apply block rounded-[inherit]; }
   .toon-shot-cap { @apply m-0; }
