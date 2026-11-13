@@ -76,7 +76,7 @@ burst('red', 'toon-burst-spin');            // an SVG starburst
 figure('214', 'blue', 52, 200);             // a number that shrinks to fit a card
 ```
 
-Every interpolated string is escaped with `esc()`. To run the behaviour yourself instead of loading `toonish.js`,
+Every interpolated string, class names included, is escaped with `esc()`, and an accent other than `blue`, `red`, `yellow` or `violet` throws. To run the behaviour yourself instead of loading `toonish.js`,
 call `initToonish()` from `toonish-ui`.
 
 ## Tokens
@@ -110,10 +110,10 @@ Every animation and transition stops under `prefers-reduced-motion`, and under `
 ### Modal
 
 `toon-modal` is a native `<dialog>`: the browser traps focus, closes it on `Esc` and makes the page behind it inert.
-The script adds backdrop taps, scroll lock and focus return.
+The script adds backdrop taps and a scroll lock that lasts while any modal is open. The browser returns focus to the opener when a `<dialog>` closes.
 
 - **Inline:** put a `<dialog class="toon-modal">` in the page, with `toon-modal-box`, `toon-modal-head` and `toon-modal-body`, and a button with `data-toon-modal-open="<dialog id>"`. A `data-toon-modal-close` button inside closes it.
-- **From a page:** a link with `data-toon-modal` fetches its own `href` and shows the page's `<article>` in a shared modal. Without JavaScript, the link navigates normally.
+- **From a page:** a link with `data-toon-modal` fetches its own `href` (path and query string) and shows the page's `<article>` in a shared modal. Without JavaScript, the link navigates normally. The script drops `on*` attributes and `javascript:` URLs from the fetched markup, but link only to pages of your own site: the fetched HTML is not otherwise sanitized.
 
 ## Develop
 

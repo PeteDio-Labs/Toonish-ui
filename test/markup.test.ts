@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { burst, esc, figure, fitSize, letters } from '../src/markup.ts';
+import { burst, esc, figure, fitSize, letters, speedLines } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -36,4 +36,18 @@ test('burst draws 24 points in the accent colour', () => {
 
 test('figure sizes the flat type from the value', () => {
   expect(figure('~70%', 'violet', 52, 200)).toContain('font-size:52px');
+});
+
+test('class names are escaped in every helper', () => {
+  const evil = '"><img src=x onerror=alert(1)>';
+  for (const html of [burst('red', evil), letters('x', 'blue', { cls: evil }), speedLines(evil)]) {
+    expect(html.includes('<img')).toBe(false);
+  }
+  expect(burst('red', evil)).toContain('&quot;&gt;&lt;img');
+  expect(letters('x', 'blue', { cls: evil })).toContain('&quot;&gt;&lt;img');
+});
+
+test('an unknown accent throws instead of writing a bad style value', () => {
+  expect(() => letters('x', 'constructor' as never)).toThrow('unknown accent');
+  expect(() => burst('nope' as never)).toThrow('unknown accent');
 });

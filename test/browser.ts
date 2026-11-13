@@ -11,11 +11,17 @@ const check = (ok: boolean, what: string) => { if (!ok) fail.push(what); };
 let checks = 0;
 const eq = (actual: unknown, expected: unknown, what: string) => { checks++; check(actual === expected, `${what}: expected ${String(expected)}, got ${String(actual)}`); };
 
+const requests: string[] = [];
 const server = Bun.serve({
   port: 0,
   async fetch(req) {
     const { pathname } = new URL(req.url);
     if (pathname === '/') return new Response(fixture(), { headers: { 'content-type': 'text/html; charset=utf-8' } });
+    // A page the shared modal fetches. The query string must reach the server; the inline handler must be dropped.
+    if (pathname === '/page') {
+      requests.push(pathname + new URL(req.url).search);
+      return new Response('<!doctype html><article><h1>Fetched page</h1><p>Body</p><img src="data:," onerror="window.__xss=1"><a href="javascript:window.__xss=2">x</a></article>', { headers: { 'content-type': 'text/html; charset=utf-8' } });
+    }
     if (pathname.startsWith('/dist/') && !pathname.includes('..')) {
       const f = Bun.file(`.${pathname}`);
       return (await f.exists()) ? new Response(f) : new Response('not found', { status: 404 });
@@ -36,6 +42,8 @@ try {
     page.on('requestfailed', (r) => problems.push(`request failed: ${r.url()}`));
     page.on('response', (r) => { if (r.status() >= 400) problems.push(`${r.status()}: ${r.url()}`); });
     await page.goto(server.url.href, { waitUntil: 'networkidle' });
+    // The dialog's close event fires on a later task, so wait for the state instead of reading it at once.
+    const settled = (fn: () => boolean) => page.waitForFunction(fn, undefined, { timeout: 2000 }).then(() => true, () => false);
 
     // Fonts: all three families the kit names must be loaded, not fall back.
     const fonts = await page.evaluate(async () => {
@@ -66,9 +74,19 @@ try {
     eq(await page.$eval('#demo', (d) => (d as HTMLDialogElement).open), true, `${name}: modal opens`);
     eq(await page.evaluate(() => document.documentElement.classList.contains('toon-modal-open')), true, `${name}: modal locks scroll`);
     await page.screenshot({ path: `test/out/${name}-modal.png` });
+
+    // A link with data-toon-modal opens a shared dialog on top of the open one.
+    await page.click('#more');
+    await settled(() => document.getElementById('toon-modal-title')?.textContent === 'Fetched page');
+    eq(await page.$eval('#toon-modal-title', (h) => h.textContent), 'Fetched page', `${name}: shared modal shows the fetched title`);
+    eq(requests.includes('/page?v=2'), true, `${name}: the query string reaches the server (${requests.join(', ')})`);
+    eq(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss === undefined && !document.querySelector('.toon-modal-body [onerror]') && !document.querySelector('.toon-modal-body [href^="javascript:"]')), true, `${name}: fetched markup loses inline handlers and javascript: links`);
+    eq(await page.$eval('.toon-modal-body a.toon-link[href^="/page"]', (a) => a.getAttribute('href')), '/page?v=2', `${name}: "Open as a full page" keeps the query string`);
+    // Closing the top modal leaves the other one open, so the page must stay locked.
     await page.keyboard.press('Escape');
-    // The dialog's close event fires on a later task, so wait for the state instead of reading it at once.
-    const settled = (fn: () => boolean) => page.waitForFunction(fn, undefined, { timeout: 2000 }).then(() => true, () => false);
+    eq(await settled(() => document.querySelectorAll('dialog.toon-modal[open]').length === 1), true, `${name}: Escape closes only the top modal`);
+    eq(await page.evaluate(() => document.documentElement.classList.contains('toon-modal-open')), true, `${name}: scroll stays locked while a modal is open`);
+    await page.keyboard.press('Escape');
     eq(await settled(() => !(document.getElementById('demo') as HTMLDialogElement).open), true, `${name}: Escape closes the modal`);
     eq(await settled(() => !document.documentElement.classList.contains('toon-modal-open')), true, `${name}: closing unlocks scroll`);
     eq(await page.evaluate(() => document.activeElement?.id), 'open', `${name}: focus returns to the opener`);
@@ -85,6 +103,15 @@ try {
   eq(await page.$eval('.toon-btn', (b) => getComputedStyle(b).transitionDuration), '0s', 'reduced motion: transitions stop');
   eq(await page.evaluate(() => [...document.querySelectorAll('*')].every((e) => getComputedStyle(e).animationName === 'none')), true, 'reduced motion: animations stop');
   await ctx.close();
+
+  // The motion switch: data-motion="off" stops every animation without the system preference.
+  const ctx2 = await browser.newContext();
+  const page2 = await ctx2.newPage();
+  await page2.goto(server.url.href, { waitUntil: 'networkidle' });
+  await page2.evaluate(() => { document.documentElement.dataset.motion = 'off'; });
+  eq(await page2.$eval('.toon-btn', (b) => getComputedStyle(b).transitionDuration), '0s', 'data-motion=off: transitions stop');
+  eq(await page2.evaluate(() => [...document.querySelectorAll('*')].every((e) => getComputedStyle(e).animationName === 'none')), true, 'data-motion=off: animations stop');
+  await ctx2.close();
 } finally {
   await browser.close();
   server.stop(true);

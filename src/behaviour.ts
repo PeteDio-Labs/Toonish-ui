@@ -5,11 +5,23 @@
 // and a shared dialog that shows another page's <article>. If <dialog> is missing or the fetch fails, a link keeps
 // working as a plain link.
 
-let started = false;
+const started = new WeakSet<Document>();
+
+/** Drops inline event handlers and javascript: URLs from markup fetched into the shared modal. */
+function clean(node: Node): Node {
+  if (node instanceof Element) {
+    for (const el of [node, ...node.querySelectorAll('*')]) {
+      for (const a of [...el.attributes]) {
+        if (/^on/i.test(a.name) || (/^(href|src|action|formaction|xlink:href)$/i.test(a.name) && /^\s*javascript:/i.test(a.value))) el.removeAttribute(a.name);
+      }
+    }
+  }
+  return node;
+}
 
 export function initToonish(root: Document = document): void {
-  if (started) return;
-  started = true;
+  if (started.has(root)) return;
+  started.add(root);
   const html = root.documentElement;
 
   // Scroll reveal: blocks rise into view the first time they appear. Blocks already in view at load stay put.
@@ -53,7 +65,8 @@ export function initToonish(root: Document = document): void {
     'close',
     (e) => {
       const t = e.target as Element;
-      if (t.classList && t.classList.contains('toon-modal')) lock(false);
+      // Keep the lock while another modal is still open.
+      if (t.classList && t.classList.contains('toon-modal')) lock(root.querySelector('dialog.toon-modal[open]') !== null);
     },
     true,
   );
@@ -92,23 +105,24 @@ export function initToonish(root: Document = document): void {
   const showPage = async (link: HTMLAnchorElement) => {
     const url = new URL(link.href, location.href);
     if (url.origin !== location.origin) throw new Error('cross-origin');
-    if (!cache.has(url.pathname)) {
-      const res = await fetch(url.pathname, { headers: { Accept: 'text/html' } });
+    const key = url.pathname + url.search;
+    if (!cache.has(key)) {
+      const res = await fetch(key, { headers: { Accept: 'text/html' } });
       if (!res.ok) throw new Error(String(res.status));
       const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
       const article = doc.querySelector('article');
       const h1 = article?.querySelector('h1');
       if (!article || !h1) throw new Error('no article');
-      cache.set(url.pathname, { title: (h1.textContent ?? '').trim(), nodes: [...article.children].filter((n) => n !== h1) });
+      cache.set(key, { title: (h1.textContent ?? '').trim(), nodes: [...article.children].filter((n) => n !== h1) });
     }
-    const page = cache.get(url.pathname)!;
+    const page = cache.get(key)!;
     const d = sharedDialog();
     d.querySelector('#toon-modal-title')!.textContent = page.title;
     const body = d.querySelector('.toon-modal-body')!;
-    body.replaceChildren(...page.nodes.map((n) => root.importNode(n, true)));
+    body.replaceChildren(...page.nodes.map((n) => clean(root.importNode(n, true))));
     const more = el('p', 'mb-0 mt-s6 text-footnote');
     const a = el('a', 'toon-link', 'Open as a full page') as HTMLAnchorElement;
-    a.href = url.pathname;
+    a.href = key;
     more.append(a);
     body.append(more);
     body.scrollTop = 0;

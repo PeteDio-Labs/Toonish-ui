@@ -19,6 +19,6 @@ export const fixture = (): string => `<!doctype html>
 <section id="modal"><button id="open" class="toon-btn toon-btn-yellow" type="button" data-toon-modal-open="demo">Open</button>
 <dialog id="demo" class="toon-modal" aria-modal="true" aria-labelledby="demo-title"><div class="toon-modal-box">
 <div class="toon-modal-head"><h2 id="demo-title" class="toon-heading">POW!</h2><button type="button" class="toon-btn toon-btn-red toon-modal-x" data-toon-modal-close>Close</button></div>
-<div class="toon-modal-body"><p>Modal body.</p></div></div></dialog></section>
+<div class="toon-modal-body"><p>Modal body.</p><a id="more" class="toon-link" href="/page?v=2" data-toon-modal>More</a></div></div></dialog></section>
 </main><footer class="toon-footer"><p>Footer</p></footer></div>
 <script src="/dist/toonish.js"></script></body></html>`;

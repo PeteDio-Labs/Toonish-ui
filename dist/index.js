@@ -1,9 +1,20 @@
 // src/behaviour.ts
-var started = false;
+var started = new WeakSet;
+function clean(node) {
+  if (node instanceof Element) {
+    for (const el of [node, ...node.querySelectorAll("*")]) {
+      for (const a of [...el.attributes]) {
+        if (/^on/i.test(a.name) || /^(href|src|action|formaction|xlink:href)$/i.test(a.name) && /^\s*javascript:/i.test(a.value))
+          el.removeAttribute(a.name);
+      }
+    }
+  }
+  return node;
+}
 function initToonish(root = document) {
-  if (started)
+  if (started.has(root))
     return;
-  started = true;
+  started.add(root);
   const html = root.documentElement;
   if ("IntersectionObserver" in window) {
     html.classList.add("toon-js");
@@ -39,7 +50,7 @@ function initToonish(root = document) {
   root.addEventListener("close", (e) => {
     const t = e.target;
     if (t.classList && t.classList.contains("toon-modal"))
-      lock(false);
+      lock(root.querySelector("dialog.toon-modal[open]") !== null);
   }, true);
   root.addEventListener("click", (e) => {
     const t = e.target;
@@ -81,8 +92,9 @@ function initToonish(root = document) {
     const url = new URL(link.href, location.href);
     if (url.origin !== location.origin)
       throw new Error("cross-origin");
-    if (!cache.has(url.pathname)) {
-      const res = await fetch(url.pathname, { headers: { Accept: "text/html" } });
+    const key = url.pathname + url.search;
+    if (!cache.has(key)) {
+      const res = await fetch(key, { headers: { Accept: "text/html" } });
       if (!res.ok)
         throw new Error(String(res.status));
       const doc = new DOMParser().parseFromString(await res.text(), "text/html");
@@ -90,16 +102,16 @@ function initToonish(root = document) {
       const h1 = article?.querySelector("h1");
       if (!article || !h1)
         throw new Error("no article");
-      cache.set(url.pathname, { title: (h1.textContent ?? "").trim(), nodes: [...article.children].filter((n) => n !== h1) });
+      cache.set(key, { title: (h1.textContent ?? "").trim(), nodes: [...article.children].filter((n) => n !== h1) });
     }
-    const page = cache.get(url.pathname);
+    const page = cache.get(key);
     const d = sharedDialog();
     d.querySelector("#toon-modal-title").textContent = page.title;
     const body = d.querySelector(".toon-modal-body");
-    body.replaceChildren(...page.nodes.map((n) => root.importNode(n, true)));
+    body.replaceChildren(...page.nodes.map((n) => clean(root.importNode(n, true))));
     const more = el("p", "mb-0 mt-s6 text-footnote");
     const a = el("a", "toon-link", "Open as a full page");
-    a.href = url.pathname;
+    a.href = key;
     more.append(a);
     body.append(more);
     body.scrollTop = 0;
@@ -135,17 +147,26 @@ var esc = (s) => s.replace(/[&<>"']/g, (c) => ENT[c]);
 var HEX = { blue: "#5f8dff", red: "#f2706a", yellow: "#f2c94c", violet: "#a995f0" };
 var PAIR = { blue: "yellow", red: "yellow", yellow: "blue", violet: "red" };
 var BADGE = { blue: "toon-badge-blue", red: "", yellow: "toon-badge-yellow", violet: "toon-badge-violet" };
+var accentOf = (accent) => {
+  if (!Object.hasOwn(HEX, accent))
+    throw new Error(`unknown accent "${accent}": use one of ${Object.keys(HEX).join(", ")}`);
+  return accent;
+};
 var burst = (accent, cls = "") => {
+  accentOf(accent);
   const pts = [];
   for (let i = 0;i < 24; i++) {
     const r = i % 2 ? 44 : 60;
     const a = i / 24 * Math.PI * 2;
     pts.push(`${(60 + r * Math.cos(a)).toFixed(1)},${(60 + r * Math.sin(a)).toFixed(1)}`);
   }
-  return `<svg class="toon-burst ${cls}" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><polygon points="${pts.join(" ")}" fill="${HEX[accent]}" stroke="#0a0a1f" stroke-width="5" stroke-linejoin="round"/></svg>`;
+  return `<svg class="toon-burst ${esc(cls)}" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><polygon points="${pts.join(" ")}" fill="${HEX[accent]}" stroke="#0a0a1f" stroke-width="5" stroke-linejoin="round"/></svg>`;
 };
-var speedLines = (cls = "") => `<svg class="toon-speed ${cls}" viewBox="0 0 200 120" aria-hidden="true" focusable="false" preserveAspectRatio="none"><g stroke="#f2c94c" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke">${[8, 26, 44, 62, 80, 98, 116].map((y, i) => `<line class="toon-speed-line" style="--i:${i}" x1="4" y1="${y}" x2="${120 + i % 3 * 30}" y2="${y}" pathLength="100" vector-effect="non-scaling-stroke"/>`).join("")}</g></svg>`;
-var letters = (text, accent = "blue", opts = {}) => `<span class="toon-type${opts.live ? " toon-type-comic" : ""}${opts.flat ? " toon-type-flat" : ""} ${opts.cls ?? ""}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}${opts.size ? `; font-size:${opts.size}px` : ""}">${text.split(" ").map((word) => `<span class="toon-word">${[...word].map((c) => `<span>${esc(c)}</span>`).join("")}</span>`).join(" ")}</span>`;
+var speedLines = (cls = "") => `<svg class="toon-speed ${esc(cls)}" viewBox="0 0 200 120" aria-hidden="true" focusable="false" preserveAspectRatio="none"><g stroke="#f2c94c" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke">${[8, 26, 44, 62, 80, 98, 116].map((y, i) => `<line class="toon-speed-line" style="--i:${i}" x1="4" y1="${y}" x2="${120 + i % 3 * 30}" y2="${y}" pathLength="100" vector-effect="non-scaling-stroke"/>`).join("")}</g></svg>`;
+var letters = (text, accent = "blue", opts = {}) => {
+  accentOf(accent);
+  return `<span class="toon-type${opts.live ? " toon-type-comic" : ""}${opts.flat ? " toon-type-flat" : ""} ${esc(opts.cls ?? "")}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}${opts.size !== undefined ? `; font-size:${Number(opts.size)}px` : ""}">${text.split(" ").map((word) => `<span class="toon-word">${[...word].map((c) => `<span>${esc(c)}</span>`).join("")}</span>`).join(" ")}</span>`;
+};
 var fitSize = (value, max, avail) => {
   const longest = Math.max(...value.split(" ").map((w) => w.length), 1);
   return Math.max(18, Math.min(max, Math.floor(avail / (longest * 0.6))));

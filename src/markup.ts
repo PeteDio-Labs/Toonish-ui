@@ -11,20 +11,26 @@ export const PAIR: Record<Accent, Accent> = { blue: 'yellow', red: 'yellow', yel
 /** The badge class for an accent. Red is the base badge and has no modifier. */
 export const BADGE: Record<Accent, string> = { blue: 'toon-badge-blue', red: '', yellow: 'toon-badge-yellow', violet: 'toon-badge-violet' };
 
+const accentOf = (accent: string): Accent => {
+  if (!Object.hasOwn(HEX, accent)) throw new Error(`unknown accent "${accent}": use one of ${Object.keys(HEX).join(', ')}`);
+  return accent as Accent;
+};
+
 /** A comic starburst, drawn once per accent: the shape behind a hero word or a figure. */
 export const burst = (accent: Accent, cls = ''): string => {
+  accentOf(accent);
   const pts: string[] = [];
   for (let i = 0; i < 24; i++) {
     const r = i % 2 ? 44 : 60;
     const a = (i / 24) * Math.PI * 2;
     pts.push(`${(60 + r * Math.cos(a)).toFixed(1)},${(60 + r * Math.sin(a)).toFixed(1)}`);
   }
-  return `<svg class="toon-burst ${cls}" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><polygon points="${pts.join(' ')}" fill="${HEX[accent]}" stroke="#0a0a1f" stroke-width="5" stroke-linejoin="round"/></svg>`;
+  return `<svg class="toon-burst ${esc(cls)}" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><polygon points="${pts.join(' ')}" fill="${HEX[accent]}" stroke="#0a0a1f" stroke-width="5" stroke-linejoin="round"/></svg>`;
 };
 
 /** Speed lines: a fan of yellow strokes behind a panel. Ink would vanish on the navy ground. */
 export const speedLines = (cls = ''): string =>
-  `<svg class="toon-speed ${cls}" viewBox="0 0 200 120" aria-hidden="true" focusable="false" preserveAspectRatio="none"><g stroke="#f2c94c" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke">${[8, 26, 44, 62, 80, 98, 116].map((y, i) => `<line class="toon-speed-line" style="--i:${i}" x1="4" y1="${y}" x2="${120 + (i % 3) * 30}" y2="${y}" pathLength="100" vector-effect="non-scaling-stroke"/>`).join('')}</g></svg>`;
+  `<svg class="toon-speed ${esc(cls)}" viewBox="0 0 200 120" aria-hidden="true" focusable="false" preserveAspectRatio="none"><g stroke="#f2c94c" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke">${[8, 26, 44, 62, 80, 98, 116].map((y, i) => `<line class="toon-speed-line" style="--i:${i}" x1="4" y1="${y}" x2="${120 + (i % 3) * 30}" y2="${y}" pathLength="100" vector-effect="non-scaling-stroke"/>`).join('')}</g></svg>`;
 
 export interface LettersOptions { live?: boolean; flat?: boolean; cls?: string; size?: number }
 
@@ -33,11 +39,13 @@ export interface LettersOptions { live?: boolean; flat?: boolean; cls?: string; 
  * the paired colour, for the logo and the hero. Each letter is its own span, so the kit's CSS can tilt them in turn.
  * The text stays real text, so readers and search see it as written.
  */
-export const letters = (text: string, accent: Accent = 'blue', opts: LettersOptions = {}): string =>
-  `<span class="toon-type${opts.live ? ' toon-type-comic' : ''}${opts.flat ? ' toon-type-flat' : ''} ${opts.cls ?? ''}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}${opts.size ? `; font-size:${opts.size}px` : ''}">${text
+export const letters = (text: string, accent: Accent = 'blue', opts: LettersOptions = {}): string => {
+  accentOf(accent);
+  return `<span class="toon-type${opts.live ? ' toon-type-comic' : ''}${opts.flat ? ' toon-type-flat' : ''} ${esc(opts.cls ?? '')}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}${opts.size !== undefined ? `; font-size:${Number(opts.size)}px` : ''}">${text
     .split(' ')
     .map((word) => `<span class="toon-word">${[...word].map((c) => `<span>${esc(c)}</span>`).join('')}</span>`)
     .join(' ')}</span>`;
+};
 
 /**
  * The largest font size, in px and at most `max`, at which the longest word of `value` fits in `avail` px.
