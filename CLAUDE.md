@@ -11,3 +11,4 @@ The Toonish UI kit as a package. `README.md` covers usage; `docs/maintaining.md`
 - **A check that reports success must say what it examined.** The build and browser check print counts; keep that.
 - **The kit page is not in this repo.** It is `/ui.html` in `pdlabs-portfolio`. `test/fixture.ts` is a test fixture only.
 - Write prose in Google developer documentation style: second person, active voice, no time-anchored words.
+- **The docs are part of the kit.** `docs/components.md` must name every `toon-*` class and markup helper; `test/docs.test.ts` fails otherwise. `docs/README.md` indexes the design docs and holds the decision log. Add a dated row there when Pedro makes a design decision.

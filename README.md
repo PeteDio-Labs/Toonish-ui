@@ -4,6 +4,12 @@ Toonish is an original comic-book UI kit: thin ink outlines, short hard shadows 
 in blue, red, yellow and violet on deep navy with off-white panels. It powers [pdlab.dev](https://pdlab.dev).
 The kit page, with every component running, is [pdlab.dev/ui.html](https://pdlab.dev/ui.html).
 
+## Design docs
+
+Start with the [design docs](docs/README.md): [principles](docs/principles.md) (the look, mobile first, accessibility),
+[tokens](docs/tokens.md), [components](docs/components.md), [patterns](docs/patterns.md) for composing pages,
+[build and deploy](docs/build-and-deploy.md), and [CONTRIBUTING.md](CONTRIBUTING.md) for changing the kit.
+
 The package ships:
 
 - **Tokens** in the W3C Design Tokens format (`tokens/toonish.tokens.json`), built to CSS variables, a Tailwind v4 `@theme`, a Tailwind v3 preset and JSON.
@@ -196,7 +202,7 @@ bun run check   # typecheck, build, unit tests, browser check
 The browser check asserts computed styles and behaviour. It does not compare screenshots pixel by pixel, because font
 rendering differs between machines. CI keeps the screenshots as an artifact for a human to look at.
 
-Releases, branch protection and what CI checks are in [docs/maintaining.md](docs/maintaining.md).
+Releases, branch protection and what CI checks are in [docs/maintaining.md](docs/maintaining.md). To change the kit, read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

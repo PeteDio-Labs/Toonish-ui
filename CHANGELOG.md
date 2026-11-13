@@ -7,6 +7,7 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Design docs in `docs/`: principles, tokens, components, patterns and build and deploy, with a decision log, plus `CONTRIBUTING.md`. `test/docs.test.ts` fails when a `toon-*` class or markup helper is missing from `docs/components.md`.
 - `portrait()` and `toon-portrait`: any cut-out person (transparent PNG or WebP) on a themed vector studio backdrop, `slate` or `paper`, with a halftone corner and ring in an accent colour.
 - Three colour tokens: `muted` (secondary text on paper), `mist` (secondary text on the ground, and the quiet fill for a closed or inactive state) and `rule` (grid lines and the current-row fill on paper). Tests check their contrast.
 - Data components: `toon-stat` and `toon-stats` (figure tiles), `toon-list` and `toon-row` (rows with a lead, a body and an aside), `toon-chip`, `toon-empty`, `toon-table` in a `toon-table-wrap` panel, and `toon-bars` (stacked columns with a dashed target line).
