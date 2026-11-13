@@ -29,3 +29,5 @@ A test (`test/docs.test.ts`) fails when `dist/toonish.css` defines a `toon-*` cl
 | 2026-11-13 | The kit is mobile first. | The owner reviews on a phone, and a layout that works at 390 px widens cleanly. |
 | 2026-11-13 | No sideways scroll containers except `toon-table-wrap`. | A scrolling row traps a thumb on a phone. The deck replaces it. |
 | 2026-11-13 | Lettered sound effects use Latin letters only. | A sound effect is decoration. It must not borrow a specific manga's glyphs. |
+| 2026-11-13 | Accessibility is a hard rule: semantic HTML first, ARIA where needed, WCAG 2.2 AA, enforced by axe in CI. | The site must work for anyone. A tool-checked rule keeps it true as the kit grows. |
+| 2026-11-13 | Text on paper uses deeper accents (`blue-text`, `red-text`, `violet-text`, `yellow-text`). | The fill accents are 1.4 to 2.7:1 on paper, which fails WCAG for text. |

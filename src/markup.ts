@@ -6,6 +6,8 @@ const ENT: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"
 export const esc = (s: string): string => s.replace(/[&<>"']/g, (c) => ENT[c]!);
 
 export const HEX: Record<Accent, string> = { blue: '#5f8dff', red: '#f2706a', yellow: '#f2c94c', violet: '#a995f0' };
+/** The accent at a depth that reads on paper: 3:1 or better for large text. The fills in HEX are 1.4 to 2.7:1 on paper. */
+export const HEX_TEXT: Record<Accent, string> = { blue: '#2a57d6', red: '#c8322b', yellow: '#7a5c00', violet: '#6b4fd6' };
 /** Shadow paired with each accent: never a complementary clash, never the fill's own colour. */
 export const PAIR: Record<Accent, Accent> = { blue: 'yellow', red: 'yellow', yellow: 'blue', violet: 'red' };
 /** The badge class for an accent. Red is the base badge and has no modifier. */
@@ -32,7 +34,7 @@ export const burst = (accent: Accent, cls = ''): string => {
 export const speedLines = (cls = ''): string =>
   `<svg class="toon-speed ${esc(cls)}" viewBox="0 0 200 120" aria-hidden="true" focusable="false" preserveAspectRatio="none"><g stroke="#f2c94c" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke">${[8, 26, 44, 62, 80, 98, 116].map((y, i) => `<line class="toon-speed-line" style="--i:${i}" x1="4" y1="${y}" x2="${120 + (i % 3) * 30}" y2="${y}" pathLength="100" vector-effect="non-scaling-stroke"/>`).join('')}</g></svg>`;
 
-export interface LettersOptions { live?: boolean; flat?: boolean; cls?: string; size?: number }
+export interface LettersOptions { live?: boolean; flat?: boolean; /** Use the deeper accent, which reads on paper. Default is the fill for the navy ground. */ onPaper?: boolean; cls?: string; size?: number }
 
 /**
  * Display type: a heavy sans in the accent colour. With `live`, the comic face with an ink outline and a short shadow in
@@ -41,7 +43,7 @@ export interface LettersOptions { live?: boolean; flat?: boolean; cls?: string; 
  */
 export const letters = (text: string, accent: Accent = 'blue', opts: LettersOptions = {}): string => {
   accentOf(accent);
-  return `<span class="toon-type${opts.live ? ' toon-type-comic' : ''}${opts.flat ? ' toon-type-flat' : ''} ${esc(opts.cls ?? '')}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}${opts.size !== undefined ? `; font-size:${Number(opts.size)}px` : ''}">${text
+  return `<span class="toon-type${opts.live ? ' toon-type-comic' : ''}${opts.flat ? ' toon-type-flat' : ''} ${esc(opts.cls ?? '')}" style="--toon-fill:${(opts.onPaper ? HEX_TEXT : HEX)[accent]}; --toon-shade:${HEX[PAIR[accent]]}${opts.size !== undefined ? `; font-size:${Number(opts.size)}px` : ''}">${text
     .split(' ')
     .map((word) => `<span class="toon-word">${[...word].map((c) => `<span>${esc(c)}</span>`).join('')}</span>`)
     .join(' ')}</span>`;
@@ -58,7 +60,7 @@ export const fitSize = (value: string, max: number, avail: number): number => {
 
 /** A figure on a paper card: the display type, flat and heavy. It shrinks as the value gets longer, so it stays inside the card. */
 export const figure = (value: string, accent: Accent, max: number, avail: number): string =>
-  letters(value, accent, { flat: true, cls: 'block max-w-full leading-none', size: fitSize(value, max, avail) });
+  letters(value, accent, { flat: true, onPaper: true, cls: 'block max-w-full leading-none', size: fitSize(value, max, avail) });
 
 export interface ShotOptions {
   src: string;
@@ -116,7 +118,7 @@ const toneOf = (tone: string): Tone => {
 
 /** A badge with an optional count, such as a status and how many items have it. */
 export const badge = (text: string, tone: Tone = 'red', count?: number): string =>
-  `<span class="${['toon-badge', TONE_CLASS[toneOf(tone)]].filter(Boolean).join(' ')}">${esc(text)}${count === undefined ? '' : `<span class="toon-badge-count">${Number(count)}</span>`}</span>`;
+  `<span class="${['toon-badge', TONE_CLASS[toneOf(tone)]].filter(Boolean).join(' ')}">${esc(text)}${count === undefined ? '' : `<span class="toon-badge-count"> ${Number(count)}</span>`}</span>`;
 
 /** A small tag. */
 export const chip = (text: string): string => `<span class="toon-chip">${esc(text)}</span>`;
@@ -137,11 +139,30 @@ export interface RowOptions {
   dot?: Tone;
 }
 
-/** A row for `<div class="toon-list">`. */
+/** A row for `list()`. It is a `listitem`, so the container must be `role="list"`. */
 export const row = (o: RowOptions): string => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : '';
-  return `<div class="toon-row">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
+  return `<div class="toon-row" role="listitem">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
 };
+export interface ListOptions {
+  /** Names the list for a screen reader. Required. */
+  label: string;
+  cls?: string;
+}
+
+/** A panel of rows. A `div` with grid layout loses its list semantics in some readers, so the helper sets `role="list"`. Pass rows from `row()`. */
+export const list = (rows: string[], o: ListOptions): string => {
+  if (!o.label?.trim()) throw new Error('list: label is required');
+  if (!rows.length) throw new Error('list: at least one row is required');
+  return `<div class="toon-list${o.cls ? ' ' + esc(o.cls) : ''}" role="list" aria-label="${esc(o.label)}">${rows.join('')}</div>`;
+};
+
+/** A skip link: the first focusable element on the page, hidden until it takes focus. Point it at the id of `<main>`. */
+export const skipLink = (target = 'main', text = 'Skip to content'): string => {
+  if (!/^[A-Za-z][\w-]*$/.test(target)) throw new Error(`skipLink: target "${target}" is not a valid id`);
+  return `<a class="toon-skip" href="#${target}">${esc(text)}</a>`;
+};
+
 const TONE_HEX: Record<Tone, string> = { ...HEX, paper: '#eceff3', mist: '#b9bde0' };
 
 export interface BarSegment {
@@ -226,7 +247,7 @@ export const strip = (cells: StripCell[], o: StripOptions = {}): string => {
   if (!cells.length) throw new Error('strip: at least one cell is required');
   const items = cells.map((c) => {
     if (!c.value.trim() || !c.label.trim()) throw new Error('strip: every cell needs a value and a label');
-    const fill = c.accent ? ` style="--toon-fill:${HEX[accentOf(c.accent)]}"` : '';
+    const fill = c.accent ? ` style="--toon-fill:${HEX_TEXT[accentOf(c.accent)]}"` : '';
     const inner = `<span class="toon-strip-value"${fill}>${esc(c.value)}</span><span class="toon-strip-label">${esc(c.label)}</span>`;
     return `<li class="toon-strip-cell">${c.href ? `<a class="toon-strip-item" href="${esc(c.href)}">${inner}</a>` : `<div class="toon-strip-item">${inner}</div>`}</li>`;
   }).join('');
@@ -309,7 +330,7 @@ export const deck = (cards: string[], o: DeckOptions): string => {
   if (!cards.length) throw new Error('deck: at least one card is required');
   const cols = o.cols ?? 3;
   if (!Number.isInteger(cols) || cols < 1 || cols > 6) throw new Error('deck: cols must be a whole number from 1 to 6');
-  const items = cards.map((c, i) => `<div class="toon-deck-card" role="group" aria-label="${i + 1} of ${cards.length}">${c}</div>`).join('');
+  const items = cards.map((c, i) => `<div class="toon-deck-card" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${cards.length}">${c}</div>`).join('');
   const prev = o.prevLabel ?? 'Previous';
   const next = o.nextLabel ?? 'Next';
   const controls = `<div class="toon-deck-controls"><button type="button" class="toon-btn toon-btn-paper toon-deck-btn" data-toon-deck-prev>${CHEVRON('M10 3 5 8l5 5')}${esc(prev)}</button><span class="toon-deck-count" role="status" aria-live="polite" aria-atomic="true">1 / ${cards.length}</span><button type="button" class="toon-btn toon-btn-yellow toon-deck-btn" data-toon-deck-next>${esc(next)}${CHEVRON('m6 3 5 5-5 5')}</button></div>`;

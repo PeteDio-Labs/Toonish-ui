@@ -20,11 +20,17 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 | `color.red` | `#f2706a` | Fill and shadow. |
 | `color.yellow` | `#f2c94c` | Fill and shadow. |
 | `color.violet` | `#a995f0` | Fill and shadow. |
+| `color.blue-text` | `#2a57d6` | Blue for large text on paper. 5.3:1. |
+| `color.red-text` | `#c8322b` | Red for large text on paper. 4.6:1. |
+| `color.violet-text` | `#6b4fd6` | Violet for large text on paper. 4.9:1. |
+| `color.yellow-text` | `#7a5c00` | Yellow for large text on paper. 5.4:1. |
 | `color.muted` | `#4a4d78` | Secondary text on paper. |
 | `color.mist` | `#b9bde0` | Secondary text on the ground, and the quiet fill for a closed or inactive state. |
 | `color.rule` | `#d3d8e0` | Grid lines, and the current-row fill on paper. |
 
 **Contrast.** Ink on the accent fills is 6.3:1 or better (blue is the lowest at 6.3:1). Ink on paper is 16.9:1, `muted` on paper is 6.9:1 and paper on the ground is 15.5:1. All pass WCAG AA. The tests assert a floor of 5.1:1 for ink on every fill.
+
+**Accents on paper.** The fills are 1.4 to 2.7:1 on paper, so they fail as text. Use the `-text` tokens for any text on paper. The tests assert 4.5:1 for each. `figure()` and `strip()` use them.
 
 **Pairing.** A shadow takes its fill's pair: blue and red use yellow, yellow uses blue, violet uses red.
 

@@ -53,6 +53,60 @@
 
 /* toonish-ui components. Tokens come from the preset (src/preset.ts), built from tokens/toonish.tokens.json. */
 
+/* Skip link: off screen until it takes focus, then a button-shaped pill at the top left. */
+
+.toon-skip {
+  position: absolute;
+  left: 0.5rem;
+  top: 0.5rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border: 2px solid #0a0a1f;
+  border-radius: 9999px;
+  background: #f2c94c;
+  padding: 0.75rem 1.25rem;
+  font-weight: 700;
+  color: #0a0a1f;
+  text-decoration: none;
+}
+
+.toon-skip:focus {
+  transform: none;
+}
+
+/* Accessibility. A component that throws its own hard shadow keeps it on focus and adds the ink ring ahead of it, so the
+   two-tone focus ring above still shows. */
+
+.toon-btn:focus-visible {
+  box-shadow: 0 0 0 2px #0a0a1f, 4px 4px 0 var(--toon-shadow);
+}
+
+.toon-pager-link:focus-visible {
+  box-shadow: 0 0 0 2px #0a0a1f, 4px 4px 0 var(--toon-shadow);
+}
+
+.toon-modal-x:focus-visible {
+  box-shadow: none;
+}
+
+/* Windows high-contrast and other forced colours drop shadows and fills, so say what must survive: a visible focus ring. */
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid Highlight;
+    box-shadow: none;
+  }
+
+  .toon-btn:focus-visible, .toon-pager-link:focus-visible {
+    box-shadow: none;
+  }
+
+  .toon-sfx, .toon-type-comic {
+    text-shadow: none;
+    -webkit-text-stroke: 0;
+  }
+}
+
 /* Motion off. The system preference turns it off unless the visitor switched it on (data-motion="on"), and the switch
    turns it off whatever the system says (data-motion="off"). */
 
@@ -251,11 +305,16 @@ body {
   border-style: solid;
 }
 
+/* Two-tone focus ring: an ink ring against the element and a yellow ring outside it. Ink shows on paper and yellow shows
+     on the navy ground, so the ring keeps 3:1 against either (WCAG 1.4.11). A component with its own hard shadow
+     repeats the ink ring ahead of that shadow in the a11y block at the end of this layer. */
+
 :focus-visible {
   outline-style: solid;
   outline-width: 2px;
   outline-offset: 2px;
   outline-color: #f2c94c;
+  box-shadow: 0 0 0 2px #0a0a1f;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -566,9 +625,12 @@ html.toon-js .toon-reveal.toon-in {
 
 .toon-motion {
   display: inline-flex;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
   flex-shrink: 0;
   cursor: pointer;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   border-radius: 9999px;
   border-width: 2px;
@@ -636,7 +698,10 @@ html.toon-js .toon-reveal.toon-in {
 
 /* 4. Link: thick red underline that springs on hover. */
 
+/* `color: inherit`: a link takes the text colour of its surface (paper on the ground, ink on paper). The browser's own link blue is 1.9:1 on the ground. */
+
 .toon-link {
+  color: inherit;
   font-weight: 700;
   text-decoration-line: underline;
   text-decoration-color: #f2706a;
@@ -1211,7 +1276,11 @@ html.toon-js .toon-reveal.toon-in {
 }
 
 .toon-nav a, .toon-nav button {
+  display: inline-flex;
+  min-height: 2.75rem;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
   white-space: nowrap;
   border-radius: 9999px;
   border-width: 0px;
@@ -1937,7 +2006,7 @@ html.toon-modal-open {
   text-decoration-line: none;
 }
 
-/* The figure: the display face in an accent colour with an ink outline, as on the hero. Colours cycle by cell unless
+/* The figure: the display face in an accent colour deep enough for 3:1 on paper (the `-text` tokens), with an ink outline, as on the hero. Colours cycle by cell unless
      the helper sets `--toon-fill`. */
 
 .toon-strip-value {
@@ -1953,7 +2022,7 @@ html.toon-modal-open {
   transition-duration: 200ms;
   transition-timing-function: cubic-bezier(0.34,1.8,0.5,1);
   font-size: clamp(1.75rem, 4vw, 2.5rem);
-  color: var(--toon-fill, #5f8dff);
+  color: var(--toon-fill, #2a57d6);
   -webkit-text-stroke: .06em #0a0a1f;
   paint-order: stroke fill;
   font-variant-numeric: tabular-nums;
@@ -1961,15 +2030,15 @@ html.toon-modal-open {
 }
 
 .toon-strip-cell:nth-child(4n+2) .toon-strip-value {
-  color: var(--toon-fill, #f2706a);
+  color: var(--toon-fill, #c8322b);
 }
 
 .toon-strip-cell:nth-child(4n+3) .toon-strip-value {
-  color: var(--toon-fill, #a995f0);
+  color: var(--toon-fill, #6b4fd6);
 }
 
 .toon-strip-cell:nth-child(4n) .toon-strip-value {
-  color: var(--toon-fill, #f2c94c);
+  color: var(--toon-fill, #7a5c00);
 }
 
 .toon-strip-label {

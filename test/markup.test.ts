@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, steps, sfx, deck, portrait, pager } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -83,7 +83,7 @@ test('shot escapes every string and rejects missing alt and bad sizes', () => {
 });
 
 test('badge, chip and stat render and escape', () => {
-  expect(badge('Open', 'blue', 3)).toBe('<span class="toon-badge toon-badge-blue">Open<span class="toon-badge-count">3</span></span>');
+  expect(badge('Open', 'blue', 3)).toBe('<span class="toon-badge toon-badge-blue">Open<span class="toon-badge-count"> 3</span></span>');
   expect(badge('Done', 'mist')).toContain('toon-badge-mist');
   expect(badge('Hi')).toBe('<span class="toon-badge">Hi</span>');
   expect(() => badge('x', 'nope' as never)).toThrow('unknown tone');
@@ -97,7 +97,7 @@ test('row renders its parts, omits the empty ones and escapes', () => {
   expect(html).toContain('toon-row-lead');
   expect(html).toContain('&lt;x&gt;');
   expect(html).toContain('--toon-dot:#f2706a');
-  expect(row({ title: 't' })).toBe('<div class="toon-row"><span class="toon-row-body"><b>t</b></span></div>');
+  expect(row({ title: 't' })).toBe('<div class="toon-row" role="listitem"><span class="toon-row-body"><b>t</b></span></div>');
 });
 
 test('bars scales heights to the largest stack or the target and names each column', () => {
@@ -156,7 +156,7 @@ test('strip renders linked and plain cells, sets the column count and escapes', 
   const html = strip([{ value: '21', label: 'studies', href: '/work.html' }, { value: '~594', label: 'packages', accent: 'red' }], { label: 'Proof' });
   expect(html).toContain('role="list" aria-label="Proof" style="--toon-cols:2"');
   expect(html).toContain('<a class="toon-strip-item" href="/work.html">');
-  expect(html).toContain('<div class="toon-strip-item"><span class="toon-strip-value" style="--toon-fill:#f2706a">~594</span>');
+  expect(html).toContain('<div class="toon-strip-item"><span class="toon-strip-value" style="--toon-fill:#c8322b">~594</span>');
   expect(html.match(/<li class="toon-strip-cell">/g)).toHaveLength(2);
   const bad = strip([{ value: evil, label: evil, href: evil }], { label: evil, cls: evil });
   expect(bad.includes('<img')).toBe(false);
@@ -291,4 +291,16 @@ test('pager escapes every string, takes one link alone, and throws with no link 
   expect(() => pager({ label: 'Pages' })).toThrow('pager');
   expect(() => pager({ label: ' ', next: { href: '/b', title: 'B' } })).toThrow('label');
   expect(() => pager({ label: 'Pages', next: { href: '/b', title: ' ' } })).toThrow('pager');
+});
+
+test('a11y contract: list is a labelled list of listitems, skipLink points at an id, deck cards are slides', () => {
+  const html = list([row({ title: 'a' }), row({ title: 'b' })], { label: 'Facts' });
+  expect(html).toContain('role="list" aria-label="Facts"');
+  expect(html.match(/role="listitem"/g)).toHaveLength(2);
+  expect(() => list([], { label: 'x' })).toThrow('at least one row');
+  expect(() => list([row({ title: 'a' })], { label: ' ' })).toThrow('label is required');
+  expect(skipLink()).toBe('<a class="toon-skip" href="#main">Skip to content</a>');
+  expect(() => skipLink('a b')).toThrow('not a valid id');
+  expect(deck(['a', 'b'], { label: 'L' })).toContain('role="group" aria-roledescription="slide" aria-label="1 of 2"');
+  expect(figure('214', 'blue', 52, 200)).toContain('--toon-fill:#2a57d6');
 });

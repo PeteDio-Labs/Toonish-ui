@@ -8,6 +8,7 @@ The Toonish UI kit as a package. `README.md` covers install and usage. `docs/` h
 - **Components stay Tailwind v3 syntax** (`@apply`, `theme()`) until the Tailwind v4 upgrade is its own change.
 - **Every helper that returns HTML escapes its input** with `esc()`.
 - **Mobile first.** Write the phone layout as the base rule and add wider layouts in `min-width` queries. Check a component at 390 px before 1280 px. Decoration shows on a phone. `docs/principles.md` has the rules.
+- **Accessibility is a hard rule.** Semantic HTML first, ARIA roles where HTML has no word for it, and WCAG 2.2 AA. Every component ships accessible, with its roles, labels and states written by the helper. Nothing ships that fails the accessibility checks in `test/browser.ts`: do not skip, relax or quarantine one to merge. A new component joins `test/fixture.ts` and the contract table in `docs/components.md`. `docs/principles.md` has the rule.
 - **A check that reports success must say what it examined.** The build and browser check print counts; keep that.
 - **The kit page is not in this repo.** It is `/ui.html` in `pdlabs-portfolio`. `test/fixture.ts` is a test fixture only.
 - Write prose in Google developer documentation style: second person, active voice, no time-anchored words.

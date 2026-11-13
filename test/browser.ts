@@ -22,6 +22,7 @@ const server = Bun.serve({
       requests.push(pathname + new URL(req.url).search);
       return new Response('<!doctype html><article><h1>Fetched page</h1><p>Body</p><img src="data:," onerror="window.__xss=1"><a href="javascript:window.__xss=2">x</a></article>', { headers: { 'content-type': 'text/html; charset=utf-8' } });
     }
+    if (pathname === '/axe.js') return new Response(Bun.file('node_modules/axe-core/axe.min.js'), { headers: { 'content-type': 'text/javascript' } });
     if (pathname.startsWith('/dist/') && !pathname.includes('..')) {
       const f = Bun.file(`.${pathname}`);
       return (await f.exists()) ? new Response(f) : new Response('not found', { status: 404 });
@@ -413,6 +414,45 @@ try {
     await c.close();
   }
 
+  // Accessibility: axe at WCAG 2.2 AA on both widths, then what axe cannot see. Motion is off so a colour caught mid-animation
+  // is not read as a contrast failure. A violation fails the check and prints the rule, the count and the first node.
+  for (const [name, width, height] of [['desktop', 1280, 900], ['phone', 390, 844]] as const) {
+    const c = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
+    const p = await c.newPage();
+    await p.goto(server.url.href, { waitUntil: 'networkidle' });
+    await p.addScriptTag({ url: '/axe.js' });
+    const res = await p.evaluate(() => (window as any).axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] }));
+    console.log(`a11y ${name}: axe ran ${res.passes.length} rules to a pass, ${res.violations.length} violations, ${res.incomplete.length} needing review`);
+    eq(res.passes.length > 30, true, `a11y ${name}: axe ran (only ${res.passes.length} rules passed)`);
+    for (const v of res.violations) check(false, `a11y ${name}: ${v.id} (${v.nodes.length}): ${v.help}; first ${v.nodes[0].target.join(' ')}: ${v.nodes[0].any[0]?.message ?? ''}`);
+    await p.keyboard.press('Tab'); // before any focus() call moves the starting point
+    eq(await p.evaluate(() => document.activeElement?.className), 'toon-skip', `a11y ${name}: the skip link is the first tab stop`);
+    // The focus ring: every tabbable element shows an ink ring or an ink outline, so it keeps 3:1 on paper and the navy ground.
+    const rings = await p.evaluate(async () => {
+      const out: string[] = []; let n = 0;
+      for (const el of [...document.querySelectorAll<HTMLElement>('a[href],button,summary')]) {
+        if (!el.offsetParent && getComputedStyle(el).position !== 'fixed') continue;
+        if (el.closest('dialog:not([open]),[inert]')) continue;
+        el.focus({ focusVisible: true } as FocusOptions); n++;
+        const cs = getComputedStyle(el);
+        const ink = /rgb\(10, 10, 31\) 0px 0px 0px 2px/.test(cs.boxShadow) || cs.outlineColor === 'rgb(10, 10, 31)';
+        if (!ink || cs.outlineStyle === 'none') out.push(`${el.tagName}.${String(el.className).slice(0, 30)} outline ${cs.outlineStyle} ${cs.outlineColor}, shadow ${cs.boxShadow.slice(0, 40)}`);
+        el.blur();
+      }
+      return { n, out };
+    });
+    console.log(`a11y ${name}: focus ring read on ${rings.n} focusable elements`);
+    eq(rings.n > 10, true, `a11y ${name}: focus ring checked ${rings.n} elements`);
+    eq(rings.out.join(' | '), '', `a11y ${name}: every focusable element has an ink ring and an outline`);
+    // Target size: WCAG 2.2 asks 24 px; the kit's own controls keep 44 px, Apple's minimum.
+    const small = await p.evaluate(() => [...document.querySelectorAll<HTMLElement>('.toon-btn,.toon-nav a,.toon-nav button,.toon-pager-link,.toon-deck-btn,.toon-modal-x,.toon-motion')].filter((e) => e.offsetParent).filter((e) => e.getBoundingClientRect().height < 43.5).map((e) => `${e.className.slice(0, 30)} ${Math.round(e.getBoundingClientRect().height)}px`));
+    eq(small.join(' | '), '', `a11y ${name}: kit controls are 44 px tall`);
+    // Semantics: one h1, a main landmark, an h2 before any h3, and a skip link that is the first tab stop.
+    const sem = await p.evaluate(() => { const hs = [...document.querySelectorAll('h1,h2,h3,h4')].map((h) => +h.tagName[1]!); return { h1: hs.filter((h) => h === 1).length, jump: hs.some((h, i) => i > 0 && h - hs[i - 1]! > 1), main: document.querySelectorAll('main').length }; });
+    eq(sem.h1, 1, `a11y ${name}: one h1`); eq(sem.jump, false, `a11y ${name}: headings never skip a level`); eq(sem.main, 1, `a11y ${name}: one main landmark`);
+    await c.close();
+  }
+
   // Reduced motion: every animation stops.
   const ctx = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await ctx.newPage();
@@ -438,4 +478,4 @@ if (fail.length) {
   console.error(`browser check FAILED, ${fail.length} of ${checks} checks:\n- ${fail.join('\n- ')}`);
   process.exit(1);
 }
-console.log(`browser check passed: ${checks} checks at 1280 px and 390 px, plus the deck, and reduced motion; screenshots in test/out/`);
+console.log(`browser check passed: ${checks} checks at 1280 px and 390 px, plus the deck, accessibility (axe at WCAG 2.2 AA, focus rings, target size, semantics) and reduced motion; screenshots in test/out/`);

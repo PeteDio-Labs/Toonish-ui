@@ -25,7 +25,10 @@
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text, .toon-stat, .toon-list, .toon-chip,
   .toon-empty, .toon-bar-seg, .toon-table-wrap, .toon-row, .toon-table th, .toon-table td, .toon-row-aside > i, .toon-bars-key i,
   .toon-portrait, .toon-pager-link, .toon-pager-arrow, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule { border-style: solid; }
-  :focus-visible { @apply outline outline-2 outline-offset-2 outline-toon-yellow; }
+  /* Two-tone focus ring: an ink ring against the element and a yellow ring outside it. Ink shows on paper and yellow shows
+     on the navy ground, so the ring keeps 3:1 against either (WCAG 1.4.11). A component with its own hard shadow
+     repeats the ink ring ahead of that shadow in the a11y block at the end of this layer. */
+  :focus-visible { @apply outline outline-2 outline-offset-2 outline-toon-yellow; box-shadow: 0 0 0 2px theme(colors.toon.ink); }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 }
 
@@ -115,7 +118,7 @@
 
   /* Motion switch (header). Icon only on a phone, with a word beside it from sm up. */
   .toon-motion {
-    @apply inline-flex shrink-0 cursor-pointer items-center gap-s1 rounded-full border-toon border-toon-ink bg-toon-paper px-s2 py-s1
+    @apply inline-flex min-h-[2.75rem] min-w-[2.75rem] shrink-0 cursor-pointer items-center justify-center gap-s1 rounded-full border-toon border-toon-ink bg-toon-paper px-s2 py-s1
            font-body text-footnote font-bold text-toon-ink transition duration-fast ease-bounce sm:px-s3;
     box-shadow: 3px 3px 0 theme(colors.toon.blue);
   }
@@ -123,7 +126,9 @@
   .toon-motion-label { @apply sr-only sm:not-sr-only; }
 
   /* 4. Link: thick red underline that springs on hover. */
+  /* `color: inherit`: a link takes the text colour of its surface (paper on the ground, ink on paper). The browser's own link blue is 1.9:1 on the ground. */
   .toon-link {
+    color: inherit;
     @apply font-bold underline decoration-toon-red decoration-4 underline-offset-4 transition-all duration-fast ease-bounce;
   }
   .toon-link:hover { @apply underline-offset-8; }
@@ -234,7 +239,7 @@
            sm:gap-s2 sm:border-toon sm:p-s2;
   }
   .toon-nav a, .toon-nav button {
-    @apply cursor-pointer whitespace-nowrap rounded-full border-0 bg-transparent px-s3 py-s1 font-body text-subhead font-bold text-toon-ink no-underline
+    @apply inline-flex min-h-[2.75rem] cursor-pointer items-center justify-center whitespace-nowrap rounded-full border-0 bg-transparent px-s3 py-s1 font-body text-subhead font-bold text-toon-ink no-underline
            transition duration-fast ease-bounce sm:px-s4 sm:py-s2 sm:text-body;
   }
   /* Hover only where a pointer can hover: on a phone a tap would leave the pill stuck yellow. */
@@ -382,20 +387,20 @@
   @media (max-width: 639px) { .toon-strip-cell:last-child:nth-child(odd) { grid-column: 1 / -1; } }
   .toon-strip-cell { @apply m-0 flex min-w-0 list-none bg-toon-paper p-0; }
   .toon-strip-item { @apply flex w-full min-w-0 flex-col justify-center gap-s2 px-s4 py-s4 text-toon-ink no-underline; }
-  /* The figure: the display face in an accent colour with an ink outline, as on the hero. Colours cycle by cell unless
+  /* The figure: the display face in an accent colour deep enough for 3:1 on paper (the `-text` tokens), with an ink outline, as on the hero. Colours cycle by cell unless
      the helper sets `--toon-fill`. */
   .toon-strip-value {
     @apply block font-display font-bold leading-none tracking-tight transition duration-fast ease-bounce;
     font-size: clamp(1.75rem, 4vw, 2.5rem);
-    color: var(--toon-fill, theme(colors.toon.blue));
+    color: var(--toon-fill, theme(colors.toon.blue-text));
     -webkit-text-stroke: .06em theme(colors.toon.ink);
     paint-order: stroke fill;
     font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
   }
-  .toon-strip-cell:nth-child(4n+2) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.red)); }
-  .toon-strip-cell:nth-child(4n+3) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.violet)); }
-  .toon-strip-cell:nth-child(4n) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.yellow)); }
+  .toon-strip-cell:nth-child(4n+2) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.red-text)); }
+  .toon-strip-cell:nth-child(4n+3) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.violet-text)); }
+  .toon-strip-cell:nth-child(4n) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.yellow-text)); }
   .toon-strip-label { @apply block text-footnote leading-snug text-toon-muted; }
   a.toon-strip-item { @apply transition duration-fast ease-bounce; }
   /* The global focus ring is yellow and sits outside the box, which the strip would clip and paper would hide. */
@@ -577,6 +582,22 @@
   @keyframes toon-deck-out { from { transform: translate(var(--dx, 0), 0) rotate(var(--rot, 0deg)); } 45% { transform: translate(calc(var(--dir, -1) * 78%), -6px) rotate(calc(var(--dir, -1) * 9deg)); opacity: 1; } 55% { opacity: 0; } 70% { opacity: 0; } }
   @keyframes toon-deck-in { from { transform: translate(calc(var(--dir, 1) * 78%), -6px) rotate(calc(var(--dir, 1) * 9deg)); opacity: 0; } 55% { opacity: 1; } }
   @keyframes toon-sfx-drift { 0%, 100% { transform: translateY(var(--y, 0)) rotate(var(--r, 0deg)); } 50% { transform: translateY(calc(var(--y, 0) - .07em)) rotate(calc(var(--r, 0deg) + 1deg)); } }
+}
+
+/* Skip link: off screen until it takes focus, then a button-shaped pill at the top left. */
+.toon-skip { position: absolute; left: 0.5rem; top: 0.5rem; z-index: 100; transform: translateY(-200%); border: 2px solid #0a0a1f; border-radius: 9999px; background: #f2c94c; padding: 0.75rem 1.25rem; font-weight: 700; color: #0a0a1f; text-decoration: none; }
+.toon-skip:focus { transform: none; }
+
+/* Accessibility. A component that throws its own hard shadow keeps it on focus and adds the ink ring ahead of it, so the
+   two-tone focus ring above still shows. */
+.toon-btn:focus-visible { box-shadow: 0 0 0 2px #0a0a1f, 4px 4px 0 var(--toon-shadow); }
+.toon-pager-link:focus-visible { box-shadow: 0 0 0 2px #0a0a1f, 4px 4px 0 var(--toon-shadow); }
+.toon-modal-x:focus-visible { box-shadow: none; }
+/* Windows high-contrast and other forced colours drop shadows and fills, so say what must survive: a visible focus ring. */
+@media (forced-colors: active) {
+  :focus-visible { outline: 3px solid Highlight; box-shadow: none; }
+  .toon-btn:focus-visible, .toon-pager-link:focus-visible { box-shadow: none; }
+  .toon-sfx, .toon-type-comic { text-shadow: none; -webkit-text-stroke: 0; }
 }
 
 /* Motion off. The system preference turns it off unless the visitor switched it on (data-motion="on"), and the switch

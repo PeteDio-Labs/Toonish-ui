@@ -1,6 +1,8 @@
 export type Accent = 'blue' | 'red' | 'yellow' | 'violet';
 export declare const esc: (s: string) => string;
 export declare const HEX: Record<Accent, string>;
+/** The accent at a depth that reads on paper: 3:1 or better for large text. The fills in HEX are 1.4 to 2.7:1 on paper. */
+export declare const HEX_TEXT: Record<Accent, string>;
 /** Shadow paired with each accent: never a complementary clash, never the fill's own colour. */
 export declare const PAIR: Record<Accent, Accent>;
 /** The badge class for an accent. Red is the base badge and has no modifier. */
@@ -11,7 +13,8 @@ export declare const burst: (accent: Accent, cls?: string) => string;
 export declare const speedLines: (cls?: string) => string;
 export interface LettersOptions {
     live?: boolean;
-    flat?: boolean;
+    flat?: boolean; /** Use the deeper accent, which reads on paper. Default is the fill for the navy ground. */
+    onPaper?: boolean;
     cls?: string;
     size?: number;
 }
@@ -74,8 +77,17 @@ export interface RowOptions {
     /** A colour dot before the aside. */
     dot?: Tone;
 }
-/** A row for `<div class="toon-list">`. */
+/** A row for `list()`. It is a `listitem`, so the container must be `role="list"`. */
 export declare const row: (o: RowOptions) => string;
+export interface ListOptions {
+    /** Names the list for a screen reader. Required. */
+    label: string;
+    cls?: string;
+}
+/** A panel of rows. A `div` with grid layout loses its list semantics in some readers, so the helper sets `role="list"`. Pass rows from `row()`. */
+export declare const list: (rows: string[], o: ListOptions) => string;
+/** A skip link: the first focusable element on the page, hidden until it takes focus. Point it at the id of `<main>`. */
+export declare const skipLink: (target?: string, text?: string) => string;
 export interface BarSegment {
     value: number;
     tone: Tone | 'hatch';

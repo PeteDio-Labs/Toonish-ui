@@ -10,6 +10,10 @@ var toonish_tokens_default = {
     red: { $value: "#f2706a" },
     yellow: { $value: "#f2c94c" },
     violet: { $value: "#a995f0" },
+    "blue-text": { $value: "#2a57d6", $description: "Blue for large figures on paper. The fill blue is 2.7:1 on paper; this is 5.3:1." },
+    "red-text": { $value: "#c8322b", $description: "Red for large figures on paper (4.6:1)." },
+    "violet-text": { $value: "#6b4fd6", $description: "Violet for large figures on paper (4.9:1)." },
+    "yellow-text": { $value: "#7a5c00", $description: "Yellow for large figures on paper (5.4:1). The fill yellow is 1.4:1 on paper." },
     muted: { $value: "#4a4d78", $description: "Secondary text on paper." },
     mist: { $value: "#b9bde0", $description: "Secondary text on the ground, and the quiet fill for a closed or inactive state." },
     rule: { $value: "#d3d8e0", $description: "Grid lines and the current-row fill on paper." }
