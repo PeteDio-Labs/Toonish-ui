@@ -47,3 +47,52 @@ export interface ShotOptions {
 }
 /** A screenshot in a comic panel: `<figure>` with the image, an optional corner badge, a caption and a transcript. */
 export declare const shot: (o: ShotOptions) => string;
+/** A badge colour: an accent, or `paper` or `mist` for a neutral. */
+export type Tone = Accent | 'paper' | 'mist';
+/** A badge with an optional count, such as a status and how many items have it. */
+export declare const badge: (text: string, tone?: Tone, count?: number) => string;
+/** A small tag. */
+export declare const chip: (text: string) => string;
+/** A figure tile: label, value and an optional line of detail. Put tiles inside `<div class="toon-stats">`. */
+export declare const stat: (label: string, value: string, detail?: string) => string;
+export interface RowOptions {
+    /** The lead: a date or a tag. */
+    lead?: string;
+    title: string;
+    /** Quieter text after the title. */
+    sub?: string;
+    /** Text at the end of the row. */
+    aside?: string;
+    /** A colour dot before the aside. */
+    dot?: Tone;
+}
+/** A row for `<div class="toon-list">`. */
+export declare const row: (o: RowOptions) => string;
+export interface BarSegment {
+    value: number;
+    tone: Tone | 'hatch';
+    /** Names the segment for a screen reader. */
+    label: string;
+}
+export interface BarColumn {
+    label: string;
+    /** A second line under the label, such as a date. */
+    sub?: string;
+    segments: BarSegment[];
+    /** Marks the column that stands for now. */
+    current?: boolean;
+}
+export interface BarsOptions {
+    columns: BarColumn[];
+    /** The value that fills the plot. Defaults to the largest stack, and never less than `target`. */
+    max?: number;
+    /** Draws a dashed reference line at this value. */
+    target?: number;
+    /** Names the chart for a screen reader. */
+    label: string;
+}
+/**
+ * Stacked columns on one scale. Heights are percentages of `max`, so the CSS needs no script. Each column carries
+ * an `aria-label` with its numbers, because the shapes alone do not say them.
+ */
+export declare const bars: (o: BarsOptions) => string;
