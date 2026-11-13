@@ -21,6 +21,12 @@ export const fixture = (): string => `<!doctype html>
 <div class="toon-list">${row({ lead: 'Nov 12', title: 'Acme', sub: 'Analyst', aside: 'Email', dot: 'blue' })}${row({ lead: 'Nov 11', title: 'Globex', aside: 'Site', dot: 'red' })}</div>
 <div class="toon-empty">Nothing yet.</div>
 <div class="toon-table-wrap"><table class="toon-table toon-table-text"><thead><tr><th>Name</th><th>What it does</th></tr></thead><tbody><tr><td>Alpha</td><td>A longer sentence of words that is allowed to wrap onto a second line on a narrow screen without scrolling.</td></tr></tbody></table></div>
+<div class="toon-card" id="dividers">${bars({ label: 'Divider cases', columns: [
+  { label: 'Bot', segments: [{ value: 1, tone: 'hatch', label: 'h' }, { value: 1, tone: 'blue', label: 'b' }] },
+  { label: 'Mid', current: true, segments: [{ value: 1, tone: 'blue', label: 'b' }, { value: 1, tone: 'hatch', label: 'h' }, { value: 1, tone: 'red', label: 'r' }] },
+  { label: 'Two', segments: [{ value: 1, tone: 'hatch', label: 'h' }, { value: 1, tone: 'hatch', label: 'h' }] },
+  { label: 'Plain', segments: [{ value: 1, tone: 'blue', label: 'b' }, { value: 1, tone: 'red', label: 'r' }] },
+  { label: 'Empty', segments: [] }] })}</div>
 <div class="toon-card">${bars({ label: 'Week', target: 1, columns: [{ label: 'Mon', sub: '9', segments: [{ value: 0.6, tone: 'blue', label: 'Email' }, { value: 0.2, tone: 'hatch', label: 'Dropped' }] }, { label: 'Tue', sub: '10', current: true, segments: [{ value: 1.1, tone: 'red', label: 'Site' }] }, { label: 'Wed', sub: '11', segments: [] }] })}
 <ul class="toon-bars-key"><li><i></i>Email</li><li><i style="--toon-dot:#f2706a"></i>Site</li></ul></div>
 <div class="toon-table-wrap"><table class="toon-table"><thead><tr><th>Day</th><th>Email</th><th>Site</th></tr></thead><tbody><tr><td>Mon</td><td>3</td><td>0</td></tr><tr aria-current="date"><td>Tue</td><td>1</td><td>2</td></tr></tbody><tfoot><tr><td>Week</td><td>4</td><td>2</td></tr></tfoot></table></div></section>

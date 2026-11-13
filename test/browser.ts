@@ -88,15 +88,29 @@ try {
     eq(await style('.toon-table td', 'border-bottom-style'), 'solid', `${name}: .toon-table draws its rules`);
     eq(await style('.toon-badge-mist', 'background-color'), 'rgb(185, 189, 224)', `${name}: .toon-badge-mist fill is mist`);
     const barBox = await page.evaluate(() => {
-      const plot = document.querySelector('.toon-bar-plot')!.getBoundingClientRect();
-      const segs = [...document.querySelectorAll('.toon-bar-seg')].map((e) => e.getBoundingClientRect());
-      const target = document.querySelector('.toon-bars-target')!.getBoundingClientRect();
+      const root = document.querySelector('.toon-bars:not(#dividers .toon-bars)')!;
+      const plot = root.querySelector('.toon-bar-plot')!.getBoundingClientRect();
+      const segs = [...root.querySelectorAll('.toon-bar-seg')].map((e) => e.getBoundingClientRect());
+      const target = root.querySelector('.toon-bars-target')!.getBoundingClientRect();
       return { plot: plot.height, h: segs.map((r) => r.height), segs: segs.length, tall: segs.every((r) => r.height > 0), fits: segs.every((r) => r.bottom <= plot.bottom + 1), targetInside: target.top >= plot.top - 1 && target.top <= plot.bottom };
     });
     eq(barBox.segs, 3, `${name}: bars drew 3 segments`);
     eq(barBox.tall && barBox.fits, true, `${name}: every bar segment has height and stays in its plot`);
     // Mon: 0.6 and 0.2 of a 1.1 scale; Tue: 1.1. The tallest segment fills its plot and the first is 0.6/1.1 of it.
     eq(Math.abs(barBox.h[2]! - barBox.plot) <= 2 && Math.abs(barBox.h[0]! - barBox.plot * 0.6 / 1.1) <= 3, true, `${name}: segment heights follow their share of the scale (${barBox.h.map(Math.round)} in ${Math.round(barBox.plot)})`);
+    // Divider rules. Each segment's bottom border is the divider to the one below it; the stack is column-reverse, so the first child is the bottom.
+    const edges = await page.evaluate(() => [...document.querySelectorAll('#dividers .toon-bar')].map((col) => [...col.querySelectorAll('.toon-bar-seg')].map((s) => { const c = getComputedStyle(s); return `${c.borderTopWidth}/${c.borderBottomWidth}`; })));
+    eq(JSON.stringify(edges), JSON.stringify([
+      ['0px/2px', '2px/0px'],
+      ['0px/2px', '0px/0px', '2px/0px'],
+      ['0px/2px', '2px/0px'],
+      ['0px/2px', '2px/1px'],
+      [],
+    ]), `${name}: dividers are 1px between colours and none beside a hatch, inside a 2px outline (${JSON.stringify(edges)})`);
+    // Labels sit at one height in a chart that has an empty column and a current day, and the underline has room below the date.
+    const labels = await page.evaluate(() => [...document.querySelectorAll('#dividers .toon-bar-label')].map((e) => Math.round(e.getBoundingClientRect().top)));
+    eq(new Set(labels).size, 1, `${name}: every column's labels start at the same height (${labels})`);
+    eq(await page.$eval('#dividers [aria-current] .toon-bar-label b', (e) => getComputedStyle(e).paddingBottom), '8px', `${name}: the current-day label has 8px below it for its underline`);
     eq(barBox.targetInside, true, `${name}: the target line sits inside the plot`);
     eq(await style('.toon-table-wrap', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-table-wrap fill is paper`);
     // The second column and the header are the ones the base table right-aligns and keeps on one line.
