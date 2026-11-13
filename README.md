@@ -164,6 +164,19 @@ The script adds backdrop taps and a scroll lock that lasts while any modal is op
 - **Inline:** put a `<dialog class="toon-modal">` in the page, with `toon-modal-box`, `toon-modal-head` and `toon-modal-body`, and a button with `data-toon-modal-open="<dialog id>"`. A `data-toon-modal-close` button inside closes it.
 - **From a page:** a link with `data-toon-modal` fetches its own `href` (path and query string) and shows the page's `<article>` in a shared modal. Without JavaScript, the link navigates normally. The script drops `on*` attributes and `javascript:` URLs from the fetched markup, but link only to pages of your own site: the fetched HTML is not otherwise sanitized.
 
+## Mobile first
+
+Every component is designed for a phone first, at 390 px, and widened from there.
+
+- **The base rule is the phone layout.** Wider layouts sit in `min-width` queries (`sm`, `md`, `lg`).
+- **No component traps a scroll.** No component is a sideways scroll container on a phone. A component that
+  takes a swipe, such as `toon-deck`, sets `touch-action: pan-y`, so a vertical drag always scrolls the page.
+- **Touch targets are at least 44 px,** and nothing depends on hover.
+- **Decoration shows on a phone.** `toon-sfx`, the tilts and the bursts draw at every width. To fit a phone,
+  use a smaller size (`toon-sfx-sm`) or a different position. Don't hide the element.
+- **No component widens the page.** The browser check loads the fixture at 390 px and at 1280 px, and fails on
+  sideways overflow.
+
 ## Develop
 
 ```sh
