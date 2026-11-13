@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, steps, sfx } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -136,4 +136,68 @@ test('the hex colours in the markup helpers match the tokens', () => {
   for (const k of ['blue', 'red', 'yellow', 'violet'] as const) expect(HEX[k]).toBe(c[k]!);
   expect(row({ title: 't', aside: 'a', dot: 'paper' })).toContain(c.paper!);
   expect(row({ title: 't', aside: 'a', dot: 'mist' })).toContain(c.mist!);
+});
+
+const evil = '"><img src=x onerror=alert(1)>';
+
+test('kicker renders the chip, label, rule and optional link, and escapes every string', () => {
+  const html = kicker('01', 'The work', { link: { href: '/work.html', text: 'All', cls: 'hidden' } });
+  expect(html).toContain('<span class="toon-kicker-num">01</span><span class="toon-kicker-label">The work</span><span class="toon-kicker-rule" aria-hidden="true"></span>');
+  expect(html).toContain('<a class="toon-link toon-kicker-link hidden" href="/work.html">All</a>');
+  expect(kicker('01', 'x')).not.toContain('<a ');
+  const bad = kicker(evil, evil, { cls: evil, link: { href: evil, text: evil, cls: evil } });
+  expect(bad.includes('<img')).toBe(false);
+  expect(bad).toContain('&quot;&gt;&lt;img');
+  expect(() => kicker(' ', 'x')).toThrow('required');
+  expect(() => kicker('01', '')).toThrow('required');
+});
+
+test('strip renders linked and plain cells, sets the column count and escapes', () => {
+  const html = strip([{ value: '21', label: 'studies', href: '/work.html' }, { value: '~594', label: 'packages', accent: 'red' }], { label: 'Proof' });
+  expect(html).toContain('role="list" aria-label="Proof" style="--toon-cols:2"');
+  expect(html).toContain('<a class="toon-strip-item" href="/work.html">');
+  expect(html).toContain('<div class="toon-strip-item"><span class="toon-strip-value" style="--toon-fill:#f2706a">~594</span>');
+  expect(html.match(/<li class="toon-strip-cell">/g)).toHaveLength(2);
+  const bad = strip([{ value: evil, label: evil, href: evil }], { label: evil, cls: evil });
+  expect(bad.includes('<img')).toBe(false);
+  expect(() => strip([])).toThrow('at least one');
+  expect(() => strip([{ value: '1', label: ' ' }])).toThrow('value and a label');
+  expect(() => strip([{ value: '1', label: 'x', accent: 'nope' as never }])).toThrow('unknown accent');
+});
+
+test('steps numbers the panels and draws an arrow between them but not after the last', () => {
+  const html = steps([{ title: 'A', body: 'a' }, { title: 'B', body: 'b' }, { title: 'C', body: 'c' }], { label: 'Process' });
+  expect(html).toContain('<ol class="toon-steps" role="list" aria-label="Process" style="--toon-cols:3">');
+  expect(html.match(/class="toon-step-num" aria-hidden="true">/g)).toHaveLength(3);
+  expect(html.match(/toon-step-arrow/g)).toHaveLength(2);
+  expect(html.match(/class="toon-step-arrow" aria-hidden="true"/g)).toHaveLength(2);
+  expect(html.lastIndexOf('toon-step-arrow')).toBeLessThan(html.lastIndexOf('<li class="toon-step">'));
+  const bad = steps([{ title: evil, body: evil }], { label: evil, cls: evil });
+  expect(bad.includes('<img')).toBe(false);
+  expect(() => steps([])).toThrow('at least one');
+  expect(() => steps([{ title: 'A', body: '' }])).toThrow('title and a body');
+});
+
+test('sfx letters each character, is the same every time, and is decoration only', () => {
+  const a = sfx('MERGE!', 'red');
+  expect(a).toBe(sfx('MERGE!', 'red'));
+  expect(a).toContain('aria-hidden="true"');
+  expect(a.match(/<span style="--n:/g)).toHaveLength(6);
+  expect(a).toContain('--toon-fill:#f2706a; --toon-shade:#f2c94c');
+  // Letters differ from one another in turn, rise and size.
+  const turns = [...a.matchAll(/--r:(-?\d+)deg/g)].map((m) => m[1]);
+  expect(new Set(turns).size).toBeGreaterThan(3);
+  expect(new Set([...a.matchAll(/--s:([\d.]+)/g)].map((m) => m[1])).size).toBeGreaterThan(2);
+  expect(a).not.toContain('toon-sfx-sm');
+  expect(sfx('x', 'blue', { size: 'lg', ghost: true })).toContain('class="toon-sfx toon-sfx-lg toon-sfx-ghost"');
+  expect(sfx('x', 'blue', { size: 'sm' })).toContain('toon-sfx-sm');
+});
+
+test('sfx escapes its text and class and rejects bad input', () => {
+  const html = sfx('<img src=x onerror=alert(1)>', 'blue', { cls: evil });
+  expect(html.includes('<img')).toBe(false);
+  expect(html).toContain('&lt;');
+  expect(() => sfx('  ')).toThrow('required');
+  expect(() => sfx('x', 'nope' as never)).toThrow('unknown accent');
+  expect(() => sfx('x', 'red', { size: 'huge' as never })).toThrow('unknown sfx size');
 });

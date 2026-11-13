@@ -181,3 +181,89 @@ export const bars = (o: BarsOptions): string => {
   }).join('');
   return `<div class="toon-bars" role="list" aria-label="${esc(o.label)}" style="--toon-cols:${o.columns.length}">${cols}</div>`;
 };
+
+export interface KickerOptions {
+  /** A short link at the end of the row, such as "All case studies". */
+  link?: { href: string; text: string; cls?: string };
+  cls?: string;
+}
+
+/** A section lead-in: a number chip, a short label, a rule to the right edge and an optional link. */
+export const kicker = (num: string, label: string, o: KickerOptions = {}): string => {
+  if (!num.trim() || !label.trim()) throw new Error('kicker: num and label are required');
+  const link = o.link ? `<a class="toon-link toon-kicker-link${o.link.cls ? ' ' + esc(o.link.cls) : ''}" href="${esc(o.link.href)}">${esc(o.link.text)}</a>` : '';
+  return `<div class="toon-kicker${o.cls ? ' ' + esc(o.cls) : ''}"><span class="toon-kicker-num">${esc(num)}</span><span class="toon-kicker-label">${esc(label)}</span><span class="toon-kicker-rule" aria-hidden="true"></span>${link}</div>`;
+};
+
+export interface StripCell {
+  value: string;
+  label: string;
+  /** Makes the whole cell a link. */
+  href?: string;
+  /** The figure's colour. Without it the colour cycles by cell. */
+  accent?: Accent;
+}
+export interface StripOptions {
+  /** Names the strip for a screen reader. */
+  label?: string;
+  cls?: string;
+}
+
+/** A row of figure cells in one bordered panel: four across, two by two on a phone. */
+export const strip = (cells: StripCell[], o: StripOptions = {}): string => {
+  if (!cells.length) throw new Error('strip: at least one cell is required');
+  const items = cells.map((c) => {
+    if (!c.value.trim() || !c.label.trim()) throw new Error('strip: every cell needs a value and a label');
+    const fill = c.accent ? ` style="--toon-fill:${HEX[accentOf(c.accent)]}"` : '';
+    const inner = `<span class="toon-strip-value"${fill}>${esc(c.value)}</span><span class="toon-strip-label">${esc(c.label)}</span>`;
+    return `<li class="toon-strip-cell">${c.href ? `<a class="toon-strip-item" href="${esc(c.href)}">${inner}</a>` : `<div class="toon-strip-item">${inner}</div>`}</li>`;
+  }).join('');
+  return `<ul class="toon-strip${o.cls ? ' ' + esc(o.cls) : ''}" role="list"${o.label ? ` aria-label="${esc(o.label)}"` : ''} style="--toon-cols:${cells.length}">${items}</ul>`;
+};
+
+export interface Step {
+  title: string;
+  body: string;
+}
+export interface StepsOptions {
+  /** Names the list for a screen reader. */
+  label?: string;
+  cls?: string;
+}
+
+const ARROW = '<span class="toon-step-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="M2 8h10M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+
+/** Numbered panels read in order, with a decorative arrow between them: right in a row, down when stacked. */
+export const steps = (items: Step[], o: StepsOptions = {}): string => {
+  if (!items.length) throw new Error('steps: at least one step is required');
+  const lis = items.map((s, i) => {
+    if (!s.title.trim() || !s.body.trim()) throw new Error('steps: every step needs a title and a body');
+    return `<li class="toon-step"><span class="toon-step-num" aria-hidden="true">${i + 1}</span><strong class="toon-step-title">${esc(s.title)}</strong><p class="toon-step-body">${esc(s.body)}</p>${i < items.length - 1 ? ARROW : ''}</li>`;
+  }).join('');
+  return `<ol class="toon-steps${o.cls ? ' ' + esc(o.cls) : ''}" role="list"${o.label ? ` aria-label="${esc(o.label)}"` : ''} style="--toon-cols:${items.length}">${lis}</ol>`;
+};
+
+export interface SfxOptions {
+  size?: 'sm' | 'lg';
+  /** An outline only, low in contrast, for sitting behind content. */
+  ghost?: boolean;
+  cls?: string;
+}
+
+// Per-letter turn, rise (em) and size, cycled by index. Fixed tables, not Math.random: the same word always letters the same way.
+const SFX_TURN = [-7, 4, -3, 8, -5, 2];
+const SFX_RISE = [0, -0.08, 0.06, -0.04, 0.1, -0.02];
+const SFX_SIZE = [1, 1.12, 0.92, 1.06, 0.96, 1.1];
+
+/**
+ * A sound-effect word in the comic face, each letter turned, raised and sized by its index so it looks hand-lettered.
+ * Decoration only: it is `aria-hidden`, so put real meaning in text elsewhere. Place it with `absolute` inside a `relative` parent.
+ */
+export const sfx = (text: string, accent: Accent = 'red', opts: SfxOptions = {}): string => {
+  accentOf(accent);
+  if (!text.trim()) throw new Error('sfx: text is required');
+  if (opts.size !== undefined && opts.size !== 'sm' && opts.size !== 'lg') throw new Error(`unknown sfx size "${String(opts.size)}": use sm or lg`);
+  const cls = ['toon-sfx', opts.size ? `toon-sfx-${opts.size}` : '', opts.ghost ? 'toon-sfx-ghost' : '', opts.cls ? esc(opts.cls) : ''].filter(Boolean).join(' ');
+  const spans = [...text].map((c, i) => `<span style="--n:${i};--r:${SFX_TURN[i % 6]}deg;--y:${SFX_RISE[(i * 5) % 6]}em;--s:${SFX_SIZE[(i * 7) % 6]}">${esc(c)}</span>`).join('');
+  return `<span class="${cls}" style="--toon-fill:${HEX[accent]}; --toon-shade:${HEX[PAIR[accent]]}" aria-hidden="true">${spans}</span>`;
+};

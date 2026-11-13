@@ -96,3 +96,51 @@ export interface BarsOptions {
  * an `aria-label` with its numbers, because the shapes alone do not say them.
  */
 export declare const bars: (o: BarsOptions) => string;
+export interface KickerOptions {
+    /** A short link at the end of the row, such as "All case studies". */
+    link?: {
+        href: string;
+        text: string;
+        cls?: string;
+    };
+    cls?: string;
+}
+/** A section lead-in: a number chip, a short label, a rule to the right edge and an optional link. */
+export declare const kicker: (num: string, label: string, o?: KickerOptions) => string;
+export interface StripCell {
+    value: string;
+    label: string;
+    /** Makes the whole cell a link. */
+    href?: string;
+    /** The figure's colour. Without it the colour cycles by cell. */
+    accent?: Accent;
+}
+export interface StripOptions {
+    /** Names the strip for a screen reader. */
+    label?: string;
+    cls?: string;
+}
+/** A row of figure cells in one bordered panel: four across, two by two on a phone. */
+export declare const strip: (cells: StripCell[], o?: StripOptions) => string;
+export interface Step {
+    title: string;
+    body: string;
+}
+export interface StepsOptions {
+    /** Names the list for a screen reader. */
+    label?: string;
+    cls?: string;
+}
+/** Numbered panels read in order, with a decorative arrow between them: right in a row, down when stacked. */
+export declare const steps: (items: Step[], o?: StepsOptions) => string;
+export interface SfxOptions {
+    size?: 'sm' | 'lg';
+    /** An outline only, low in contrast, for sitting behind content. */
+    ghost?: boolean;
+    cls?: string;
+}
+/**
+ * A sound-effect word in the comic face, each letter turned, raised and sized by its index so it looks hand-lettered.
+ * Decoration only: it is `aria-hidden`, so put real meaning in text elsewhere. Place it with `absolute` inside a `relative` parent.
+ */
+export declare const sfx: (text: string, accent?: Accent, opts?: SfxOptions) => string;

@@ -17,12 +17,14 @@
      a thin sliver outside the antialiased ink border. Clip every bordered fill to the padding box: the border is opaque
      ink, so nothing visible changes except the sliver. */
   .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
-  .toon-corner, .toon-modal-box, .toon-modal-head, .toon-stat, .toon-list, .toon-chip, .toon-empty, .toon-table-wrap { background-clip: padding-box; }
+  .toon-corner, .toon-modal-box, .toon-modal-head, .toon-stat, .toon-list, .toon-chip, .toon-empty, .toon-table-wrap,
+  .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num { background-clip: padding-box; }
   /* The precompiled build has no Tailwind reset, which is where `border-style: solid` normally comes from. Without it a
      bordered div or figure draws no border at all. */
   .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text, .toon-stat, .toon-list, .toon-chip,
-  .toon-empty, .toon-bar-seg, .toon-table-wrap, .toon-row, .toon-table th, .toon-table td, .toon-row-aside > i, .toon-bars-key i { border-style: solid; }
+  .toon-empty, .toon-bar-seg, .toon-table-wrap, .toon-row, .toon-table th, .toon-table td, .toon-row-aside > i, .toon-bars-key i,
+  .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule { border-style: solid; }
   :focus-visible { @apply outline outline-2 outline-offset-2 outline-toon-yellow; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 }
@@ -308,6 +310,14 @@
   .toon-bubble::before { left: 26px; bottom: -24px; border-width: 24px 16px 0 16px; border-top-color: theme(colors.toon.ink); }
   .toon-bubble::after  { left: 33px; bottom: -14px; border-width: 15px 9px 0 9px; border-top-color: theme(colors.toon.paper); }
 
+  /* 10b. Bubble tails. `toon-bubble-left` puts the tail on the left edge pointing left, for a speaker beside the bubble.
+     `toon-bubble-up` puts it on the top edge pointing up, for a speaker above it. Each resets the default bottom tail. */
+  .toon-bubble-left::before, .toon-bubble-left::after, .toon-bubble-up::before, .toon-bubble-up::after { border-color: transparent; }
+  .toon-bubble-left::before { left: -24px; top: 26px; bottom: auto; border-width: 16px 24px 16px 0; border-right-color: theme(colors.toon.ink); }
+  .toon-bubble-left::after  { left: -14px; top: 33px; bottom: auto; border-width: 9px 15px 9px 0; border-right-color: theme(colors.toon.paper); }
+  .toon-bubble-up::before { left: 26px; top: -24px; bottom: auto; border-width: 0 16px 24px 16px; border-bottom-color: theme(colors.toon.ink); }
+  .toon-bubble-up::after  { left: 33px; top: -14px; bottom: auto; border-width: 0 9px 15px 9px; border-bottom-color: theme(colors.toon.paper); }
+
   /* 11. Caption: the yellow box a comic narrator speaks from. Square corners on purpose. */
   .toon-caption {
     @apply inline-block border-[3px] border-toon-ink bg-toon-yellow px-s3 py-s1 font-display text-footnote uppercase tracking-wider text-toon-ink;
@@ -327,6 +337,122 @@
 
   /* 14. Blink, for a prompt cursor. */
   .toon-blink { animation: toon-blink 1.1s steps(2, start) infinite; }
+
+  /* 15. Kicker: the lead-in to a section. A number chip, a short mono label, a rule that runs to the right edge and an
+     optional link. The label and the rule take the text colour, so the kicker works on the navy ground (paper) and inside
+     a paper panel (ink). The chip carries its own yellow fill. Keep the link short: it sits at the end of the row. */
+  .toon-kicker { @apply flex items-center gap-s3 font-mono text-footnote font-bold uppercase tracking-wider; }
+  .toon-kicker-num, .toon-step-num {
+    @apply inline-grid min-w-[2.25rem] shrink-0 place-items-center rounded-full border-toon border-toon-ink bg-toon-yellow px-s2 py-0.5
+           font-mono text-footnote font-bold leading-snug text-toon-ink;
+    font-variant-numeric: tabular-nums;
+  }
+  .toon-kicker-label { @apply whitespace-nowrap; }
+  .toon-kicker-rule { @apply h-0 min-w-s4 flex-1 border-0 border-t-toon border-current; }
+  .toon-kicker-link { @apply shrink-0 whitespace-nowrap text-footnote normal-case tracking-normal; }
+
+  /* 16. Strip: figure cells in one bordered paper panel, split by ink rules. Four across from `sm`, two by two below
+     (a last odd cell spans the row). The container is ink and the 2px gap between cells shows through as the rule.
+     `--toon-cols` sets the count on a wide screen. A cell may be a link: the whole cell is the target. */
+  .toon-strip {
+    --toon-shadow: theme(colors.toon.yellow);
+    @apply m-0 grid list-none grid-cols-2 overflow-hidden rounded-toon border-toon border-toon-ink bg-toon-ink p-0 text-toon-ink;
+    gap: theme(borderWidth.toon);
+    box-shadow: 4px 4px 0 var(--toon-shadow);
+  }
+  @media (min-width: 640px) { .toon-strip { grid-template-columns: repeat(var(--toon-cols, 4), minmax(0, 1fr)); } }
+  @media (max-width: 639px) { .toon-strip-cell:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+  .toon-strip-cell { @apply m-0 flex min-w-0 list-none bg-toon-paper p-0; }
+  .toon-strip-item { @apply flex w-full min-w-0 flex-col justify-center gap-s2 px-s4 py-s4 text-toon-ink no-underline; }
+  /* The figure: the display face in an accent colour with an ink outline, as on the hero. Colours cycle by cell unless
+     the helper sets `--toon-fill`. */
+  .toon-strip-value {
+    @apply block font-display font-bold leading-none tracking-tight transition duration-fast ease-bounce;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    color: var(--toon-fill, theme(colors.toon.blue));
+    -webkit-text-stroke: .06em theme(colors.toon.ink);
+    paint-order: stroke fill;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  .toon-strip-cell:nth-child(4n+2) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.red)); }
+  .toon-strip-cell:nth-child(4n+3) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.violet)); }
+  .toon-strip-cell:nth-child(4n) .toon-strip-value { color: var(--toon-fill, theme(colors.toon.yellow)); }
+  .toon-strip-label { @apply block text-footnote leading-snug text-toon-muted; }
+  a.toon-strip-item { @apply transition duration-fast ease-bounce; }
+  /* The global focus ring is yellow and sits outside the box, which the strip would clip and paper would hide. */
+  a.toon-strip-item:focus-visible { outline: 3px solid theme(colors.toon.ink); outline-offset: -6px; }
+  @media (hover: hover) {
+    a.toon-strip-item:hover { @apply bg-toon-rule; }
+    a.toon-strip-item:hover .toon-strip-value { @apply -translate-y-1; }
+  }
+
+  /* 17. Steps: numbered panels in a row, read in order, with an arrow between them. Three across from `md`, stacked
+     below. The arrow is drawn by the helper inside each panel but the last, points right in a row and down when
+     stacked, and is hidden from readers: the list already says the order. `--toon-cols` sets the count on a wide screen. */
+  .toon-steps { --toon-step-gap: 2.5rem; @apply m-0 grid list-none p-0; gap: var(--toon-step-gap); }
+  @media (min-width: 768px) { .toon-steps { grid-template-columns: repeat(var(--toon-cols, 3), minmax(0, 1fr)); } }
+  .toon-step {
+    --toon-shadow: theme(colors.toon.yellow);
+    @apply relative m-0 grid min-w-0 list-none content-start justify-items-start gap-s3 rounded-toon border-toon border-toon-ink bg-toon-paper p-s5 text-toon-ink;
+    box-shadow: 4px 4px 0 var(--toon-shadow);
+  }
+  .toon-step:nth-child(3n+2) { --toon-shadow: theme(colors.toon.violet); }
+  .toon-step:nth-child(3n) { --toon-shadow: theme(colors.toon.blue); }
+  .toon-step-title { @apply block text-title3 font-bold leading-snug; text-wrap: balance; }
+  .toon-step-body { @apply m-0; }
+  .toon-step-arrow {
+    @apply pointer-events-none absolute z-[1] grid h-8 w-8 place-items-center rounded-full border-toon border-toon-ink bg-toon-yellow text-toon-ink;
+    left: 50%; bottom: calc(var(--toon-step-gap) / -2 - 2px);
+    transform: translate(-50%, 50%) rotate(90deg);
+  }
+  @media (min-width: 768px) {
+    .toon-step-arrow { left: auto; bottom: auto; top: 50%; right: calc(var(--toon-step-gap) / -2 - 2px); transform: translate(50%, -50%); }
+  }
+
+  /* 18. Panel: a large paper section panel. Ink border, a hard shadow in `--toon-shadow` (yellow unless you set it, as on
+     `toon-card`) and generous padding, so it reads as one light section on the navy ground. Its text is ink. */
+  .toon-panel {
+    --toon-shadow: theme(colors.toon.yellow);
+    @apply rounded-card border-toon border-toon-ink bg-toon-paper p-s6 text-toon-ink sm:p-s8;
+    box-shadow: 6px 6px 0 var(--toon-shadow);
+  }
+
+  /* 19. Tilt: a 2 degree turn for a figure, a terminal or a headshot. It uses the `rotate` property, not `transform`, so
+     it composes with scroll reveal (`toon-reveal` sets `transform`), `toon-pop` and a hover lift instead of being replaced
+     by them. Below `sm` there is no tilt: a turned full-width block pokes its corners past the page clip. It is a static
+     angle, so the motion switch stops only the transition. */
+  .toon-tilt-l, .toon-tilt-r { rotate: var(--toon-turn, 0deg); @apply duration-normal ease-bounce; transition-property: rotate; }
+  @media (min-width: 640px) {
+    .toon-tilt-l { --toon-turn: -2deg; }
+    .toon-tilt-r { --toon-turn: 2deg; }
+  }
+
+  /* 20. Sfx: a sound-effect word in the comic face, lettered by hand. Each letter is its own span with its own turn, rise
+     and size (`--r`, `--y`, `--s`, set by the `sfx()` helper from the letter's index, so the build is the same every time),
+     and drifts a few pixels in turn. It is decoration: the helper sets `aria-hidden`, and it takes no pointer or selection.
+     The caller positions it, usually `absolute` inside a `relative` parent. `-sm` and `-lg` set the size, and `-ghost` is an
+     outline only, for sitting behind content. The drift is an animation, so the motion switch and reduced motion stop it
+     with the rest; the letters keep their static turn. */
+  .toon-sfx {
+    @apply pointer-events-none inline-block select-none whitespace-pre font-comic font-normal leading-[.9] tracking-wide;
+    font-size: 3.25rem;
+    rotate: -5deg;
+    color: var(--toon-fill, theme(colors.toon.red));
+    -webkit-text-stroke: .07em theme(colors.toon.ink);
+    paint-order: stroke fill;
+    text-shadow: .06em .06em 0 var(--toon-shade, theme(colors.toon.yellow));
+  }
+  .toon-sfx > span {
+    display: inline-block;
+    font-size: calc(var(--s, 1) * 1em);
+    transform: translateY(var(--y, 0)) rotate(var(--r, 0deg));
+    animation: toon-sfx-drift 3.4s ease-in-out infinite;
+    animation-delay: calc(var(--n, 0) * 140ms);
+  }
+  .toon-sfx-sm { font-size: 2rem; }
+  .toon-sfx-lg { font-size: 5rem; }
+  .toon-sfx-ghost { color: transparent; text-shadow: none; -webkit-text-stroke: .045em theme(colors.toon.mist); opacity: .4; }
 
   /* Halftone ground, opt-in on <body>. */
   .toon-dots { }
@@ -348,6 +474,7 @@
   @keyframes toon-boing { 0% { transform: scale(1); } 30% { transform: scale(1.25, .8) rotate(-4deg); } 60% { transform: scale(.92, 1.1) rotate(2deg); } 100% { transform: scale(1); } }
   @keyframes toon-streak { 0% { stroke-dashoffset: 100; opacity: 0; } 10% { opacity: 1; } 45% { stroke-dashoffset: 0; opacity: 1; } 80% { stroke-dashoffset: 0; opacity: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
   @keyframes toon-blink { to { visibility: hidden; } }
+  @keyframes toon-sfx-drift { 0%, 100% { transform: translateY(var(--y, 0)) rotate(var(--r, 0deg)); } 50% { transform: translateY(calc(var(--y, 0) - .07em)) rotate(calc(var(--r, 0deg) + 1deg)); } }
 }
 
 /* Motion off. The system preference turns it off unless the visitor switched it on (data-motion="on"), and the switch
