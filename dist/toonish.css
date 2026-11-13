@@ -889,6 +889,16 @@ html.toon-js .toon-reveal.toon-in {
   .toon-row-lead {
     grid-column: auto;
   }
+
+  /* In a narrow column the lead keeps its own line at every width. */
+
+  .toon-list-stack .toon-row:has(.toon-row-lead) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .toon-list-stack .toon-row-lead {
+    grid-column: 1 / -1;
+  }
 }
 
 /* 5e. Empty: what a list or a chart shows when there is nothing to show. Dashed, so it reads as a gap. */

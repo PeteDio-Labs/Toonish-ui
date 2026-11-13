@@ -19,6 +19,7 @@ export const fixture = (): string => `<!doctype html>
 <section id="data"><div class="toon-stats">${stat('Total', '42', 'this week')}${stat('Rate', '71%')}${stat('Best', 'Tue')}</div>
 <p>${badge('Open', 'blue', 12)} ${badge('Done', 'mist', 3)} ${badge('Hold', 'paper')} ${chip('Remote')}</p>
 <div class="toon-list">${row({ lead: 'Nov 12', title: 'Acme', sub: 'Analyst', aside: 'Email', dot: 'blue' })}${row({ lead: 'Nov 11', title: 'Globex', aside: 'Site', dot: 'red' })}</div>
+<div class="toon-list toon-list-stack" id="list-stack">${row({ lead: 'Compute', title: 'Proxmox', sub: 'three nodes' })}</div>
 <div class="toon-empty">Nothing yet.</div>
 <div class="toon-table-wrap"><table class="toon-table toon-table-text"><thead><tr><th>Name</th><th>What it does</th></tr></thead><tbody><tr><td>Alpha</td><td>A longer sentence of words that is allowed to wrap onto a second line on a narrow screen without scrolling.</td></tr></tbody></table></div>
 <div class="toon-card" id="dividers">${bars({ label: 'Divider cases', columns: [
