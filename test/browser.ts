@@ -79,6 +79,26 @@ try {
     eq(shotBox.overlaps, true, `${name}: shot badge sits on the panel corner`);
     eq(await page.$eval('.toon-shot-text', (d) => (d as HTMLDetailsElement).open && d.querySelectorAll('p').length), 2, `${name}: shot transcript is open with 2 lines`);
 
+    // Data components: tiles, list, bars and table keep the paper fill and border, and the bars have real heights.
+    eq(await style('.toon-stat', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-stat fill is paper`);
+    eq(await style('.toon-stat', 'border-top-width'), '2px', `${name}: .toon-stat draws its border`);
+    eq(await style('.toon-stat-label', 'color'), 'rgb(74, 77, 120)', `${name}: .toon-stat-label uses the muted token`);
+    eq(await style('.toon-list', 'border-top-width'), '2px', `${name}: .toon-list draws its border`);
+    eq(await style('.toon-badge-mist', 'background-color'), 'rgb(185, 189, 224)', `${name}: .toon-badge-mist fill is mist`);
+    const barBox = await page.evaluate(() => {
+      const plot = document.querySelector('.toon-bar-plot')!.getBoundingClientRect();
+      const segs = [...document.querySelectorAll('.toon-bar-seg')].map((e) => e.getBoundingClientRect());
+      const target = document.querySelector('.toon-bars-target')!.getBoundingClientRect();
+      return { plot: plot.height, h: segs.map((r) => r.height), segs: segs.length, tall: segs.every((r) => r.height > 0), fits: segs.every((r) => r.bottom <= plot.bottom + 1), targetInside: target.top >= plot.top - 1 && target.top <= plot.bottom };
+    });
+    eq(barBox.segs, 3, `${name}: bars drew 3 segments`);
+    eq(barBox.tall && barBox.fits, true, `${name}: every bar segment has height and stays in its plot`);
+    // Mon: 0.6 and 0.2 of a 1.1 scale; Tue: 1.1. The tallest segment fills its plot and the first is 0.6/1.1 of it.
+    eq(Math.abs(barBox.h[2]! - barBox.plot) <= 2 && Math.abs(barBox.h[0]! - barBox.plot * 0.6 / 1.1) <= 3, true, `${name}: segment heights follow their share of the scale (${barBox.h.map(Math.round)} in ${Math.round(barBox.plot)})`);
+    eq(barBox.targetInside, true, `${name}: the target line sits inside the plot`);
+    eq(await style('.toon-table-wrap', 'background-color'), 'rgb(243, 239, 230)', `${name}: .toon-table-wrap fill is paper`);
+    eq(await page.$eval('.toon-table tfoot td', (e) => getComputedStyle(e).fontWeight), '700', `${name}: .toon-table total row is bold`);
+
     // Toggle group: pressing the second button moves aria-pressed.
     await page.click('.toon-nav button:nth-child(2)');
     eq(await page.$eval('.toon-nav button:nth-child(2)', (b) => b.getAttribute('aria-pressed')), 'true', `${name}: toggle presses the tapped button`);

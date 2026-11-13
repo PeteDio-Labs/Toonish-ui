@@ -9,7 +9,10 @@ var toonish_tokens_default = {
     blue: { $value: "#5f8dff" },
     red: { $value: "#f2706a" },
     yellow: { $value: "#f2c94c" },
-    violet: { $value: "#a995f0" }
+    violet: { $value: "#a995f0" },
+    muted: { $value: "#4a4d78", $description: "Secondary text on paper." },
+    mist: { $value: "#b9bde0", $description: "Secondary text on the ground, and the quiet fill for a closed or inactive state." },
+    rule: { $value: "#ddd6c6", $description: "Grid lines and hover fill on paper." }
   },
   font: {
     family: {

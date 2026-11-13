@@ -248,7 +248,7 @@ body {
      ink, so nothing visible changes except the sliver. */
 
 .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
-  .toon-corner, .toon-modal-box, .toon-modal-head {
+  .toon-corner, .toon-modal-box, .toon-modal-head, .toon-stat, .toon-list, .toon-chip, .toon-empty, .toon-table-wrap {
   background-clip: padding-box;
 }
 
@@ -256,7 +256,8 @@ body {
      bordered div or figure draws no border at all. */
 
 .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
-  .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text {
+  .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text, .toon-stat, .toon-list, .toon-chip,
+  .toon-empty, .toon-bar-seg, .toon-table-wrap {
   border-style: solid;
 }
 
@@ -708,6 +709,430 @@ html.toon-js .toon-reveal.toon-in {
 .toon-badge-violet {
   --tw-bg-opacity: 1;
   background-color: rgb(169 149 240 / var(--tw-bg-opacity, 1));
+}
+
+.toon-badge-paper {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+}
+
+.toon-badge-mist {
+  --tw-bg-opacity: 1;
+  background-color: rgb(185 189 224 / var(--tw-bg-opacity, 1));
+}
+
+/* A count inside a badge: digits keep a fixed width so a row of badges lines up. */
+
+.toon-badge-count {
+  margin-left: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 5b. Chip: a small tag. Quieter than a badge: sentence case, thinner border. */
+
+.toon-chip {
+  display: inline-block;
+  border-radius: 9999px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(169 149 240 / var(--tw-bg-opacity, 1));
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  font-size: 13px;
+  font-weight: 700;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+}
+
+/* 5c. Stat: a figure tile. A label, a big number and a line of detail, on a paper panel with a hard shadow.
+     `toon-stats` lays tiles out in a grid, and the shadow colour cycles like the cards'. */
+
+.toon-stats {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+.toon-stat {
+  --toon-shadow: #f2c94c;
+  display: grid;
+  align-content: flex-start;
+  gap: 4px;
+  border-radius: 10px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+  box-shadow: 4px 4px 0 var(--toon-shadow);
+}
+
+.toon-stat:nth-child(3n+2) {
+  --toon-shadow: #a995f0;
+}
+
+.toon-stat:nth-child(3n) {
+  --toon-shadow: #f2706a;
+}
+
+.toon-stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  --tw-text-opacity: 1;
+  color: rgb(74 77 120 / var(--tw-text-opacity, 1));
+}
+
+.toon-stat-value {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.toon-stat-detail {
+  font-size: 13px;
+  --tw-text-opacity: 1;
+  color: rgb(74 77 120 / var(--tw-text-opacity, 1));
+}
+
+/* 5d. List: rows on one paper panel. A row has a lead (a date or a tag), a body and an aside. On a phone the lead
+     takes its own line. */
+
+.toon-list {
+  display: grid;
+  border-radius: 10px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+  --tw-shadow: 4px 4px 0 #f2c94c;
+  --tw-shadow-colored: 4px 4px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-color: #f2c94c;
+  --tw-shadow: var(--tw-shadow-colored);
+}
+
+.toon-row {
+  display: grid;
+  align-items: baseline;
+  -moz-column-gap: 12px;
+       column-gap: 12px;
+  row-gap: 4px;
+  border-top-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  grid-template-columns: 1fr auto;
+}
+
+.toon-row:first-child {
+  border-top-width: 0px;
+}
+
+.toon-row-lead {
+  font-size: 13px;
+  font-weight: 700;
+  --tw-text-opacity: 1;
+  color: rgb(74 77 120 / var(--tw-text-opacity, 1));
+  grid-column: 1 / -1;
+  font-variant-numeric: tabular-nums;
+}
+
+.toon-row-body {
+  min-width: 0px;
+}
+
+.toon-row-body > small {
+  font-size: 15px;
+  --tw-text-opacity: 1;
+  color: rgb(74 77 120 / var(--tw-text-opacity, 1));
+}
+
+.toon-row-aside {
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.toon-row-aside > i {
+  margin-right: 4px;
+  display: inline-block;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 2px;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  vertical-align: baseline;
+  background: var(--toon-dot, #5f8dff);
+}
+
+@media (min-width: 640px) {
+  .toon-row {
+    grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  }
+
+  .toon-row-lead {
+    grid-column: auto;
+  }
+}
+
+/* 5e. Empty: what a list or a chart shows when there is nothing to show. Dashed, so it reads as a gap. */
+
+.toon-empty {
+  border-radius: 10px;
+  border-width: 2px;
+  border-style: dashed;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  padding: 20px;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+}
+
+/* 5f. Table: figures in columns. `toon-table-wrap` is the paper panel, and it scrolls sideways on a narrow screen. */
+
+.toon-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 239 230 / var(--tw-bg-opacity, 1));
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+  --tw-shadow: 4px 4px 0 #f2c94c;
+  --tw-shadow-colored: 4px 4px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-color: #f2c94c;
+  --tw-shadow: var(--tw-shadow-colored);
+}
+
+.toon-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+  font-variant-numeric: tabular-nums;
+}
+
+.toon-table th, .toon-table td {
+  white-space: nowrap;
+  border-bottom-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(221 214 198 / var(--tw-border-opacity, 1));
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  text-align: right;
+}
+
+.toon-table th:first-child, .toon-table td:first-child {
+  text-align: left;
+}
+
+.toon-table th {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  --tw-text-opacity: 1;
+  color: rgb(74 77 120 / var(--tw-text-opacity, 1));
+}
+
+.toon-table tfoot td {
+  border-bottom-width: 0px;
+  border-top-width: 2px;
+  --tw-border-opacity: 1;
+  border-top-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  font-weight: 700;
+}
+
+.toon-table tr[aria-current] td {
+  --tw-bg-opacity: 1;
+  background-color: rgb(221 214 198 / var(--tw-bg-opacity, 1));
+  font-weight: 700;
+}
+
+/* 5g. Bars: stacked columns on a shared scale. Each `toon-bar` holds `toon-bar-seg` blocks whose `--h` is a
+     percentage of the plot height; `toon-bars-target` draws a dashed reference line at `--at`. The `bars()` helper
+     in `toonish-ui/markup` computes both. A `toon-bars-key` below names what each colour means. */
+
+.toon-bars {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(var(--toon-cols, 7), minmax(0, 1fr));
+}
+
+.toon-bar {
+  display: grid;
+  gap: 4px;
+  border-radius: 10px;
+  text-align: center;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+  grid-template-rows: auto 9rem auto;
+}
+
+.toon-bar-total {
+  min-height: 1.2em;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.toon-bar-plot {
+  position: relative;
+}
+
+.toon-bar-stack {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: 0px;
+  bottom: 0px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.125rem;
+}
+
+.toon-bar-seg {
+  box-sizing: border-box;
+  min-height: 0px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(95 141 255 / var(--tw-bg-opacity, 1));
+  height: calc(var(--h, 0) * 1%);
+}
+
+.toon-bar-stack > .toon-bar-seg:last-child {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.toon-bar-seg-red {
+  --tw-bg-opacity: 1;
+  background-color: rgb(242 112 106 / var(--tw-bg-opacity, 1));
+}
+
+.toon-bar-seg-yellow {
+  --tw-bg-opacity: 1;
+  background-color: rgb(242 201 76 / var(--tw-bg-opacity, 1));
+}
+
+.toon-bar-seg-violet {
+  --tw-bg-opacity: 1;
+  background-color: rgb(169 149 240 / var(--tw-bg-opacity, 1));
+}
+
+.toon-bar-seg-mist {
+  --tw-bg-opacity: 1;
+  background-color: rgb(185 189 224 / var(--tw-bg-opacity, 1));
+}
+
+.toon-bar-seg-hatch {
+  background: repeating-linear-gradient(135deg, #0a0a1f 0 2px, #f3efe6 2px 6px);
+}
+
+.toon-bar-label {
+  font-size: 12px;
+  line-height: 1.25;
+  --tw-text-opacity: 1;
+  color: rgb(74 77 120 / var(--tw-text-opacity, 1));
+}
+
+.toon-bar-label > b {
+  display: block;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+}
+
+.toon-bar[aria-current] .toon-bar-label > b {
+  text-decoration-line: underline;
+  text-decoration-color: #f2706a;
+  text-decoration-thickness: 4px;
+  text-underline-offset: 4px;
+}
+
+.toon-bars-target {
+  pointer-events: none;
+  position: absolute;
+  left: -0.25rem;
+  right: -0.25rem;
+  z-index: 1;
+  border-top-width: 2px;
+  border-style: dashed;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  bottom: calc(var(--at, 0) * 1%);
+}
+
+.toon-bars-key {
+  margin: 0px;
+  display: flex;
+  list-style-type: none;
+  flex-wrap: wrap;
+  -moz-column-gap: 16px;
+       column-gap: 16px;
+  row-gap: 4px;
+  padding: 0px;
+  font-size: 13px;
+  --tw-text-opacity: 1;
+  color: rgb(74 77 120 / var(--tw-text-opacity, 1));
+}
+
+.toon-bars-key i {
+  margin-right: 8px;
+  display: inline-block;
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 3px;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  vertical-align: -1px;
+  background: var(--toon-dot, #5f8dff);
+}
+
+@media (max-width: 639px) {
+  .toon-bar {
+    grid-template-rows: auto 7rem auto;
+  }
 }
 
 /* 6. Nav: capsule bar of pill links. */

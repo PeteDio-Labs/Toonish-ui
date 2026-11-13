@@ -102,10 +102,30 @@ deliberate break from them. Shadows and fluid sizes are plain CSS strings, becau
 
 `toon-btn` (plus `-red`, `-yellow`, `-paper`, and `toon-wiggle`), `toon-card` (plus `toon-corner`, `toon-pop`),
 `toon-heading` (plus `-xl`), `toon-link`, `toon-badge` (plus `-blue`, `-yellow`, `-violet`), `toon-nav`, `toon-callout`,
-`toon-footer`, `toon-modal`, `toon-frame`, `toon-shot`, `toon-bubble`, `toon-caption`, `toon-burst`, `toon-speed` and `toon-type`
+`toon-footer`, `toon-modal`, `toon-frame`, `toon-shot`, `toon-chip`, `toon-stat`, `toon-list`, `toon-table`, `toon-bars`, `toon-empty`, `toon-bubble`, `toon-caption`, `toon-burst`, `toon-speed` and `toon-type`
 (plus `-comic`, `-flat`).
 
 Every animation and transition stops under `prefers-reduced-motion`, and under `data-motion="off"` on `<html>`.
+
+### Data components
+
+Tiles, rows, bars and a table for dashboards. None of them holds data: you pass your own.
+
+```ts
+import { badge, bars, row, stat } from 'toonish-ui/markup';
+
+`<div class="toon-stats">${stat('This week', '12', 'applications')}${stat('Rate', '71%')}</div>`;
+badge('Open', 'blue', 4);                       // a badge with a count; tones: blue red yellow violet paper mist
+`<div class="toon-list">${row({ lead: 'Nov 12', title: 'Acme', sub: 'Analyst', aside: 'Email', dot: 'blue' })}</div>`;
+bars({
+  label: 'Applications this week', target: 1,   // target draws a dashed line at that value
+  columns: [{ label: 'Mon', sub: '9', segments: [{ value: 0.6, tone: 'blue', label: 'Email' }, { value: 0.2, tone: 'hatch', label: 'Dropped' }] }],
+});
+```
+
+`bars()` scales every height to `max`, which defaults to the tallest stack or the target. Segment tones are the badge tones plus `hatch`. Name what each colour means with a `<ul class="toon-bars-key">` below, setting `--toon-dot` on each `<i>`.
+For a table, put `<table class="toon-table">` in a `<div class="toon-table-wrap">`. Mark the current row with `aria-current`.
+The secondary-text tokens are `muted` on paper and `mist` on the ground.
 
 ### Shot
 

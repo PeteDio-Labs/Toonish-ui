@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { burst, esc, figure, fitSize, letters, shot, speedLines } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -79,4 +79,43 @@ test('shot escapes every string and rejects missing alt and bad sizes', () => {
   expect(() => shot({ src: '/a', alt: '  ', width: 1, height: 1 })).toThrow('alt text');
   expect(() => shot({ src: '/a', alt: 'x', width: 0, height: 1 })).toThrow('positive integers');
   expect(() => shot({ src: '/a', alt: 'x', width: 1, height: 1, accent: 'nope' as never })).toThrow('unknown accent');
+});
+
+test('badge, chip and stat render and escape', () => {
+  expect(badge('Open', 'blue', 3)).toBe('<span class="toon-badge toon-badge-blue">Open<span class="toon-badge-count">3</span></span>');
+  expect(badge('Done', 'mist')).toContain('toon-badge-mist');
+  expect(badge('Hi')).toBe('<span class="toon-badge">Hi</span>');
+  expect(() => badge('x', 'nope' as never)).toThrow('unknown tone');
+  expect(chip('<b>')).toBe('<span class="toon-chip">&lt;b&gt;</span>');
+  expect(stat('A', '1')).not.toContain('toon-stat-detail');
+  expect(stat('<', '&', '"')).toContain('&lt;');
+});
+
+test('row renders its parts, omits the empty ones and escapes', () => {
+  const html = row({ lead: 'Nov 1', title: '<x>', sub: 's', aside: 'a', dot: 'red' });
+  expect(html).toContain('toon-row-lead');
+  expect(html).toContain('&lt;x&gt;');
+  expect(html).toContain('--toon-dot:#f2706a');
+  expect(row({ title: 't' })).toBe('<div class="toon-row"><span class="toon-row-body"><b>t</b></span></div>');
+});
+
+test('bars scales heights to the largest stack or the target and names each column', () => {
+  const html = bars({ label: 'Week', target: 2, columns: [{ label: 'Mon', segments: [{ value: 1, tone: 'blue', label: 'A' }, { value: 0.5, tone: 'hatch', label: 'B' }] }, { label: 'Tue', current: true, segments: [] }] });
+  expect(html).toContain('--h:50.00');
+  expect(html).toContain('--h:25.00');
+  expect(html).toContain('--at:100.00');
+  expect(html).toContain('toon-bar-seg-hatch');
+  expect(html).toContain('aria-label="Mon: A 1, B 0.5"');
+  expect(html).toContain('aria-label="Tue: none"');
+  expect(html).toContain('aria-current="date"');
+  expect(html).toContain('--toon-cols:2');
+});
+
+test('bars rejects bad input instead of drawing an empty chart', () => {
+  expect(() => bars({ label: ' ', columns: [{ label: 'a', segments: [] }] })).toThrow('label');
+  expect(() => bars({ label: 'x', columns: [] })).toThrow('at least one');
+  expect(() => bars({ label: 'x', columns: [{ label: 'a', segments: [] }] })).toThrow('above 0');
+  expect(() => bars({ label: 'x', columns: [{ label: 'a', segments: [{ value: -1, tone: 'blue', label: 'n' }] }] })).toThrow('0 or more');
+  expect(() => bars({ label: 'x', columns: [{ label: 'a', segments: [{ value: 1, tone: 'nope' as never, label: 'n' }] }] })).toThrow('unknown tone');
+  expect(bars({ label: 'x', target: 1, columns: [{ label: '<', segments: [] }] })).toContain('&lt;');
 });

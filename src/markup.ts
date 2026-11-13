@@ -93,3 +93,91 @@ export const shot = (o: ShotOptions): string => {
     : '';
   return `<figure class="toon-shot${o.cls ? ' ' + esc(o.cls) : ''}"><div class="toon-shot-panel">${img}${badge}</div>${cap}${text}</figure>`;
 };
+
+/** A badge colour: an accent, or `paper` or `mist` for a neutral. */
+export type Tone = Accent | 'paper' | 'mist';
+const TONE_CLASS: Record<Tone, string> = { ...BADGE, paper: 'toon-badge-paper', mist: 'toon-badge-mist' };
+const toneOf = (tone: string): Tone => {
+  if (!Object.hasOwn(TONE_CLASS, tone)) throw new Error(`unknown tone "${tone}": use one of ${Object.keys(TONE_CLASS).join(', ')}`);
+  return tone as Tone;
+};
+
+/** A badge with an optional count, such as a status and how many items have it. */
+export const badge = (text: string, tone: Tone = 'red', count?: number): string =>
+  `<span class="${['toon-badge', TONE_CLASS[toneOf(tone)]].filter(Boolean).join(' ')}">${esc(text)}${count === undefined ? '' : `<span class="toon-badge-count">${Number(count)}</span>`}</span>`;
+
+/** A small tag. */
+export const chip = (text: string): string => `<span class="toon-chip">${esc(text)}</span>`;
+
+/** A figure tile: label, value and an optional line of detail. Put tiles inside `<div class="toon-stats">`. */
+export const stat = (label: string, value: string, detail = ''): string =>
+  `<div class="toon-stat"><span class="toon-stat-label">${esc(label)}</span><span class="toon-stat-value">${esc(value)}</span>${detail ? `<span class="toon-stat-detail">${esc(detail)}</span>` : ''}</div>`;
+
+export interface RowOptions {
+  /** The lead: a date or a tag. */
+  lead?: string;
+  title: string;
+  /** Quieter text after the title. */
+  sub?: string;
+  /** Text at the end of the row. */
+  aside?: string;
+  /** A colour dot before the aside. */
+  dot?: Tone;
+}
+
+/** A row for `<div class="toon-list">`. */
+export const row = (o: RowOptions): string => {
+  const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : '';
+  return `<div class="toon-row">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
+};
+const TONE_HEX: Record<Tone, string> = { ...HEX, paper: '#f3efe6', mist: '#b9bde0' };
+
+export interface BarSegment {
+  value: number;
+  tone: Tone | 'hatch';
+  /** Names the segment for a screen reader. */
+  label: string;
+}
+export interface BarColumn {
+  label: string;
+  /** A second line under the label, such as a date. */
+  sub?: string;
+  segments: BarSegment[];
+  /** Marks the column that stands for now. */
+  current?: boolean;
+}
+export interface BarsOptions {
+  columns: BarColumn[];
+  /** The value that fills the plot. Defaults to the largest stack, and never less than `target`. */
+  max?: number;
+  /** Draws a dashed reference line at this value. */
+  target?: number;
+  /** Names the chart for a screen reader. */
+  label: string;
+}
+
+const SEG_CLASS: Record<Tone | 'hatch', string> = { blue: '', red: 'toon-bar-seg-red', yellow: 'toon-bar-seg-yellow', violet: 'toon-bar-seg-violet', paper: '', mist: 'toon-bar-seg-mist', hatch: 'toon-bar-seg-hatch' };
+
+/**
+ * Stacked columns on one scale. Heights are percentages of `max`, so the CSS needs no script. Each column carries
+ * an `aria-label` with its numbers, because the shapes alone do not say them.
+ */
+export const bars = (o: BarsOptions): string => {
+  if (!o.label.trim()) throw new Error('bars: label is required');
+  if (!o.columns.length) throw new Error('bars: at least one column is required');
+  for (const c of o.columns) for (const g of c.segments) {
+    if (!Number.isFinite(g.value) || g.value < 0) throw new Error(`bars: segment "${g.label}" needs a value of 0 or more`);
+    if (g.tone !== 'hatch') toneOf(g.tone);
+  }
+  const stack = (c: BarColumn) => c.segments.reduce((a, g) => a + g.value, 0);
+  const max = o.max ?? Math.max(...o.columns.map(stack), o.target ?? 0);
+  if (!(max > 0)) throw new Error('bars: max must be above 0: every column is empty and no target is set');
+  const pct = (v: number) => ((v / max) * 100).toFixed(2);
+  const line = o.target === undefined ? '' : `<div class="toon-bars-target" style="--at:${pct(o.target)}" aria-hidden="true"></div>`;
+  const cols = o.columns.map((c) => {
+    const said = c.segments.filter((g) => g.value > 0).map((g) => `${g.label} ${g.value}`).join(', ') || 'none';
+    const segs = c.segments.filter((g) => g.value > 0).map((g) => `<div class="toon-bar-seg ${SEG_CLASS[g.tone]}" style="--h:${pct(g.value)}"></div>`).join('');
+    return `<div class="toon-bar" role="listitem" aria-label="${esc(`${c.label}${c.sub ? ' ' + c.sub : ''}: ${said}`)}"${c.current ? ' aria-current="date"' : ''}><span class="toon-bar-total">${stack(c) || ''}</span><div class="toon-bar-plot">${line}<div class="toon-bar-stack">${segs}</div></div><span class="toon-bar-label"><b>${esc(c.label)}</b>${c.sub ? esc(c.sub) : ''}</span></div>`;
+  }).join('');
+  return `<div class="toon-bars" role="list" aria-label="${esc(o.label)}" style="--toon-cols:${o.columns.length}">${cols}</div>`;
+};

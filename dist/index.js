@@ -186,6 +186,46 @@ var shot = (o) => {
   const text = lines.length ? `<details class="toon-shot-text"${o.open ? " open" : ""}><summary>Transcript</summary>${lines.map((l) => `<p>${esc(l)}</p>`).join("")}</details>` : "";
   return `<figure class="toon-shot${o.cls ? " " + esc(o.cls) : ""}"><div class="toon-shot-panel">${img}${badge}</div>${cap}${text}</figure>`;
 };
+var TONE_CLASS = { ...BADGE, paper: "toon-badge-paper", mist: "toon-badge-mist" };
+var toneOf = (tone) => {
+  if (!Object.hasOwn(TONE_CLASS, tone))
+    throw new Error(`unknown tone "${tone}": use one of ${Object.keys(TONE_CLASS).join(", ")}`);
+  return tone;
+};
+var badge = (text, tone = "red", count) => `<span class="${["toon-badge", TONE_CLASS[toneOf(tone)]].filter(Boolean).join(" ")}">${esc(text)}${count === undefined ? "" : `<span class="toon-badge-count">${Number(count)}</span>`}</span>`;
+var chip = (text) => `<span class="toon-chip">${esc(text)}</span>`;
+var stat = (label, value, detail = "") => `<div class="toon-stat"><span class="toon-stat-label">${esc(label)}</span><span class="toon-stat-value">${esc(value)}</span>${detail ? `<span class="toon-stat-detail">${esc(detail)}</span>` : ""}</div>`;
+var row = (o) => {
+  const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : "";
+  return `<div class="toon-row">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
+};
+var TONE_HEX = { ...HEX, paper: "#f3efe6", mist: "#b9bde0" };
+var SEG_CLASS = { blue: "", red: "toon-bar-seg-red", yellow: "toon-bar-seg-yellow", violet: "toon-bar-seg-violet", paper: "", mist: "toon-bar-seg-mist", hatch: "toon-bar-seg-hatch" };
+var bars = (o) => {
+  if (!o.label.trim())
+    throw new Error("bars: label is required");
+  if (!o.columns.length)
+    throw new Error("bars: at least one column is required");
+  for (const c of o.columns)
+    for (const g of c.segments) {
+      if (!Number.isFinite(g.value) || g.value < 0)
+        throw new Error(`bars: segment "${g.label}" needs a value of 0 or more`);
+      if (g.tone !== "hatch")
+        toneOf(g.tone);
+    }
+  const stack = (c) => c.segments.reduce((a, g) => a + g.value, 0);
+  const max = o.max ?? Math.max(...o.columns.map(stack), o.target ?? 0);
+  if (!(max > 0))
+    throw new Error("bars: max must be above 0: every column is empty and no target is set");
+  const pct = (v) => (v / max * 100).toFixed(2);
+  const line = o.target === undefined ? "" : `<div class="toon-bars-target" style="--at:${pct(o.target)}" aria-hidden="true"></div>`;
+  const cols = o.columns.map((c) => {
+    const said = c.segments.filter((g) => g.value > 0).map((g) => `${g.label} ${g.value}`).join(", ") || "none";
+    const segs = c.segments.filter((g) => g.value > 0).map((g) => `<div class="toon-bar-seg ${SEG_CLASS[g.tone]}" style="--h:${pct(g.value)}"></div>`).join("");
+    return `<div class="toon-bar" role="listitem" aria-label="${esc(`${c.label}${c.sub ? " " + c.sub : ""}: ${said}`)}"${c.current ? ' aria-current="date"' : ""}><span class="toon-bar-total">${stack(c) || ""}</span><div class="toon-bar-plot">${line}<div class="toon-bar-stack">${segs}</div></div><span class="toon-bar-label"><b>${esc(c.label)}</b>${c.sub ? esc(c.sub) : ""}</span></div>`;
+  }).join("");
+  return `<div class="toon-bars" role="list" aria-label="${esc(o.label)}" style="--toon-cols:${o.columns.length}">${cols}</div>`;
+};
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
   $description: "Toonish design tokens in the W3C Design Tokens format (2025.10). Structure comes from the PeteDio house tokens; colour is the deliberate break from that set. Every fill carries ink text, which keeps contrast at 5.1:1 or better.",
@@ -197,7 +237,10 @@ var toonish_tokens_default = {
     blue: { $value: "#5f8dff" },
     red: { $value: "#f2706a" },
     yellow: { $value: "#f2c94c" },
-    violet: { $value: "#a995f0" }
+    violet: { $value: "#a995f0" },
+    muted: { $value: "#4a4d78", $description: "Secondary text on paper." },
+    mist: { $value: "#b9bde0", $description: "Secondary text on the ground, and the quiet fill for a closed or inactive state." },
+    rule: { $value: "#ddd6c6", $description: "Grid lines and hover fill on paper." }
   },
   font: {
     family: {
@@ -337,13 +380,18 @@ export {
   BADGE,
   HEX,
   PAIR,
+  badge,
+  bars,
   burst,
+  chip,
   esc,
   figure,
   fitSize,
   initToonish,
   letters,
   preset_default as preset,
+  row,
   shot,
-  speedLines
+  speedLines,
+  stat
 };
