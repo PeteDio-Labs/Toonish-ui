@@ -192,3 +192,22 @@ export interface PortraitOptions {
  * The backdrop is SVG, so it stays sharp at any size and costs no image bytes. Size the figure with `cls` or its parent.
  */
 export declare const portrait: (o: PortraitOptions) => string;
+export interface PagerLink {
+    href: string;
+    /** The title of the page the link opens. Shown as plain text under the direction. */
+    title: string;
+    /** The direction word. "Previous" or "Next" unless you set it. */
+    dir?: string;
+}
+export interface PagerOptions {
+    prev?: PagerLink;
+    next?: PagerLink;
+    /** Names the nav for a screen reader. */
+    label: string;
+    cls?: string;
+}
+/**
+ * Previous and next links in the shape of the deck's switcher: an arrow in a disc, the direction in bold and the
+ * destination's title under it. Pass either link or both. Every string is escaped.
+ */
+export declare const pager: (o: PagerOptions) => string;

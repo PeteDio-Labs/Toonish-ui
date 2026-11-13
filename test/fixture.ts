@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation page is /ui.html on pdlab.dev.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, row, shot, speedLines, stat, steps, strip, sfx, portrait } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, row, shot, speedLines, stat, steps, strip, sfx, portrait, pager } from '../src/markup.ts';
 
 export const fixture = (): string => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -52,6 +52,7 @@ ${deck([
 ], { label: 'Sample cards' })}
 <p>Text after the deck.</p>
 ${deck(['<div class="toon-card">Always one</div>', '<div class="toon-card">Always two</div>'], { label: 'Always on', always: true, cols: 2, cls: 'deck-always' })}
+${pager({ label: 'Sample pages', cls: 'pager-demo', prev: { href: '#prev', title: 'Recovering a burnt server from backups and config in git' }, next: { href: '#next', title: 'How this site is built and deployed: a private bucket, a strict policy and a deploy that checks itself, with a title long enough to be cut at two lines on a phone' } })}
 </section>
 </main><footer class="toon-footer"><p>Footer</p></footer></div>
 <script src="/dist/toonish.js"></script></body></html>`;

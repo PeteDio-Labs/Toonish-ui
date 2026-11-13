@@ -327,7 +327,16 @@ try {
     eq(st.top === 1 && st.count === '2 / 3', true, `deck swipe: a swipe left flips to card 2 (top ${st.top}, ${st.count})`);
     await drag(cx - 60, cy, 140, -6);
     st = await state(p);
-    eq(st.top === 2 && st.count === '3 / 3', true, `deck swipe: a swipe right flips on to card 3 (top ${st.top}, ${st.count})`);
+    eq(st.top === 0 && st.count === '1 / 3', true, `deck swipe: a swipe right goes back to card 1 (top ${st.top}, ${st.count})`);
+    await drag(cx - 60, cy, 140, -6);
+    st = await state(p);
+    eq(st.top === 2 && st.count === '3 / 3', true, `deck swipe: a swipe right on the first card loops to the last (top ${st.top}, ${st.count})`);
+    await drag(cx + 60, cy, -140, 6);
+    st = await state(p);
+    eq(st.top === 0 && st.count === '1 / 3', true, `deck swipe: a swipe left on the last card loops to the first (top ${st.top}, ${st.count})`);
+    await drag(cx - 60, cy, 140, -6);
+    st = await state(p);
+    eq(st.top === 2 && st.count === '3 / 3', true, `deck swipe: and back to the last (top ${st.top}, ${st.count})`);
     await drag(cx, cy, 20, 4); // short and slow: springs back
     st = await state(p);
     eq(st.top === 2, true, `deck swipe: a short drag springs back (top ${st.top})`);
@@ -344,6 +353,19 @@ try {
     await p.touchscreen.tap(lb.x + lb.width / 2, lb.y + lb.height / 2);
     eq(await p.evaluate(() => location.hash), '#tapped', 'deck swipe: a tap on a link in the top card navigates');
     eq((await overflowOf(p)) <= 0, true, 'deck swipe: no horizontal overflow');
+    // The pager stacks on a phone, and each link is at least a 44 px target with its arrow on the outer side.
+    const pg = await p.evaluate(() => {
+      const [a, b] = [...document.querySelectorAll<HTMLElement>('.pager-demo .toon-pager-link')].map((l) => ({ r: l.getBoundingClientRect(), ar: l.querySelector('.toon-pager-arrow')!.getBoundingClientRect(), t: l.querySelector('.toon-pager-title')!.getBoundingClientRect(), lh: parseFloat(getComputedStyle(l.querySelector('.toon-pager-title')!).lineHeight) }));
+      return { stacked: b!.r.top >= a!.r.bottom, minH: Math.min(a!.r.height, b!.r.height), prevArrowLeft: a!.ar.left < a!.t.left, nextArrowRight: b!.ar.right > b!.t.right, lines: Math.round(b!.t.height / b!.lh) };
+    });
+    eq(pg.stacked, true, 'pager 390: the two links stack');
+    eq(pg.minH >= 44, true, `pager 390: each link is at least 44 px tall (${pg.minH})`);
+    eq(pg.prevArrowLeft && pg.nextArrowRight, true, 'pager 390: the previous arrow sits left of its text and the next arrow right of its text');
+    eq(pg.lines <= 2, true, `pager 390: a long title is cut at two lines (${pg.lines})`);
+    const sep = await p.$eval('.pager-demo .toon-pager-sep', (e) => { const r = e.getBoundingClientRect(); return r.width <= 1 && r.height <= 1; });
+    eq(sep, true, 'pager 390: the separator between direction and title is hidden from sight');
+    const stale = await p.$$eval('#deck-demo .toon-deck-card', (cs) => cs.filter((c) => (c as HTMLElement).style.getPropertyValue('--dx') !== '').length);
+    eq(stale, 0, `deck swipe: no card keeps a drag offset after the swipes (${stale})`);
     eq(problems.length, 0, `deck swipe: no console errors (${problems.join('; ')})`);
     await c.close();
   }
@@ -352,6 +374,8 @@ try {
     const { c, p, problems } = await deckPage(1280);
     const st = await state(p);
     eq(st.on, false, 'deck 1280: the pile is off');
+    const side = await p.evaluate(() => { const [a, b] = [...document.querySelectorAll('.pager-demo .toon-pager-link')].map((l) => l.getBoundingClientRect()); return Math.abs(a!.top - b!.top) < 2 && b!.left > a!.right; });
+    eq(side, true, 'pager 1280: the two links sit side by side');
     eq(st.inert, 0, 'deck 1280: no card is inert');
     eq(st.controls, 'none', 'deck 1280: the controls are hidden');
     eq(new Set(st.tops).size === 1 && new Set(st.lefts).size === 3, true, `deck 1280: the cards lay out in a row of three (tops ${st.tops}, lefts ${st.lefts})`);

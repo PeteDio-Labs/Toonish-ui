@@ -21,9 +21,12 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 - `kicker()`, `strip()`, `steps()` and `sfx()` in `toonish-ui/markup`. Each escapes its input and throws on an empty list or a blank label.
 - `toon-deck`, a pile of cards you flip through on a phone. Without script the cards are a plain list, and from `md` they are a grid. The script (`data-toon-deck`) stacks them in one grid cell, with the two under the top card peeking out and turned a few degrees, and adds a previous button, a counter and a next button. A sideways swipe flips the top card away, a vertical drag still scrolls the page (`touch-action: pan-y`), and a tap on a link in the top card still navigates. Cards under the top one are `inert`, the counter is a polite live region, and the arrow keys flip from a focused control. It wraps at both ends. `data-toon-deck="always"` keeps the pile at every width. The breakpoint is one `matchMedia` query, so a resize or a rotation updates it. The slide stops under reduced motion and `data-motion="off"`, and the flip still completes.
 - `deck()` in `toonish-ui/markup`. It wraps card HTML you supply and does not escape it. It escapes the label, the button text and the class, and throws on an empty pile or a blank label.
+- `toon-pager` and `pager()`, previous and next links in the shape of the deck's switcher: an arrow in a disc, the direction in bold and the destination's title under it, cut at two lines. `pager()` escapes every string and throws when it has no link or no label.
 - `shot()` takes `href` and `hrefLabel` (the whole picture is a link to the full-size file), `corner` (a second badge on the top right, such as "1 / 4") and `hint` (a "Tap to enlarge" badge on the bottom right that hides from `lg`). The classes are `toon-shot-link`, `toon-shot-badge-end` and `toon-shot-hint`.
 
 ### Changed
+
+- In `toon-deck`, a swipe right goes to the previous card. A swipe in either direction used to go to the next one. Both directions wrap, so the pile loops.
 
 - `paper` is a cool grey off-white (`#eceff3`, was the cream `#f3efe6`), and `rule` is a matching cool grey (`#d3d8e0`, was `#ddd6c6`). Ink on paper is 16.9:1 and `muted` on paper is 6.9:1.
 

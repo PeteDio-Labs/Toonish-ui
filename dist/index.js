@@ -108,9 +108,15 @@ function initDeck(deck) {
         suppressTimer = window.setTimeout(() => {
           suppress = false;
         }, 400);
-        d.card.style.setProperty("--dx", `${d.dx}px`);
-        d.card.style.setProperty("--rot", `${d.dx / 20}deg`);
-        go(1, d.dx < 0 ? -1 : 1);
+        if (d.dx < 0) {
+          d.card.style.setProperty("--dx", `${d.dx}px`);
+          d.card.style.setProperty("--rot", `${d.dx / 20}deg`);
+          go(1, -1);
+        } else {
+          d.card.style.removeProperty("--dx");
+          d.card.style.removeProperty("--rot");
+          go(-1, 1);
+        }
         return;
       }
     }
@@ -470,6 +476,19 @@ var portrait = (o) => {
   const img = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? "" : ' loading="lazy"'}>`;
   return `<div class="toon-portrait${o.cls ? " " + esc(o.cls) : ""}" data-backdrop="${tone}">${svg}${img}</div>`;
 };
+var pager = (o) => {
+  if (!o.label?.trim())
+    throw new Error("pager: label is required");
+  if (!o.prev && !o.next)
+    throw new Error("pager: pass prev, next or both");
+  const link = (l, kind) => {
+    const dir = l.dir ?? (kind === "prev" ? "Previous" : "Next");
+    if (!l.href.trim() || !l.title.trim() || !dir.trim())
+      throw new Error("pager: a link needs an href, a title and a direction");
+    return `<a class="toon-pager-link toon-pager-${kind}" href="${esc(l.href)}"><span class="toon-pager-arrow" aria-hidden="true">${CHEVRON(kind === "prev" ? "M10 3 5 8l5 5" : "M6 3l5 5-5 5")}</span><span class="toon-pager-text"><span class="toon-pager-dir">${esc(dir)}<span class="toon-pager-sep">: </span></span><span class="toon-pager-title">${esc(l.title)}</span></span></a>`;
+  };
+  return `<nav class="toon-pager${o.cls ? " " + esc(o.cls) : ""}" aria-label="${esc(o.label)}">${o.prev ? link(o.prev, "prev") : ""}${o.next ? link(o.next, "next") : ""}</nav>`;
+};
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
   $description: "Toonish design tokens in the W3C Design Tokens format (2025.10). Structure comes from the PeteDio house tokens; colour is the deliberate break from that set. Every fill carries ink text, which keeps contrast at 5.1:1 or better.",
@@ -636,6 +655,7 @@ export {
   initToonish,
   kicker,
   letters,
+  pager,
   portrait,
   preset_default as preset,
   row,

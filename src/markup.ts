@@ -357,3 +357,33 @@ export const portrait = (o: PortraitOptions): string => {
   const img = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? '' : ' loading="lazy"'}>`;
   return `<div class="toon-portrait${o.cls ? ' ' + esc(o.cls) : ''}" data-backdrop="${tone}">${svg}${img}</div>`;
 };
+
+export interface PagerLink {
+  href: string;
+  /** The title of the page the link opens. Shown as plain text under the direction. */
+  title: string;
+  /** The direction word. "Previous" or "Next" unless you set it. */
+  dir?: string;
+}
+export interface PagerOptions {
+  prev?: PagerLink;
+  next?: PagerLink;
+  /** Names the nav for a screen reader. */
+  label: string;
+  cls?: string;
+}
+
+/**
+ * Previous and next links in the shape of the deck's switcher: an arrow in a disc, the direction in bold and the
+ * destination's title under it. Pass either link or both. Every string is escaped.
+ */
+export const pager = (o: PagerOptions): string => {
+  if (!o.label?.trim()) throw new Error('pager: label is required');
+  if (!o.prev && !o.next) throw new Error('pager: pass prev, next or both');
+  const link = (l: PagerLink, kind: 'prev' | 'next') => {
+    const dir = l.dir ?? (kind === 'prev' ? 'Previous' : 'Next');
+    if (!l.href.trim() || !l.title.trim() || !dir.trim()) throw new Error('pager: a link needs an href, a title and a direction');
+    return `<a class="toon-pager-link toon-pager-${kind}" href="${esc(l.href)}"><span class="toon-pager-arrow" aria-hidden="true">${CHEVRON(kind === 'prev' ? 'M10 3 5 8l5 5' : 'M6 3l5 5-5 5')}</span><span class="toon-pager-text"><span class="toon-pager-dir">${esc(dir)}<span class="toon-pager-sep">: </span></span><span class="toon-pager-title">${esc(l.title)}</span></span></a>`;
+  };
+  return `<nav class="toon-pager${o.cls ? ' ' + esc(o.cls) : ''}" aria-label="${esc(o.label)}">${o.prev ? link(o.prev, 'prev') : ''}${o.next ? link(o.next, 'next') : ''}</nav>`;
+};
