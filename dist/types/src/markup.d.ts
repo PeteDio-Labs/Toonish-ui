@@ -172,3 +172,23 @@ export interface DeckOptions {
  * is `inert` while the pile is on.
  */
 export declare const deck: (cards: string[], o: DeckOptions) => string;
+export interface PortraitOptions {
+    /** A cut-out portrait with a transparent background (PNG or WebP). The kit draws the backdrop behind it. */
+    src: string;
+    /** Who is shown and how, for people who cannot see it. Required: an empty alt would hide the picture. */
+    alt: string;
+    width: number;
+    height: number;
+    /** `slate` is a dark studio grey. `paper` is the kit's cool grey. */
+    backdrop?: 'slate' | 'paper';
+    /** The colour of the halftone dots and ring in the corner. */
+    accent?: Accent;
+    eager?: boolean;
+    cls?: string;
+}
+/**
+ * A portrait on a themed vector backdrop. Pass any cut-out of a person (transparent PNG or WebP) and the kit draws a soft
+ * radial gradient, a halftone corner and a ring behind it, so every portrait on a site shares one studio look.
+ * The backdrop is SVG, so it stays sharp at any size and costs no image bytes. Size the figure with `cls` or its parent.
+ */
+export declare const portrait: (o: PortraitOptions) => string;

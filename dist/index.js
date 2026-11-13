@@ -449,6 +449,27 @@ var deck = (cards, o) => {
   const controls = `<div class="toon-deck-controls"><button type="button" class="toon-btn toon-btn-paper toon-deck-btn" data-toon-deck-prev>${CHEVRON("M10 3 5 8l5 5")}${esc(prev)}</button><span class="toon-deck-count" role="status" aria-live="polite" aria-atomic="true">1 / ${cards.length}</span><button type="button" class="toon-btn toon-btn-yellow toon-deck-btn" data-toon-deck-next>${esc(next)}${CHEVRON("m6 3 5 5-5 5")}</button></div>`;
   return `<div class="toon-deck${o.cls ? " " + esc(o.cls) : ""}" data-toon-deck="${o.always ? "always" : "phone"}" style="--toon-cols:${cols}"><div class="toon-deck-pile" role="group" aria-roledescription="carousel" aria-label="${esc(o.label)}">${items}</div>${controls}</div>`;
 };
+var BACKDROPS = { slate: { a: "#6d7281", b: "#383c49", dot: 0.22 }, paper: { a: "#f6f8fa", b: "#d3d8e0", dot: 0.4 } };
+var portrait = (o) => {
+  if (!o.alt.trim())
+    throw new Error("portrait: alt text is required");
+  if (!Number.isInteger(o.width) || !Number.isInteger(o.height) || o.width <= 0 || o.height <= 0)
+    throw new Error("portrait: width and height must be positive integers");
+  const tone = o.backdrop ?? "slate";
+  if (!Object.hasOwn(BACKDROPS, tone))
+    throw new Error(`unknown portrait backdrop "${String(o.backdrop)}": use slate or paper`);
+  const bg = BACKDROPS[tone];
+  const accent = accentOf(o.accent ?? "blue");
+  const dots = [];
+  for (let row = 0;row < 6; row++)
+    for (let col = 0;col < 6 - row; col++) {
+      dots.push(`<circle cx="${(94 - col * 8).toFixed(1)}" cy="${(6 + row * 8).toFixed(1)}" r="${(2.6 - row * 0.3).toFixed(2)}"/>`);
+    }
+  const id = `toon-portrait-${tone}`;
+  const svg = `<svg class="toon-portrait-bg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">` + `<defs><radialGradient id="${id}" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="${bg.a}"/><stop offset="1" stop-color="${bg.b}"/></radialGradient></defs>` + `<rect width="100" height="100" fill="url(#${id})"/>` + `<circle cx="6" cy="96" r="30" fill="none" stroke="${HEX[accent]}" stroke-width="2.5" opacity="0.55"/>` + `<g fill="${HEX[accent]}" opacity="${bg.dot}">${dots.join("")}</g></svg>`;
+  const img = `<img src="${esc(o.src)}" alt="${esc(o.alt)}" width="${o.width}" height="${o.height}" decoding="async"${o.eager ? "" : ' loading="lazy"'}>`;
+  return `<div class="toon-portrait${o.cls ? " " + esc(o.cls) : ""}" data-backdrop="${tone}">${svg}${img}</div>`;
+};
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
   $description: "Toonish design tokens in the W3C Design Tokens format (2025.10). Structure comes from the PeteDio house tokens; colour is the deliberate break from that set. Every fill carries ink text, which keeps contrast at 5.1:1 or better.",
@@ -615,6 +636,7 @@ export {
   initToonish,
   kicker,
   letters,
+  portrait,
   preset_default as preset,
   row,
   sfx,

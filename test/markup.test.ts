@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, steps, sfx, deck } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, steps, sfx, deck, portrait } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -244,4 +244,26 @@ test('shot can link its picture and add a corner number and a hint, and requires
   expect(html).toContain('toon-shot-hint" aria-hidden="true">Tap to enlarge<');
   expect(() => shot({ ...base, href: '/a.png' })).toThrow('hrefLabel');
   expect(shot(base)).not.toContain('toon-shot-link');
+});
+
+test('portrait draws a vector backdrop behind the cut-out and escapes its input', () => {
+  const html = portrait({ src: '/p.webp?a="b"', alt: 'A <person>', width: 400, height: 500, backdrop: 'paper', accent: 'red' });
+  expect(html).toContain('<div class="toon-portrait" data-backdrop="paper">');
+  expect(html).toContain('<svg class="toon-portrait-bg"');
+  expect(html).toContain('stop-color="#f6f8fa"');
+  expect(html).toContain(HEX.red);
+  expect(html).toContain('alt="A &lt;person&gt;"');
+  expect(html).toContain('src="/p.webp?a=&quot;b&quot;"');
+  expect(html).toContain('width="400" height="500"');
+  expect(html).toContain('loading="lazy"');
+  expect(portrait({ src: '/p.png', alt: 'x', width: 1, height: 1, eager: true })).not.toContain('loading=');
+  expect(portrait({ src: '/p.png', alt: 'x', width: 1, height: 1 })).toContain('data-backdrop="slate"');
+});
+
+test('portrait rejects a missing alt, a bad size, an unknown backdrop and an unknown accent', () => {
+  const base = { src: '/p.png', alt: 'x', width: 10, height: 10 };
+  expect(() => portrait({ ...base, alt: ' ' })).toThrow('alt text');
+  expect(() => portrait({ ...base, width: 0 })).toThrow('positive integers');
+  expect(() => portrait({ ...base, backdrop: 'neon' as 'slate' })).toThrow('unknown portrait backdrop');
+  expect(() => portrait({ ...base, accent: 'pink' as 'red' })).toThrow('unknown accent');
 });

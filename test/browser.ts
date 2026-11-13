@@ -187,6 +187,15 @@ try {
     eq(await tilt('#tilt-r'), wide ? 2 : 0, `${name}: the tilt survives scroll reveal`);
 
     // Sfx: decoration only, in the comic face, hand-lettered, and it drifts unless motion is off.
+    eq(await style('.toon-portrait', 'border-top-width'), '2px', `${name}: .toon-portrait border is 2px`);
+    const pbox = await page.evaluate(() => {
+      const box = document.querySelector('.toon-portrait')!.getBoundingClientRect();
+      const bg = document.querySelector('.toon-portrait-bg')!.getBoundingClientRect();
+      const img = document.querySelector('.toon-portrait > img') as HTMLImageElement;
+      return { fills: Math.abs(bg.width - (box.width - 4)) < 1 && Math.abs(bg.height - (box.height - 4)) < 1, loaded: img.complete && img.naturalWidth > 0 };
+    });
+    eq(pbox.fills, true, `${name}: portrait backdrop fills the panel`);
+    eq(pbox.loaded, true, `${name}: portrait image loaded`);
     eq(await style('.toon-sfx', 'pointer-events'), 'none', `${name}: .toon-sfx takes no pointer`);
     eq(await style('.toon-sfx', 'user-select'), 'none', `${name}: .toon-sfx cannot be selected`);
     eq((await style('.toon-sfx', 'font-family')).includes('Bangers'), true, `${name}: .toon-sfx uses the comic face`);

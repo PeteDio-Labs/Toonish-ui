@@ -18,13 +18,13 @@
      ink, so nothing visible changes except the sliver. */
   .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-stat, .toon-list, .toon-chip, .toon-empty, .toon-table-wrap,
-  .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num { background-clip: padding-box; }
+  .toon-portrait, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num { background-clip: padding-box; }
   /* The precompiled build has no Tailwind reset, which is where `border-style: solid` normally comes from. Without it a
      bordered div or figure draws no border at all. */
   .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text, .toon-stat, .toon-list, .toon-chip,
   .toon-empty, .toon-bar-seg, .toon-table-wrap, .toon-row, .toon-table th, .toon-table td, .toon-row-aside > i, .toon-bars-key i,
-  .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule { border-style: solid; }
+  .toon-portrait, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule { border-style: solid; }
   :focus-visible { @apply outline outline-2 outline-offset-2 outline-toon-yellow; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 }
@@ -287,6 +287,11 @@
     @apply relative overflow-hidden rounded-toon border-toon border-toon-ink bg-toon-paper shadow-toon-blue;
   }
   .toon-frame > img, .toon-frame > svg { @apply block h-auto w-full; }
+
+  /* 9a. Portrait: a cut-out person on a vector studio backdrop (see portrait() in markup.ts). Ink border and hard shadow like a frame. */
+  .toon-portrait { @apply relative m-0 overflow-hidden rounded-toon border-toon border-toon-ink bg-toon-ink shadow-toon-blue; }
+  .toon-portrait-bg { @apply absolute inset-0 block h-full w-full; }
+  .toon-portrait > img { @apply relative block h-auto w-full; }
 
   /* 9b. Shot: a screenshot in a comic panel. Ink border, hard shadow, an optional badge on the corner, a caption box,
      and the transcript as text below, so the picture is never the only copy of what it says. */

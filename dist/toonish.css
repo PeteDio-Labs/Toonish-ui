@@ -237,7 +237,7 @@ body {
 
 .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-stat, .toon-list, .toon-chip, .toon-empty, .toon-table-wrap,
-  .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num {
+  .toon-portrait, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num {
   background-clip: padding-box;
 }
 
@@ -247,7 +247,7 @@ body {
 .toon-btn, .toon-card, .toon-badge, .toon-nav, .toon-callout, .toon-frame, .toon-bubble, .toon-caption,
   .toon-corner, .toon-modal-box, .toon-modal-head, .toon-shot-panel, .toon-shot-text, .toon-stat, .toon-list, .toon-chip,
   .toon-empty, .toon-bar-seg, .toon-table-wrap, .toon-row, .toon-table th, .toon-table td, .toon-row-aside > i, .toon-bars-key i,
-  .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule {
+  .toon-portrait, .toon-panel, .toon-strip, .toon-step, .toon-step-arrow, .toon-kicker-num, .toon-step-num, .toon-kicker-rule {
   border-style: solid;
 }
 
@@ -1491,6 +1491,40 @@ html.toon-modal-open {
 }
 
 .toon-frame > img, .toon-frame > svg {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+/* 9a. Portrait: a cut-out person on a vector studio backdrop (see portrait() in markup.ts). Ink border and hard shadow like a frame. */
+
+.toon-portrait {
+  position: relative;
+  margin: 0px;
+  overflow: hidden;
+  border-radius: 10px;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(10 10 31 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(10 10 31 / var(--tw-bg-opacity, 1));
+  --tw-shadow: 4px 4px 0 #5f8dff;
+  --tw-shadow-colored: 4px 4px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-color: #5f8dff;
+  --tw-shadow: var(--tw-shadow-colored);
+}
+
+.toon-portrait-bg {
+  position: absolute;
+  inset: 0px;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.toon-portrait > img {
+  position: relative;
   display: block;
   height: auto;
   width: 100%;
