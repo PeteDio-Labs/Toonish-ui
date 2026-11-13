@@ -84,6 +84,7 @@ try {
     eq(await style('.toon-stat', 'border-top-width'), '2px', `${name}: .toon-stat draws its border`);
     eq(await style('.toon-stat-label', 'color'), 'rgb(74, 77, 120)', `${name}: .toon-stat-label uses the muted token`);
     eq(await style('.toon-list', 'border-top-width'), '2px', `${name}: .toon-list draws its border`);
+    eq(await page.$eval('#list-stack .toon-row', (e) => { const l = e.querySelector('.toon-row-lead')!.getBoundingClientRect(), b = e.querySelector('.toon-row-body')!.getBoundingClientRect(); return l.bottom <= b.top + 1 && Math.abs(l.left - b.left) < 1; }), true, `${name}: .toon-list-stack keeps the lead on its own line above the body`);
     eq(await style('.toon-row + .toon-row', 'border-top-style'), 'solid', `${name}: .toon-row draws its separator`);
     eq(await style('.toon-table td', 'border-bottom-style'), 'solid', `${name}: .toon-table draws its rules`);
     eq(await style('.toon-badge-mist', 'background-color'), 'rgb(185, 189, 224)', `${name}: .toon-badge-mist fill is mist`);
