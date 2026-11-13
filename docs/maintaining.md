@@ -37,6 +37,16 @@ Squash-merge is the convention, but the ruleset allows merge, squash and rebase.
 
 No session merges its own pull request in this repository without the gate in the vault's working agreement, section 5.
 
+## When to release
+
+A merge to `main` is not a release. Batch changes under `## [Unreleased]` in `CHANGELOG.md`, and cut a release only when a consumer needs one or the owner asks. The portfolio pins a tag, so it needs a release only when it must use something `main` has and its pinned tag lacks.
+
+- **Patch (`0.2.x`):** fixes and small additions that break nothing.
+- **Minor (`0.x.0`):** a meaningful batch, such as a set of new components or a token change that alters how pages look.
+- **Major:** a breaking change after `1.0.0`. While the version is `0.x`, a breaking change takes a minor bump and a changelog note.
+
+Do not tag a release for each feature. To ship one change on its own, use a patch bump.
+
 ## Release
 
 1. Open a pull request that moves the `## [Unreleased]` entries under a new `## [X.Y.Z] - date` heading in `CHANGELOG.md` and sets `version` in `package.json`.
