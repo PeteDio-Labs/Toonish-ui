@@ -24,11 +24,11 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 | `color.mist` | `#b9bde0` | Secondary text on the ground, and the quiet fill for a closed or inactive state. |
 | `color.rule` | `#d3d8e0` | Grid lines, and the current-row fill on paper. |
 
-**Contrast.** Ink on blue is 5.1:1, ink on paper is 16.9:1, `muted` on paper is 6.9:1 and paper on the ground is 15.5:1. All pass WCAG AA.
+**Contrast.** Ink on the accent fills is 6.3:1 or better (blue is the lowest at 6.3:1). Ink on paper is 16.9:1, `muted` on paper is 6.9:1 and paper on the ground is 15.5:1. All pass WCAG AA. The tests assert a floor of 5.1:1 for ink on every fill.
 
 **Pairing.** A shadow takes its fill's pair: blue and red use yellow, yellow uses blue, violet uses red.
 
-**History.** The first set was cyan with orange, which was rejected. The second was cream, red and yellow, which looked like a default theme. Paper moved from cream (`#f3efe6`) to a cool grey on 2026-11-13.
+**History.** The first set was cyan with orange, which was rejected. The second was cream, red and yellow, which looked like a default theme. Paper moved from cream to a cool grey on 2026-11-13.
 
 ## Type
 
@@ -96,4 +96,4 @@ Structure (space, radius, type scale, spring) comes from the PeteDio house token
 2. Run `bun run build`, and commit `dist/`.
 3. If the token is a colour used for text, add its contrast pair to `test/tokens.test.ts`.
 4. Add a `CHANGELOG.md` entry. A changed colour alters how every page looks, so it is a minor release while the version is `0.x`.
-5. The portfolio pins the kit by commit. Bump the pin there to pick the change up.
+5. Update the tables on this page, and bump the portfolio's pin as [Build and deploy](build-and-deploy.md#how-a-site-consumes-the-kit) describes.

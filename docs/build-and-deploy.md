@@ -25,7 +25,7 @@ A site installs a tagged or pinned commit:
 bun add github:PeteDio-Labs/toonish-ui#<tag-or-commit>
 ```
 
-The portfolio pins by commit while the kit is `0.x`. A merge to the kit's `main` is therefore not visible on the site until the portfolio's pin moves. When you merge a kit change that a site needs, open a pull request in that site that bumps the pin.
+This is the one rule that lives here: the portfolio pins a commit while the kit is `0.x`. A merge to the kit's `main` does not reach the site until the pin moves. When a site needs a kit change, open a pull request in that site that bumps the pin.
 
 Three ways to use the files are in the [README](../README.md): plain CSS and script, the Tailwind v3 preset, and the Tailwind v4 theme.
 
@@ -47,7 +47,7 @@ The deploy workflow's authentication is a known gap, tracked in the PeteDio trac
 
 | Check | Where | What it examined |
 |---|---|---|
-| `bun run typecheck` | CI and local | The TypeScript in `src/` and `test/`. |
+| `bun run typecheck` | CI and local | The TypeScript in `src/`, `test/`, `scripts/` and `tailwind.config.ts`. |
 | `bun run build` and the `dist/` diff | CI and local | That `dist/` matches a fresh build, with the file count. |
 | `bun test` | CI and local | Tokens and contrast, markup output, `dist/` contents and the docs coverage. |
 | `bun run test:browser` | CI and local | A fixture page at 1280 and 390 px in Chromium: fonts, computed colours, overflow, modal, toggle, reduced motion and console errors. |

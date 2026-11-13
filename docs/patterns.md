@@ -28,7 +28,7 @@ A case study is one long read, so it needs orientation more than decoration.
 
 - A row of `stat()` tiles in `toon-stats`.
 - `bars()` for a trend, with a `toon-bars-key` that names each colour.
-- `toon-list` of `row()` entries for the latest events, with a coloured dot for state.
+- `toon-list` of `row()` entries for recent events, with a coloured dot for state.
 - `toon-table` for the full record. Mark the current row with `aria-current`.
 - `toon-empty` when there is nothing to show. A value you cannot read is an empty state or an alert, never a zero that looks like a yes.
 
@@ -36,7 +36,7 @@ A case study is one long read, so it needs orientation more than decoration.
 
 Put the diagram in a `toon-frame` styled as a window, the same frame as the hero terminal. Label each tile with a badge. Keep the diagram's text real, so a screen reader reads it.
 
-## Do and don't
+## Do and do not
 
 | Do | Don't |
 |---|---|

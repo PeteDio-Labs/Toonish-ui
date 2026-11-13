@@ -21,3 +21,29 @@ test('docs/components.md names every markup helper', async () => {
   expect(helpers.length).toBeGreaterThan(10);
   expect(missing).toEqual([]);
 });
+
+test('docs/components.md names every option of every markup helper', async () => {
+  const src = await Bun.file('src/markup.ts').text();
+  const keys = new Set<string>();
+  for (const m of src.matchAll(/export interface \w+(?:Options|Cell|Step|Link|Segment|Column|Seg)\w* \{([\s\S]*?)\n\}/g)) {
+    for (const k of m[1]!.matchAll(/^\s+(\w+)\??:/gm)) keys.add(k[1]!);
+  }
+  const missing = [...keys].filter((k) => !new RegExp(`\\b${k}\\b`).test(docs));
+  console.log(`docs check: compared ${keys.size} option names, ${missing.length} missing`);
+  expect(keys.size).toBeGreaterThan(20);
+  expect(missing).toEqual([]);
+});
+
+test('docs/tokens.md agrees with the tokens', async () => {
+  const tokens = await Bun.file('docs/tokens.md').text();
+  const json = JSON.parse(await Bun.file('dist/tokens.json').text());
+  const flat = JSON.stringify(json).toLowerCase();
+  const hexes = [...new Set([...tokens.matchAll(/`(#[0-9a-f]{6})`/gi)].map((m) => m[1]!.toLowerCase()))];
+  const missing = hexes.filter((h) => !flat.includes(h));
+  const colours = [...flat.matchAll(/#[0-9a-f]{6}/g)].map((m) => m[0]);
+  const undocumented = [...new Set(colours)].filter((h) => !tokens.toLowerCase().includes(h));
+  console.log(`docs check: tokens.md names ${hexes.length} hex values, ${missing.length} absent from tokens.json; ${undocumented.length} token colours undocumented`);
+  expect(hexes.length).toBeGreaterThan(8);
+  expect(missing).toEqual([]);
+  expect(undocumented).toEqual([]);
+});

@@ -13,11 +13,11 @@ A class listed here as `toon-x-y` is a modifier of `toon-x` unless the text says
 - `toon-page` wraps the page and clips sideways overflow, so a decoration that pokes out cannot widen the document.
 - `toon-reveal` marks a block that rises in when it scrolls into view. The script adds `toon-js` to `<html>`, then `toon-in` to the block. Without script, the block shows.
 - `toon-motion` and `toon-motion-label` make the motion toggle button. The label hides on a phone and shows from `sm`.
-- `toon-pop`, `toon-wiggle`, `toon-blink`, `toon-boing`, `toon-dots` and `toon-motion` are animation hooks. Every one stops under `prefers-reduced-motion` and `data-motion="off"`.
+- `toon-pop`, `toon-wiggle`, `toon-blink` and `toon-boing` are animation classes. `toon-dots` is a hook for a site's loading dots. Every animation stops under `prefers-reduced-motion` and `data-motion="off"`.
 
 ### Type
 
-- `toon-type`, `toon-type-comic`, `toon-type-flat`, `toon-word`: display lettering in the comic face. Helper: `letters(text, accent, { live, flat, cls, size })`. With `live`, each letter is a span that tilts and bobs in turn. The text stays real text, so a screen reader reads the word.
+- `toon-type`, `toon-type-comic`, `toon-type-flat`, `toon-word`: display lettering. Helper: `letters(text, accent, { live, flat, cls, size })`. Each letter is its own span. Plain `toon-type` is the heavy sans. `live` adds `toon-type-comic`: the Bangers face with an ink outline and a paired shadow, tilting and bobbing in turn. The text stays real text.
 - `figure(value, accent, max, avail)` lays a number out as flat display type that shrinks to fit a card. `fitSize(value, max, avail)` returns that size in px.
 - `toon-heading` and `toon-heading-xl` are section headings. `toon-link` is an inked link.
 - `toon-caption` is a caption box in the mono face.
@@ -26,7 +26,7 @@ A class listed here as `toon-x-y` is a modifier of `toon-x` unless the text says
 
 ### Button
 
-`toon-btn` is the blue button. Variants: `toon-btn-red`, `toon-btn-yellow`, `toon-btn-paper`. It lifts on hover, flattens on press and keeps a 44 px target. Use a `<button>` for an action and an `<a>` for navigation.
+`toon-btn` is the blue button. Variants: `toon-btn-red`, `toon-btn-yellow`, `toon-btn-paper`. It lifts on hover and flattens on press. Use a `<button>` for an action and an `<a>` for navigation.
 
 ### Badge and chip
 
@@ -55,7 +55,7 @@ A class listed here as `toon-x-y` is a modifier of `toon-x` unless the text says
 
 ## Navigation
 
-- `toon-nav` and `toon-nav-wrap`: the top bar. A link keeps a 44 px target.
+- `toon-nav` and `toon-nav-wrap`: the top bar.
 - `toon-footer`, `toon-footer-links`, `toon-footer-note`: the page footer.
 - `toon-pager`, with `toon-pager-link`, `toon-pager-prev`, `toon-pager-next`, `toon-pager-arrow`, `toon-pager-text`, `toon-pager-dir`, `toon-pager-title` and `toon-pager-sep`: previous and next links in the shape of the deck's switcher. Helper: `pager({ prev, next, label })`. Each link is `{ href, title, dir? }`. Pass either link or both. The nav needs a label.
 
@@ -87,7 +87,7 @@ None of these holds data. You pass your own.
 
 ### Bars
 
-`toon-bars` draws stacked columns with a dashed target line. Parts: `toon-bar`, `toon-bar-plot`, `toon-bar-stack`, `toon-bar-seg`, `toon-bar-total`, `toon-bar-label`, `toon-bars-target`, `toon-bars-key`. Segment tones are the badge tones plus `hatch`: `toon-bar-seg-red`, `toon-bar-seg-yellow`, `toon-bar-seg-violet`, `toon-bar-seg-paper`, `toon-bar-seg-mist`, `toon-bar-seg-hatch`. Helper: `bars({ label, columns, max?, target? })`.
+`toon-bars` draws stacked columns with a dashed target line. Parts: `toon-bar`, `toon-bar-plot`, `toon-bar-stack`, `toon-bar-seg`, `toon-bar-total`, `toon-bar-label`, `toon-bars-target`, `toon-bars-key`. Segment tones are the badge tones plus `hatch`: `toon-bar-seg-red`, `toon-bar-seg-yellow`, `toon-bar-seg-violet`, `toon-bar-seg-paper`, `toon-bar-seg-mist`, `toon-bar-seg-hatch`. Helper: `bars({ label, columns, max?, target? })`, where a column is `{ label, sub?, segments, current? }` and a segment is `{ value, tone, label }`.
 
 The helper scales heights to `max`, which defaults to the tallest stack or the target. It labels each column for a screen reader and throws on an empty chart. Name what each colour means with a `<ul class="toon-bars-key">`, setting `--toon-dot` on each `<i>`.
 
@@ -103,23 +103,23 @@ Put `<table class="toon-table">` in a `<div class="toon-table-wrap">`. The wrap 
 
 ### Shot
 
-`toon-shot` is a screenshot in a comic panel: `toon-shot-panel` holds the image, `toon-shot-badge` a corner badge, `toon-shot-cap` the caption and `toon-shot-text` a transcript in a `<details>`. Helper: `shot({ src, alt, width, height, caption, badge, accent, transcript, open, href, corner, hint, eager })`.
+`toon-shot` is a screenshot in a comic panel: `toon-shot-panel` holds the image, `toon-shot-badge` a corner badge, `toon-shot-cap` the caption and `toon-shot-text` a transcript in a `<details>`. Helper: `shot({ src, alt, width, height, caption, badge, accent, transcript, open, href, hrefLabel, corner, hint, eager, cls })`.
 
 - Alt text, width and height are required. The size reserves the space so the page does not jump.
-- `href` makes the whole picture a link to the full-size file (`toon-shot-link`).
+- `href` makes the whole picture a link to the full-size file (`toon-shot-link`). It requires `hrefLabel`, the link's accessible name.
 - `corner` adds a second badge on the top right (`toon-shot-badge-end`), such as `1 / 4`.
 - `hint` adds a "Tap to enlarge" badge (`toon-shot-hint`) that hides from `lg`.
 - `transcript` renders one `<p>` per line. Pass `open: true` to show it expanded.
 
 ### Portrait
 
-`toon-portrait` puts a cut-out person on a vector studio backdrop, with `toon-portrait-bg` for the SVG. Helper: `portrait({ src, alt, width, height, backdrop, accent })`. Pass a PNG or WebP with a transparent background. `backdrop` is `slate` (dark studio grey) or `paper` (the kit's cool grey). The accent colours the ring and the halftone corner. The backdrop is vector, so it stays sharp and adds no image bytes.
+`toon-portrait` puts a cut-out person on a vector studio backdrop, with `toon-portrait-bg` for the SVG. Helper: `portrait({ src, alt, width, height, backdrop, accent, eager, cls })`. Images lazy-load unless you set `eager`. Pass a PNG or WebP with a transparent background. `backdrop` is `slate` (dark studio grey) or `paper` (the kit's cool grey). The accent colours the ring and the halftone corner. The backdrop is vector, so it stays sharp and adds no image bytes.
 
 ## Interactive
 
 ### Modal
 
-`toon-modal` is a native `<dialog>`, with `toon-modal-box`, `toon-modal-head`, `toon-modal-body`, `toon-modal-x` (the close button) and `toon-modal-open` (an opener). The browser traps focus, closes on `Esc` and makes the page behind inert.
+`toon-modal` is a native `<dialog>`, with `toon-modal-box`, `toon-modal-head`, `toon-modal-body`, and `toon-modal-x` (the close button). The script sets `toon-modal-open` on `<html>` as a scroll lock while a modal is open. The browser traps focus, closes on `Esc` and makes the page behind inert.
 
 - **Inline:** put a `<dialog class="toon-modal">` in the page, and a button with `data-toon-modal-open="<dialog id>"`. A `data-toon-modal-close` button inside closes it.
 - **From a page:** a link with `data-toon-modal` fetches its own `href` and shows the page's `<article>` in a shared modal. Without script the link navigates. The script drops `on*` attributes and `javascript:` URLs, but link only to your own pages: the fetched HTML is not otherwise sanitised.

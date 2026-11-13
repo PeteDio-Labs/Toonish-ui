@@ -69,7 +69,7 @@ Copy `node_modules/toonish-ui/dist/fonts/` to `dist/fonts/`, so the font URLs re
 @import "toonish-ui/theme.css";
 ```
 
-`theme.css` is generated from the same tokens. It has not been checked against a Tailwind v4 build yet; treat it as
+`theme.css` is generated from the same tokens. No Tailwind v4 build has verified it; treat it as
 unverified until the changelog says otherwise. Use `toonish.css` for the components.
 
 ## TypeScript helpers
@@ -79,112 +79,19 @@ import { letters, burst, figure } from 'toonish-ui/markup';
 
 letters('pdlab', 'yellow', { live: true }); // the comic-face logo, one span per letter
 burst('red', 'toon-burst-spin');            // an SVG starburst
-figure('214', 'blue', 52, 200);             // a number that shrinks to fit a card
 ```
 
-Every interpolated string, class names included, is escaped with `esc()`, and an accent other than `blue`, `red`, `yellow` or `violet` throws. To run the behaviour yourself instead of loading `toonish.js`,
-call `initToonish()` from `toonish-ui`.
+Every helper escapes its input and throws on an unknown accent or a blank required field. To run the behaviour yourself
+instead of loading `toonish.js`, call `initToonish()` from `toonish-ui`. The [components page](docs/components.md) lists every
+helper and option.
 
-## Tokens
+## Tokens, components and rules
 
-| Token | Value | Use |
-|---|---|---|
-| `color.ground` | `#0c1240` | Page background |
-| `color.ink` | `#0a0a1f` | Outlines, and text on every fill |
-| `color.paper` | `#eceff3` | Panels and bubbles; text on the ground |
-| `color.blue` | `#5f8dff` | Fill and shadow |
-| `color.red` | `#f2706a` | Fill and shadow |
-| `color.yellow` | `#f2c94c` | Fill and shadow |
-| `color.violet` | `#a995f0` | Fill and shadow |
+These live in the docs, so each fact has one home:
 
-Ink on the darkest fill (blue) measures 5.1:1. Paper on the ground measures 15.5:1. Both pass WCAG AA, and
-`test/tokens.test.ts` computes both on every run.
-
-The spacing grid, type scale, radius names and spring easing come from the PeteDio house tokens. The colours are a
-deliberate break from them. Shadows and fluid sizes are plain CSS strings, because DTCG 2025.10 has no type for a
-`clamp()` or for a shadow with a `var()` colour.
-
-## Components
-
-`toon-btn` (plus `-red`, `-yellow`, `-paper`, and `toon-wiggle`), `toon-card` (plus `toon-corner`, `toon-pop`),
-`toon-heading` (plus `-xl`), `toon-link`, `toon-badge` (plus `-blue`, `-yellow`, `-violet`), `toon-nav`, `toon-callout`,
-`toon-footer`, `toon-modal`, `toon-frame`, `toon-shot`, `toon-chip`, `toon-stat`, `toon-list`, `toon-table`, `toon-bars`, `toon-empty`, `toon-bubble`, `toon-caption`, `toon-burst`, `toon-speed` and `toon-type`
-(plus `-comic`, `-flat`).
-
-Every animation and transition stops under `prefers-reduced-motion`, and under `data-motion="off"` on `<html>`.
-
-### Data components
-
-Tiles, rows, bars and a table for dashboards. None of them holds data: you pass your own.
-
-```ts
-import { badge, bars, row, stat } from 'toonish-ui/markup';
-
-`<div class="toon-stats">${stat('This week', '12', 'orders')}${stat('Rate', '71%')}</div>`;
-badge('Open', 'blue', 4);                       // a badge with a count; tones: blue red yellow violet paper mist
-`<div class="toon-list">${row({ lead: 'Nov 12', title: 'Order 1042', sub: 'Pending', aside: 'Web', dot: 'blue' })}</div>`;
-bars({
-  label: 'Orders this week', target: 1,   // target draws a dashed line at that value
-  columns: [{ label: 'Mon', sub: '9', segments: [{ value: 0.6, tone: 'blue', label: 'Web' }, { value: 0.2, tone: 'hatch', label: 'Returned' }] }],
-});
-```
-
-`bars()` scales every height to `max`, which defaults to the tallest stack or the target. Segment tones are the badge tones plus `hatch`. Name what each colour means with a `<ul class="toon-bars-key">` below, setting `--toon-dot` on each `<i>`.
-Add `toon-list-stack` to a `toon-list` in a narrow column: each row's lead keeps its own line at every width, as it does on a phone.
-For a table, put `<table class="toon-table">` in a `<div class="toon-table-wrap">`. Mark the current row with `aria-current`. Add `toon-table-text` to the table when the cells hold words: they left-align and wrap instead of staying on one line.
-The secondary-text tokens are `muted` on paper and `mist` on the ground.
-
-### Shot
-
-`shot()` renders a screenshot in a comic panel. Alt text, width and height are required: the size reserves the space so the page does not jump, and an empty alt would hide the picture from a screen reader.
-
-```ts
-import { shot } from 'toonish-ui/markup';
-
-shot({
-  src: '/studies/media-assistant/shot-1-library.png', alt: 'The assistant answers that The Bear is in the library.',
-  width: 1400, height: 760, badge: 'Real', accent: 'red',
-  caption: 'Real exchange, names redacted',
-  transcript: 'You: do I have The Bear\nAssistant: Yes.',
-});
-```
-
-The output is a `<figure class="toon-shot">` with `toon-shot-panel` (the image and the optional `toon-shot-badge`), a `<figcaption>` and a `<details class="toon-shot-text">` holding one `<p>` per transcript line. Pass `open: true` to show the transcript expanded, and `eager: true` for an image above the fold.
-
-### Portrait
-
-`portrait()` puts a cut-out person on the kit's vector studio backdrop, so every portrait on a site shares one look. Pass a PNG or WebP with a transparent background. Alt text, width and height are required.
-
-```ts
-import { portrait } from 'toonish-ui/markup';
-
-portrait({ src: '/pedro-cutout.webp', alt: 'Pedro, in a black blazer', width: 640, height: 768, backdrop: 'slate', accent: 'blue' });
-```
-
-The output is `<div class="toon-portrait" data-backdrop="slate">` holding an SVG (a radial gradient, a ring and a halftone corner) and the `<img>`. The backdrop is vector, so it stays sharp at any size and adds no image bytes. Size the box with `cls` or its parent; the image sets the aspect ratio.
-
-### Modal
-
-`toon-modal` is a native `<dialog>`: the browser traps focus, closes it on `Esc` and makes the page behind it inert.
-The script adds backdrop taps and a scroll lock that lasts while any modal is open. The browser returns focus to the opener when a `<dialog>` closes.
-
-- **Inline:** put a `<dialog class="toon-modal">` in the page, with `toon-modal-box`, `toon-modal-head` and `toon-modal-body`, and a button with `data-toon-modal-open="<dialog id>"`. A `data-toon-modal-close` button inside closes it.
-- **From a page:** a link with `data-toon-modal` fetches its own `href` (path and query string) and shows the page's `<article>` in a shared modal. Without JavaScript, the link navigates normally. The script drops `on*` attributes and `javascript:` URLs from the fetched markup, but link only to pages of your own site: the fetched HTML is not otherwise sanitized.
-
-## Mobile first
-
-Every component is designed for a phone first, at 390 px, and widened from there.
-
-- **The base rule is the phone layout.** Wider layouts sit in `min-width` queries (`sm`, `md`, `lg`).
-- **No component traps a scroll.** A component that takes a swipe, such as `toon-deck`, sets `touch-action: pan-y`,
-  so a vertical drag always scrolls the page. The one sideways scroll container is `toon-table-wrap`, for a table
-  wider than a phone. Don't add another.
-- **Touch targets are at least 44 px,** and nothing depends on hover.
-- **Decoration shows on a phone.** `toon-sfx`, the tilts and the bursts draw at every width. To fit a phone,
-  use a smaller size (`toon-sfx-sm`), and `toon-sfx-corner` to pin the word to a corner at every width. Don't hide the element.
-- **No component widens the page.** `toon-page` clips sideways overflow, and the browser check fails when the document
-  is wider than the viewport at 390 px or at 1280 px. Neither catches a component that `toon-page` clips, so look
-  at the component at 390 px.
+- [Tokens](docs/tokens.md): colours, contrast, type, space, shadow and motion.
+- [Components](docs/components.md): every `toon-*` class and helper, including the data components, `shot()`, `portrait()` and the modal.
+- [Principles](docs/principles.md): the look, mobile first and accessibility.
 
 ## Develop
 

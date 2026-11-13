@@ -16,7 +16,7 @@ The live kit page, with every component running, is [pdlab.dev/ui.html](https://
 
 ## How the docs stay true
 
-A test (`test/docs.test.ts`) fails when `dist/toonish.css` defines a `toon-*` class that [Components](components.md) does not name, and when a markup helper exported from `src/markup.ts` has no section there. A new component therefore cannot ship without a docs entry. The test prints how many classes and helpers it compared.
+A test (`test/docs.test.ts`) fails when `dist/toonish.css` defines a `toon-*` class that [Components](components.md) does not name, and when a markup helper exported from `src/markup.ts` has no section there. A component cannot ship without a docs entry. The test prints how many classes and helpers it compared.
 
 ## Decision log
 

@@ -39,23 +39,23 @@ No session merges its own pull request in this repository without the gate in th
 
 ## When to release
 
-A merge to `main` is not a release. Batch changes under `## [Unreleased]` in `CHANGELOG.md`, and cut a release only when a consumer needs one or the owner asks. The portfolio pins a tag, so it needs a release only when it must use something `main` has and its pinned tag lacks.
+A merge to `main` is not a release. Batch changes under `## [Unreleased]` in `CHANGELOG.md`, and cut a release only when a consumer needs one or the owner asks. The portfolio pins a commit, so a merge to `main` reaches it only through a pin bump. It needs a release only when a consumer must install a tag.
 
 - **Patch (`0.2.x`):** fixes and small additions that break nothing.
-- **Minor (`0.x.0`):** a meaningful batch, such as a set of new components or a token change that alters how pages look.
+- **Minor (`0.x.0`):** a meaningful batch, such as a set of added components or a token change that alters how pages look.
 - **Major:** a breaking change after `1.0.0`. While the version is `0.x`, a breaking change takes a minor bump and a changelog note.
 
 Do not tag a release for each feature. To ship one change on its own, use a patch bump.
 
 ## Release
 
-1. Open a pull request that moves the `## [Unreleased]` entries under a new `## [X.Y.Z] - date` heading in `CHANGELOG.md` and sets `version` in `package.json`.
+1. Open a pull request that moves the `## [Unreleased]` entries under a `## [X.Y.Z] - date` heading in `CHANGELOG.md` and sets `version` in `package.json`.
 2. Run `bun run build` and commit `dist/`. Merge after `check` passes and every thread is resolved.
 3. Start the release. Either run the `release` workflow on `main` (Actions > release > Run workflow), which creates the tag `vX.Y.Z` from `package.json`, or tag the merge commit yourself: `git tag vX.Y.Z && git push origin vX.Y.Z`.
 4. The `release` workflow checks that the tag, `package.json` and the changelog agree and that the tag is on `main`. It then rebuilds, checks `dist/` again, runs the tests, and attaches `toonish-ui-X.Y.Z.tgz` and `SHA256SUMS` to a GitHub release.
 5. Read the release back: it must list two assets.
 
-Semantic versioning: a removed or renamed class, token or export is a major change. A new class, token or export is minor. A fix that changes no name is a patch.
+Semantic versioning: a removed or renamed class, token or export is a major change. An added class, token or export is minor. A fix that changes no name is a patch.
 
 ## Consuming a release
 
@@ -63,4 +63,4 @@ Semantic versioning: a removed or renamed class, token or export is a major chan
 bun add github:PeteDio-Labs/toonish-ui#vX.Y.Z
 ```
 
-To move to public npm later, add a publish job that runs on the same tag from a GitHub-hosted runner with `npm publish` and trusted publishing. Nothing else in the layout changes.
+To publish to public npm, add a publish job that runs on the same tag from a GitHub-hosted runner with `npm publish` and trusted publishing. Nothing else in the layout changes.
