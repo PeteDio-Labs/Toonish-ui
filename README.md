@@ -144,6 +144,18 @@ shot({
 
 The output is a `<figure class="toon-shot">` with `toon-shot-panel` (the image and the optional `toon-shot-badge`), a `<figcaption>` and a `<details class="toon-shot-text">` holding one `<p>` per transcript line. Pass `open: true` to show the transcript expanded, and `eager: true` for an image above the fold.
 
+### Portrait
+
+`portrait()` puts a cut-out person on the kit's vector studio backdrop, so every portrait on a site shares one look. Pass a PNG or WebP with a transparent background. Alt text, width and height are required.
+
+```ts
+import { portrait } from 'toonish-ui/markup';
+
+portrait({ src: '/pedro-cutout.webp', alt: 'Pedro, in a black blazer', width: 640, height: 768, backdrop: 'slate', accent: 'blue' });
+```
+
+The output is `<div class="toon-portrait" data-backdrop="slate">` holding an SVG (a radial gradient, a ring and a halftone corner) and the `<img>`. The backdrop is vector, so it stays sharp at any size and adds no image bytes. Size the box with `cls` or its parent; the image sets the aspect ratio.
+
 ### Modal
 
 `toon-modal` is a native `<dialog>`: the browser traps focus, closes it on `Esc` and makes the page behind it inert.
