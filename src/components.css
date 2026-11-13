@@ -467,6 +467,9 @@
   }
   .toon-sfx-sm { font-size: 2rem; }
   .toon-sfx-lg { font-size: 5rem; }
+  /* A sticker on the top right corner of a `relative` parent. The offset is in em, so it follows the word's size, and it
+     is the same on a phone as on a desktop: the word never hides. The parent must not clip (`toon-frame` does). */
+  .toon-sfx-corner { @apply absolute z-10; top: -.6em; right: theme(spacing.s3); }
   .toon-sfx-ghost { color: transparent; text-shadow: none; -webkit-text-stroke: .045em theme(colors.toon.mist); opacity: .4; }
 
   /* 21. Deck: cards that sit in a list or grid, and stack in a pile you flip through on a phone. Without script the cards

@@ -145,6 +145,8 @@ export interface SfxOptions {
     size?: 'sm' | 'lg';
     /** An outline only, low in contrast, for sitting behind content. */
     ghost?: boolean;
+    /** A sticker on the top right corner of a `relative` parent, at every width. */
+    corner?: boolean;
     cls?: string;
 }
 /**

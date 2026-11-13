@@ -191,6 +191,7 @@ test('sfx letters each character, is the same every time, and is decoration only
   expect(a).not.toContain('toon-sfx-sm');
   expect(sfx('x', 'blue', { size: 'lg', ghost: true })).toContain('class="toon-sfx toon-sfx-lg toon-sfx-ghost"');
   expect(sfx('x', 'blue', { size: 'sm' })).toContain('toon-sfx-sm');
+  expect(sfx('x', 'blue', { size: 'sm', corner: true })).toContain('class="toon-sfx toon-sfx-sm toon-sfx-corner"');
 });
 
 test('sfx escapes its text and class and rejects bad input', () => {

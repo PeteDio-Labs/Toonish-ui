@@ -205,6 +205,7 @@ try {
     eq(await page.$eval('.toon-sfx-ghost', (e) => [getComputedStyle(e).color, getComputedStyle(e).opacity].join()), 'rgba(0, 0, 0, 0),0.4', `${name}: .toon-sfx-ghost is an outline only`);
     eq(await page.$eval('.toon-sfx-lg', (e) => parseFloat(getComputedStyle(e).fontSize)) > (await page.$eval('.toon-sfx-sm', (e) => parseFloat(getComputedStyle(e).fontSize))), true, `${name}: sfx size modifiers order sm < lg`);
     eq(await page.$eval('.toon-sfx', (e) => getComputedStyle(e).rotate), '-5deg', `${name}: the word is tilted`);
+    eq(await page.$eval('.toon-sfx-corner', (e) => { const r = e.getBoundingClientRect(), b = e.parentElement!.getBoundingClientRect(); return getComputedStyle(e).display !== 'none' && getComputedStyle(e).position === 'absolute' && r.width > 0 && r.top < b.top && r.right <= b.right && b.right - r.right < 40; }), true, `${name}: .toon-sfx-corner shows, absolutely placed, above its parent's top edge and within 40 px of its right edge`);
 
     // Toggle group: pressing the second button moves aria-pressed.
     await page.click('.toon-nav button:nth-child(2)');

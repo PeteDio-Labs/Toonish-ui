@@ -2180,6 +2180,16 @@ a.toon-strip-item:focus-visible {
   font-size: 5rem;
 }
 
+/* A sticker on the top right corner of a `relative` parent. The offset is in em, so it follows the word's size, and it
+     is the same on a phone as on a desktop: the word never hides. The parent must not clip (`toon-frame` does). */
+
+.toon-sfx-corner {
+  position: absolute;
+  z-index: 10;
+  top: -.6em;
+  right: 12px;
+}
+
 .toon-sfx-ghost {
   color: transparent;
   text-shadow: none;
