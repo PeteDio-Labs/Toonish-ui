@@ -1,5 +1,5 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
-// the kit's documentation page is /ui.html on pdlab.dev.
+// the kit's documentation is docs/components.md. The portfolio's kit page was removed on 2026-11-14.
 import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager } from '../src/markup.ts';
 
 export const fixture = (): string => `<!doctype html>
