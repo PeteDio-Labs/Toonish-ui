@@ -1496,6 +1496,13 @@ html.toon-js .toon-reveal.toon-in {
   padding-bottom: 12px;
 }
 
+/* The title sits on the blue bar. `toon-heading` is yellow for the navy ground, and yellow on blue is 1.96:1, so the bar sets ink. */
+
+.toon-modal-head .toon-heading {
+  --tw-text-opacity: 1;
+  color: rgb(10 10 31 / var(--tw-text-opacity, 1));
+}
+
 .toon-modal-body {
   overflow-y: auto;
   padding-left: 24px;
@@ -1511,7 +1518,10 @@ html.toon-js .toon-reveal.toon-in {
      so its focus ring is a thin ink line, which reads on both the blue header and the off-white body. */
 
 .toon-modal-x {
+  display: inline-flex;
+  min-height: 2.75rem;
   flex-shrink: 0;
+  align-items: center;
   --tw-bg-opacity: 1;
   background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding-left: 16px;
@@ -1699,6 +1709,8 @@ html.toon-modal-open {
   margin: 0px;
 }
 
+/* The summary is the control, so it carries the height: 44 px with its own padding, and the panel pads only 3px around it. */
+
 .toon-shot-text {
   border-radius: 10px;
   border-width: 3px;
@@ -1708,19 +1720,29 @@ html.toon-modal-open {
   background-color: rgb(236 239 243 / var(--tw-bg-opacity, 1));
   padding-left: 16px;
   padding-right: 16px;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 3px;
+  padding-bottom: 3px;
   --tw-text-opacity: 1;
   color: rgb(10 10 31 / var(--tw-text-opacity, 1));
 }
 
+.toon-shot-text[open] {
+  padding-bottom: 12px;
+}
+
 .toon-shot-text > summary {
   cursor: pointer;
+  padding-top: 9px;
+  padding-bottom: 9px;
   font-weight: 700;
 }
 
 .toon-shot-text p {
   margin-top: 8px;
+}
+
+.toon-shot-text > summary + p {
+  margin-top: 0px;
 }
 
 /* 10. Speech bubble */
@@ -1937,7 +1959,10 @@ html.toon-modal-open {
 }
 
 .toon-kicker-link {
+  display: inline-flex;
+  min-height: 2.75rem;
   flex-shrink: 0;
+  align-items: center;
   white-space: nowrap;
   font-size: 13px;
   text-transform: none;
@@ -2566,7 +2591,7 @@ a.toon-strip-item:focus-visible {
   animation: toon-deck-in .3s ease-out;
 }
 
-/* Halftone ground, opt-in on <body>. */
+/* A hook for a site to draw a halftone ground on <body>. The kit sets no rule on it. */
 
 .toon-dots {
 }

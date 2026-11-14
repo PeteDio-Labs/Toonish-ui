@@ -445,11 +445,25 @@ try {
     eq(rings.n > 10, true, `a11y ${name}: focus ring checked ${rings.n} elements`);
     eq(rings.out.join(' | '), '', `a11y ${name}: every focusable element has an ink ring and an outline`);
     // Target size: WCAG 2.2 asks 24 px; the kit's own controls keep 44 px, Apple's minimum.
-    const small = await p.evaluate(() => [...document.querySelectorAll<HTMLElement>('.toon-btn,.toon-nav a,.toon-nav button,.toon-pager-link,.toon-deck-btn,.toon-modal-x,.toon-motion')].filter((e) => e.offsetParent).filter((e) => e.getBoundingClientRect().height < 43.5).map((e) => `${e.className.slice(0, 30)} ${Math.round(e.getBoundingClientRect().height)}px`));
-    eq(small.join(' | '), '', `a11y ${name}: kit controls are 44 px tall`);
+    const TARGETS = '.toon-btn,.toon-nav a,.toon-nav button,.toon-pager-link,.toon-deck-btn,.toon-modal-x,.toon-motion,.toon-kicker-link,.toon-shot-text > summary';
+    const sizes = (sel: string) => p.evaluate((s) => { const els = [...document.querySelectorAll<HTMLElement>(s)].filter((e) => e.getClientRects().length); return { n: els.length, small: els.filter((e) => e.getBoundingClientRect().height < 43.5).map((e) => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 30)} ${Math.round(e.getBoundingClientRect().height)}px`) }; }, sel);
+    const at = await sizes(TARGETS);
+    console.log(`a11y ${name}: target size read on ${at.n} kit controls`);
+    eq(at.n > 8, true, `a11y ${name}: target size checked ${at.n} controls`);
+    eq(at.small.join(' | '), '', `a11y ${name}: kit controls are 44 px tall`);
     // Semantics: one h1, a main landmark, an h2 before any h3, and a skip link that is the first tab stop.
     const sem = await p.evaluate(() => { const hs = [...document.querySelectorAll('h1,h2,h3,h4')].map((h) => +h.tagName[1]!); return { h1: hs.filter((h) => h === 1).length, jump: hs.some((h, i) => i > 0 && h - hs[i - 1]! > 1), main: document.querySelectorAll('main').length }; });
     eq(sem.h1, 1, `a11y ${name}: one h1`); eq(sem.jump, false, `a11y ${name}: headings never skip a level`); eq(sem.main, 1, `a11y ${name}: one main landmark`);
+    // The modal is closed in the pass above, so axe and the target check never saw it. Open it and read both again.
+    await p.click('#open');
+    eq(await p.$eval('#demo', (d) => (d as HTMLDialogElement).open), true, `a11y ${name}: the modal is open for its own pass`);
+    const open = await p.evaluate(() => (window as any).axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] }));
+    console.log(`a11y ${name}, modal open: axe ran ${open.passes.length} rules to a pass, ${open.violations.length} violations`);
+    eq(open.passes.some((r: { id: string }) => r.id === 'color-contrast'), true, `a11y ${name}, modal open: axe read contrast inside the modal`);
+    for (const v of open.violations) check(false, `a11y ${name}, modal open: ${v.id} (${v.nodes.length}): ${v.help}; first ${v.nodes[0].target.join(' ')}: ${v.nodes[0].any[0]?.message ?? ''}`);
+    const x = await sizes('#demo .toon-modal-x');
+    eq(x.n, 1, `a11y ${name}, modal open: the close button is measured`);
+    eq(x.small.join(' | '), '', `a11y ${name}, modal open: the close button is 44 px tall`);
     await c.close();
   }
 

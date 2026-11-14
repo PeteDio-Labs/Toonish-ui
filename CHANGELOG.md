@@ -40,6 +40,10 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The modal title is ink on the blue bar. `toon-heading` is yellow, and yellow on blue is 1.96:1. The browser check never opened the modal for axe, so it passed. It opens the modal for a second pass.
+- `toon-modal-x`, `toon-kicker-link` and the `toon-shot-text` summary are 44 px tall. They were 31, 20 and 26 px. The target check listed `toon-modal-x` but skipped it, because the dialog was closed. The check prints how many controls it read.
+- `strip()` puts a space between a figure and its label, so a linked cell is named "22 case studies", not "22case studies".
+- Docs: `letters()` lists `onPaper`, `toon-dots` is described as the halftone hook it is, the table contract says how to make the scroll panel reachable by keyboard, and the landing-page and case-study patterns match pdlab.dev. `test/docs.test.ts` reads one-line interfaces, which it skipped, so `onPaper` went unnoticed.
 - In `toon-bars`, the red underline under the current day overlapped the date below it. Each day label now has 8px of bottom padding, so the underline sits clear of the date.
 - In `toon-bars`, adjacent segments drew a 4px line between colours. The stack now has a 2px outline with 1px dividers inside, and a hatch segment meets its neighbour with no divider.
 - In `toon-bars`, a column with no segments sat its labels 2px higher than the others, because its empty total was shorter than one line. The total's minimum height is now one line.
