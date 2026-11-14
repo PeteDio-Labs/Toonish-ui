@@ -6,9 +6,9 @@ A pattern is a composition of components that solves one page problem. Each patt
 
 The home page reads as a comic splash page, then a series of panels.
 
-1. **Splash hero.** A full-width headline in `letters(..., { live: true })`, a tilted `toon-frame` holding a terminal, and the name in a `toon-caption`. Add `speedLines()` behind the frame and one `burst()`.
+1. **Splash hero.** A full-width headline in `letters(..., { live: true })` with one `burst()` behind its last line, a tilted `toon-frame` holding a terminal, and the name in a `toon-caption`. The headline is `aria-hidden`, and an `sr-only` `h1` carries its text.
 2. **Proof strip.** `strip()` with four linked figures. It answers "is this real?" before the visitor scrolls.
-3. **Featured work.** `kicker('01', ...)`, then one lead `toon-panel` and three compact cards. On a phone the cards are a `deck()`, because a sideways row traps a thumb.
+3. **Featured work.** `kicker('01', ...)`, then one lead `toon-card` and three compact cards. On a phone the cards are a `deck()`, because a sideways row traps a thumb.
 4. **How I work.** `kicker('02', ...)` and `steps()` with three steps.
 5. **Closing panel.** A paper `toon-panel` where a `toon-bubble-left` points at the `portrait()`.
 
@@ -18,8 +18,8 @@ Sound effects (`MERGE!`, `SHIP!`, `CLICK!`, `DEPLOY!`) sit on panels with `sfx(.
 
 A case study is one long read, so it needs orientation more than decoration.
 
-- A figure in the header (`figure()` or `stat()`), then numbered sections with `kicker()`.
-- A sticky contents rail on wide screens. On a phone the rail is gone and the numbered kickers do the job.
+- A figure in the header (`figure()` or `stat()`), then numbered sections, each led by a `toon-kicker-num` chip.
+- A sticky contents rail on wide screens. On a phone the same list sits in a `<details>` disclosure above the first section. Every link in it is 44 px tall.
 - The result sits in a paper `toon-panel` with a `SHIP!` sound effect in the corner.
 - Pictures use `shot()` with `href` and `hint`, so a tap opens the full-size file. Mark what you redacted in the caption.
 - End with `pager()` to the previous and next study.
