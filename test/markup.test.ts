@@ -158,6 +158,8 @@ test('strip renders linked and plain cells, sets the column count and escapes', 
   expect(html).toContain('<a class="toon-strip-item" href="/work.html">');
   expect(html).toContain('<div class="toon-strip-item"><span class="toon-strip-value" style="--toon-fill:#c8322b">~594</span>');
   expect(html.match(/<li class="toon-strip-cell">/g)).toHaveLength(2);
+  // A space separates the figure from its label, so the link's name reads "21 studies" and not "21studies".
+  expect(html).toContain('>21</span> <span class="toon-strip-label">studies</span>');
   const bad = strip([{ value: evil, label: evil, href: evil }], { label: evil, cls: evil });
   expect(bad.includes('<img')).toBe(false);
   expect(() => strip([])).toThrow('at least one');
