@@ -31,7 +31,7 @@ Three ways to use the files are in the [README](../README.md): plain CSS and scr
 
 ## How pdlab.dev deploys
 
-The site is a static build, kept in the `pdlabs-portfolio` repository. The kit page, `/ui.html`, is part of that site and not of this repository.
+The site is a static build, kept in the `pdlabs-portfolio` repository. The site no longer has a kit page. `/ui.html` redirects to the kit's case study.
 
 1. **Branch work goes to `staging`.** A change to the site or the kit's look merges to `staging` first, which publishes a staging site behind a sign-in.
 2. **Review on a phone.** The owner reviews the staging site at 390 px. A change batches on `staging` until the owner approves it.
