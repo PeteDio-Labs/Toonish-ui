@@ -15,7 +15,7 @@
   "description": "Toonish: an original comic-book UI kit. Design tokens, a Tailwind preset, component CSS and a little behaviour.",
   "license": "MIT",
   "type": "module",
-  "homepage": "https://pdlab.dev/ui.html",
+  "homepage": "https://pdlab.dev/work/toonish-ui-design-system.html",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PeteDio-Labs/toonish-ui.git"

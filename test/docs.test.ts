@@ -25,8 +25,12 @@ test('docs/components.md names every markup helper', async () => {
 test('docs/components.md names every option of every markup helper', async () => {
   const src = await Bun.file('src/markup.ts').text();
   const keys = new Set<string>();
-  for (const m of src.matchAll(/export interface \w+(?:Options|Cell|Step|Link|Segment|Column|Seg)\w* \{([\s\S]*?)\n\}/g)) {
-    for (const k of m[1]!.matchAll(/^\s+(\w+)\??:/gm)) keys.add(k[1]!);
+  // An interface may be one line (`{ live?: boolean; flat?: boolean }`) or many, so split its body on `;` and on line ends.
+  for (const m of src.matchAll(/export interface \w+(?:Options|Cell|Step|Link|Segment|Column|Seg)\w* \{([\s\S]*?)\}\s*$/gm)) {
+    for (const part of m[1]!.replace(/\/\*[\s\S]*?\*\//g, '').split(/[;\n]/)) {
+      const k = part.match(/^\s*(\w+)\??:/);
+      if (k) keys.add(k[1]!);
+    }
   }
   const missing = [...keys].filter((k) => !new RegExp(`\\b${k}\\b`).test(docs));
   console.log(`docs check: compared ${keys.size} option names, ${missing.length} missing`);

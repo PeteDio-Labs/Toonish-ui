@@ -242,13 +242,13 @@ export interface StripOptions {
   cls?: string;
 }
 
-/** A row of figure cells in one bordered panel: four across, two by two on a phone. */
+/** A row of figure cells in one bordered panel: four across, two by two on a phone. A space sits between the figure and its label, so a linked cell is named "22 case studies", not "22case studies". */
 export const strip = (cells: StripCell[], o: StripOptions = {}): string => {
   if (!cells.length) throw new Error('strip: at least one cell is required');
   const items = cells.map((c) => {
     if (!c.value.trim() || !c.label.trim()) throw new Error('strip: every cell needs a value and a label');
     const fill = c.accent ? ` style="--toon-fill:${HEX_TEXT[accentOf(c.accent)]}"` : '';
-    const inner = `<span class="toon-strip-value"${fill}>${esc(c.value)}</span><span class="toon-strip-label">${esc(c.label)}</span>`;
+    const inner = `<span class="toon-strip-value"${fill}>${esc(c.value)}</span> <span class="toon-strip-label">${esc(c.label)}</span>`;
     return `<li class="toon-strip-cell">${c.href ? `<a class="toon-strip-item" href="${esc(c.href)}">${inner}</a>` : `<div class="toon-strip-item">${inner}</div>`}</li>`;
   }).join('');
   return `<ul class="toon-strip${o.cls ? ' ' + esc(o.cls) : ''}" role="list"${o.label ? ` aria-label="${esc(o.label)}"` : ''} style="--toon-cols:${cells.length}">${items}</ul>`;

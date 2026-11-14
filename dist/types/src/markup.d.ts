@@ -140,7 +140,7 @@ export interface StripOptions {
     label?: string;
     cls?: string;
 }
-/** A row of figure cells in one bordered panel: four across, two by two on a phone. */
+/** A row of figure cells in one bordered panel: four across, two by two on a phone. A space sits between the figure and its label, so a linked cell is named "22 case studies", not "22case studies". */
 export declare const strip: (cells: StripCell[], o?: StripOptions) => string;
 export interface Step {
     title: string;

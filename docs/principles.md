@@ -18,7 +18,7 @@ Toonish looks like a comic page that happens to be a website: thin ink outlines,
 Design the 390 px layout first, then widen it.
 
 - The base rule is the phone layout. Wider layouts sit in `min-width` queries (`sm`, `md`, `lg`).
-- Nothing depends on hover. Deck buttons and pager links have a 44 px minimum target. Give any added interactive component the same minimum and a browser check.
+- Nothing depends on hover. Buttons, nav pills, deck buttons, pager links, the modal's close button, the kicker link and the transcript summary have a 44 px minimum target. Give any added interactive component the same minimum and a browser check.
 - No component traps a scroll. A swipeable component sets `touch-action: pan-y`, so a vertical drag always scrolls the page. The one sideways scroll container is `toon-table-wrap`. Do not add another: use `toon-deck` to flip through cards.
 - Decoration shows on a phone. Shrink it (`toon-sfx-sm`) or pin it (`toon-sfx-corner`). Do not hide it.
 - No component widens the page. Check the component at 390 px before 1280 px.
@@ -36,7 +36,7 @@ Nothing ships that fails the accessibility checks. The target is WCAG 2.2 AA, an
 - **Keyboard.** Everything works without a pointer, with a visible two-tone focus ring and a skip link. Targets are at least 24 px, and the kit's controls are 44 px. A swipe always has a button.
 - **Motion.** Every animation and transition stops under `prefers-reduced-motion`, and under `data-motion="off"` on `<html>`. A visitor can force motion back on with `data-motion="on"`.
 - **Modals are native `<dialog>`,** so the browser traps focus and closes on `Esc`.
-- **The tests enforce it.** `bun run test:browser` runs axe at WCAG 2.2 AA at 1280 and 390 px, reads the focus ring and the target sizes, and checks heading order and the skip link. A violation fails CI. Do not skip, relax or quarantine a check to merge. Fix the component.
+- **The tests enforce it.** `bun run test:browser` runs axe at WCAG 2.2 AA at 1280 and 390 px, with the modal closed and then open, reads the focus ring and the target sizes, and checks heading order and the skip link. A violation fails CI. Do not skip, relax or quarantine a check to merge. Fix the component.
 - **A person checks what a tool cannot:** tab through the change and listen to it in VoiceOver or NVDA before you open the pull request.
 
 ### 3. Escape everything

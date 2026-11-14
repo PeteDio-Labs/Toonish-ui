@@ -19,16 +19,16 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-skip` | `<a href="#main">` | Its text | `Enter` | First tab stop. Hidden until focused. |
 | `toon-nav` | `<nav aria-label>` of links, or a `role="group"` of buttons | Required label | `Tab`, `Enter` | The current page carries `aria-current="page"`. A toggle group carries `aria-pressed`. Pills are 44 px tall. |
 | `toon-pager` | `<nav aria-label>` | Required label | `Tab`, `Enter` | The arrow is `aria-hidden`; the direction and title are text. |
-| `toon-modal` | Native `<dialog aria-modal aria-labelledby>` | The title | `Esc` closes, focus is trapped, focus returns to the opener | Needs a visible `Close` button. |
+| `toon-modal` | Native `<dialog aria-modal aria-labelledby>` | The title | `Esc` closes, focus is trapped, focus returns to the opener | Needs a visible `Close` button, which is 44 px tall. A `toon-heading` in `toon-modal-head` is ink, because yellow on the blue bar is 1.96:1. |
 | `toon-deck` | `role="group" aria-roledescription="carousel"` of `role="group" aria-roledescription="slide"` cards, labelled `n of m` | Required label | `Tab` to the buttons, `ArrowLeft` and `ArrowRight` flip | Cards below the top are `inert`. The counter is a polite live region. A swipe is never the only way: the buttons flip. |
-| `toon-strip` | `<ul role="list" aria-label>` | Optional label | A linked cell is a link | The figure reads as text. |
+| `toon-strip` | `<ul role="list" aria-label>` | Optional label | A linked cell is a link | The figure reads as text, with a space before its label. |
 | `toon-steps` | `<ol role="list" aria-label>` | Optional label | None | The number and arrow are `aria-hidden`; the list gives the order. |
 | `toon-list`, `toon-row` | `role="list"` and `role="listitem"` | Required label on the list | None | `list()` and `row()` write the roles. |
 | `toon-stat`, `toon-stats` | Text in a tile | Label, value, detail in reading order | None | Do not use colour alone to rank a figure. |
 | `toon-bars` | `role="list"` of `role="listitem"` columns | Required label, and a label on each column that says its numbers | None | The shapes are not the only carrier of the numbers. |
-| `toon-table` | `<table>` with `<th scope>` | A caption or a label | None | The panel scrolls sideways at 320 px and is the one allowed scroll container. |
+| `toon-table` | `<table>` with `<th scope>` | A caption or a label | `Tab` to the panel, then the arrow keys scroll it | The panel scrolls sideways at 320 px and is the one allowed scroll container. Give a `toon-table-wrap` that can scroll `tabindex="0"`, `role="region"` and an `aria-label`, or a keyboard cannot scroll it in every browser. |
 | `toon-badge`, `toon-chip`, `toon-caption` | `<span>` | Its text | None | A count has a space before it. Not a control: use a button for something that acts. |
-| `toon-shot` | `<figure>`, `<img alt>`, `<figcaption>`, a `<details>` transcript | Required `alt` | The transcript opens with `Enter` | The `alt` says what the picture shows. An empty `alt` throws. |
+| `toon-shot` | `<figure>`, `<img alt>`, `<figcaption>`, a `<details>` transcript | Required `alt` | The transcript opens with `Enter` | The `alt` says what the picture shows. An empty `alt` throws. The transcript's summary is 44 px tall. |
 | `toon-portrait` | `<img alt>` over an `aria-hidden` SVG | Required `alt` | None | Say who is shown and how. The helper throws on a blank `alt`. |
 | `toon-sfx`, `toon-burst`, `toon-speed`, `toon-kicker-rule` | `aria-hidden="true"` | None | None | Decoration. Put the meaning in text elsewhere. |
 | `toon-type`, `toon-type-comic` | Real text in one span per letter | Its text | None | The comic face is for large words only. The fill must read on its ground. |
@@ -44,7 +44,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 
 ### Check a component
 
-1. Run `bun run test:browser`. It runs axe at WCAG 2.2 AA on the fixture at 1280 and 390 px, reads the focus ring on every focusable element, checks the kit's target sizes and the heading order, and checks the skip link is the first tab stop. It prints how many rules and elements it examined.
+1. Run `bun run test:browser`. It runs axe at WCAG 2.2 AA on the fixture at 1280 and 390 px, once with the page at rest and once with the modal open. It reads the focus ring on every focusable element, checks the kit's target sizes and the heading order, and checks the skip link is the first tab stop. It prints how many rules and elements it examined.
 2. Add the component to `test/fixture.ts`, so axe reads it.
 3. Tab through it, then turn on VoiceOver or NVDA and listen to it once.
 
@@ -55,11 +55,11 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 - `toon-page` wraps the page and clips sideways overflow, so a decoration that pokes out cannot widen the document.
 - `toon-reveal` marks a block that rises in when it scrolls into view. The script adds `toon-js` to `<html>`, then `toon-in` to the block. Without script, the block shows.
 - `toon-motion` and `toon-motion-label` make the motion toggle button. The label hides on a phone and shows from `sm`.
-- `toon-pop`, `toon-wiggle`, `toon-blink` and `toon-boing` are animation classes. `toon-dots` is a hook for a site's loading dots. Every animation stops under `prefers-reduced-motion` and `data-motion="off"`.
+- `toon-pop`, `toon-wiggle`, `toon-blink` and `toon-boing` are animation classes. `toon-dots` is a hook class for a halftone ground on `<body>`. The kit sets no rule on it, so the site draws the dots. Every animation stops under `prefers-reduced-motion` and `data-motion="off"`.
 
 ### Type
 
-- `toon-type`, `toon-type-comic`, `toon-type-flat`, `toon-word`: display lettering. Helper: `letters(text, accent, { live, flat, cls, size })`. Each letter is its own span. Plain `toon-type` is the heavy sans. `live` adds `toon-type-comic`: the Bangers face with an ink outline and a paired shadow, tilting and bobbing in turn. The text stays real text.
+- `toon-type`, `toon-type-comic`, `toon-type-flat`, `toon-word`: display lettering. Helper: `letters(text, accent, { live, flat, onPaper, cls, size })`. Each letter is its own span. Plain `toon-type` is the heavy sans. `live` adds `toon-type-comic`: the Bangers face with an ink outline and a paired shadow, tilting and bobbing in turn. `onPaper` uses the deeper `-text` accent, for lettering on a paper panel. The text stays real text.
 - `figure(value, accent, max, avail)` lays a number out as flat display type that shrinks to fit a card. It uses the `-text` accents, which read on paper; the fill accents do not (see [Tokens](tokens.md#colour)). `fitSize(value, max, avail)` returns that size in px.
 - `toon-heading` and `toon-heading-xl` are section headings. `toon-link` is an inked link. It takes the text colour of its surface (`color: inherit`), so it reads on both paper and the ground.
 - `toon-caption` is a caption box in the mono face.
@@ -106,7 +106,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 
 ### Kicker
 
-`toon-kicker` is a numbered section lead-in: a number chip (`toon-kicker-num`), a label (`toon-kicker-label`), a rule to the edge (`toon-kicker-rule`) and an optional link (`toon-kicker-link`). Helper: `kicker('01', 'Featured work', { link })`.
+`toon-kicker` is a numbered section lead-in: a number chip (`toon-kicker-num`), a label (`toon-kicker-label`), a rule to the edge (`toon-kicker-rule`) and an optional link (`toon-kicker-link`, 44 px tall). Helper: `kicker('01', 'Featured work', { link })`.
 
 ### Strip
 
@@ -136,7 +136,7 @@ The helper scales heights to `max`, which defaults to the tallest stack or the t
 
 ### Table
 
-Put `<table class="toon-table">` in a `<div class="toon-table-wrap">`. The wrap is the one sideways scroll container in the kit, for a table wider than a phone. Mark the current row with `aria-current`. Add `toon-table-text` when the cells hold words: they left-align and wrap.
+Put `<table class="toon-table">` in a `<div class="toon-table-wrap">`. The wrap is the one sideways scroll container in the kit, for a table wider than a phone. When the table can outgrow a phone, add `tabindex="0"`, `role="region"` and an `aria-label` to the wrap, so a keyboard can scroll it. Mark the current row with `aria-current`. Add `toon-table-text` when the cells hold words: they left-align and wrap.
 
 ### Empty state
 
