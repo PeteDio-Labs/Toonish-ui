@@ -2,7 +2,7 @@
 
 Toonish is an original comic-book UI kit: thin ink outlines, short hard shadows and a gentle lift on hover,
 in blue, red, yellow and violet on deep navy with off-white panels. It powers [pdlab.dev](https://pdlab.dev).
-The kit page, with every component running, is [pdlab.dev/ui.html](https://pdlab.dev/ui.html).
+The site has no kit page. `test/fixture.ts` shows every component once, and [docs/components.md](docs/components.md) lists them. [The case study](https://pdlab.dev/work/toonish-ui-design-system.html) tells how the kit is built.
 
 ## Design docs
 

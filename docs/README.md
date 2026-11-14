@@ -12,7 +12,7 @@ Toonish is the design system behind [pdlab.dev](https://pdlab.dev). These pages 
 | [Contributing](../CONTRIBUTING.md) | Change the kit: add a token or component, check it and open a pull request. |
 | [Maintaining](maintaining.md) | Run CI, branch protection and releases. |
 
-The live kit page, with every component running, is [pdlab.dev/ui.html](https://pdlab.dev/ui.html). To see a component at its real size, open it on a phone.
+The site has no live kit page. To see every component, open the fixture in `test/fixture.ts` in a browser, at phone width first.
 
 ## How the docs stay true
 
@@ -31,3 +31,4 @@ A test (`test/docs.test.ts`) fails when `dist/toonish.css` defines a `toon-*` cl
 | 2026-11-13 | Lettered sound effects use Latin letters only. | A sound effect is decoration. It must not borrow a specific manga's glyphs. |
 | 2026-11-13 | Accessibility is a hard rule: semantic HTML first, ARIA where needed, WCAG 2.2 AA, enforced by axe in CI. | The site must work for anyone. A tool-checked rule keeps it true as the kit grows. |
 | 2026-11-13 | Text on paper uses deeper accents (`blue-text`, `red-text`, `violet-text`, `yellow-text`). | The fill accents are 1.4 to 2.7:1 on paper, which fails WCAG for text. |
+| 2026-11-14 | The portfolio's kit page is removed. The fixture and `docs/components.md` replace it. | A component gallery reads as a side project. The kit still powers the site. |

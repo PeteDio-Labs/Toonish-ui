@@ -28,7 +28,7 @@ Read [Tokens](docs/tokens.md#change-a-token). Edit `tokens/toonish.tokens.json` 
 
 ## Check it on a phone
 
-Open the kit page, or your fixture, at 390 px before 1280 px. Decoration must show on the phone. The document must not scroll sideways.
+Open your fixture at 390 px before 1280 px. Decoration must show on the phone. The document must not scroll sideways.
 
 ## Open the pull request
 
