@@ -1,7 +1,9 @@
-/* Full entry for a consumer that runs Tailwind v3 with the toonish preset: fonts, Tailwind's base (preflight),
-   the kit's own base rules and components, then utilities. Point the Tailwind CLI's -i flag at this file. */
+/* Full entry for a consumer that runs Tailwind v4: Tailwind's theme, base (preflight) and utilities, the kit's fonts,
+   theme and components. Point the Tailwind CLI's -i flag at this file, or @import it from your own stylesheet.
+   The @source lines make Tailwind read the kit's markup helpers and script, which write the toon-* class names. */
+@import "tailwindcss";
 @import "./fonts.css";
+@import "../dist/theme.css";
 @import "./components.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source "./markup.ts";
+@source "./behaviour.ts";

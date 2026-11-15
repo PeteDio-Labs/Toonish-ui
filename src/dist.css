@@ -1,6 +1,9 @@
-/* Entry for the precompiled dist/toonish.css: fonts, the kit's own base rules and components. No preflight and no
-   utilities: a consumer brings its own reset and its own utilities. See tailwind.config.ts. */
+/* Entry for the precompiled dist/toonish.css (Tailwind v4): fonts, the kit's own base rules and components. No
+   preflight and no generated utilities: a consumer brings its own reset and its own utilities. The utilities layer
+   is imported only so that @apply in components.css can resolve. */
+@layer theme, base, components, utilities;
 @import "./fonts.css";
+@import "tailwindcss/theme.css" layer(theme);
+@import "../dist/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
 @import "./components.css";
-@tailwind base;
-@tailwind components;

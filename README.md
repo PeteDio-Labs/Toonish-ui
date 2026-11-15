@@ -12,7 +12,7 @@ Start with the [design docs](docs/README.md): [principles](docs/principles.md) (
 
 The package ships:
 
-- **Tokens** in the W3C Design Tokens format (`tokens/toonish.tokens.json`), built to CSS variables, a Tailwind v4 `@theme`, a Tailwind v3 preset and JSON.
+- **Tokens** in the W3C Design Tokens format (`tokens/toonish.tokens.json`), built to CSS variables, a Tailwind v4 `@theme`, a legacy Tailwind v3 preset and JSON.
 - **Component CSS** (`toon-btn`, `toon-card`, `toon-modal` and more) as plain CSS. It needs no Tailwind.
 - **A small script** for modals, toggle groups and scroll reveal. No framework.
 - **TypeScript helpers** that return markup for the lettered display type, bursts and speed lines.
@@ -44,33 +44,29 @@ Link the compiled CSS and the script. Copy `dist/fonts/` next to the CSS file, b
 If you want only the colours, fonts and spacing as CSS variables, link `tokens.css` and skip the rest:
 `var(--toon-color-blue)`, `var(--toon-space-s4)`, `var(--toon-font-family-display)`.
 
-## Use it with Tailwind v3
+## Use it with Tailwind v4
 
-Add the preset, then compile the package's entry file, which holds the fonts, the kit and Tailwind's layers.
-
-```js
-// tailwind.config.js
-import toonish from 'toonish-ui/preset';
-export default { presets: [toonish], content: ['./src/**/*.ts'] };
-```
+Compile the package's full entry file. It holds Tailwind's theme, reset and utilities, the kit's fonts and theme, and the components. It scans the kit's markup helpers and script, so the `toon-*` classes they write are kept.
 
 ```sh
-bunx tailwindcss -i node_modules/toonish-ui/src/toonish.css -o dist/toonish.css --minify
+bunx @tailwindcss/cli -i node_modules/toonish-ui/src/toonish.css -o dist/toonish.css --minify
 ```
 
-The preset adds the `toon-*` colours, `font-display`, `font-comic`, `font-body`, the type scale (`text-body`, `text-hero`), the
-spacing names `s1`–`s8`, the radii, the `shadow-toon-*` shadows, the easings and the `bob`, `squash` and `pop` animations.
+Add `@source "./src";` to your own stylesheet if you compile a file of your own that imports `toonish-ui/src/toonish.css`.
 Copy `node_modules/toonish-ui/dist/fonts/` to `dist/fonts/`, so the font URLs resolve.
 
-## Use it with Tailwind v4
+`theme.css` holds the tokens in the namespaces Tailwind v4 reads, so you can also import it on its own:
 
 ```css
 @import "tailwindcss";
 @import "toonish-ui/theme.css";
 ```
 
-`theme.css` is generated from the same tokens. No Tailwind v4 build has verified it; treat it as
-unverified until the changelog says otherwise. Use `toonish.css` for the components.
+It adds the `toon-*` colours, `font-display`, `font-comic`, `font-body`, the type scale (`text-body`, `text-hero`), the spacing names `s1`–`s8`, the radii, the `shadow-toon-*` shadows and the easings. The kit's own build compiles `src/toonish.css` on every `bun run build`, so this path has a check.
+
+## Tailwind v3
+
+The kit no longer builds on Tailwind v3. `toonish-ui/preset` is still exported for a v3 config, but nothing in the kit's build or tests exercises it, and the full entry file needs v4. Use the precompiled `toonish.css`, or upgrade.
 
 ## TypeScript helpers
 

@@ -24,6 +24,7 @@ A test (`test/docs.test.ts`) fails when `dist/toonish.css` defines a `toon-*` cl
 |---|---|---|
 | 2026-11-03 | Comic-book look: blue, red, yellow and violet on navy, with Bangers lettering. | The first cyan-and-orange set was rejected. The cream, red and yellow set looked like a default theme. |
 | 2026-11-03 | Display text is Bangers with an ink outline and hard shadow. The hand-drawn SVG lettering engine was removed. | The drawn letters read as unfinished. A font is sharper and costs less. |
+| 2026-11-15 | Tailwind v4 and TypeScript 7 replace v3 and 5.8. The kit's CSS compiles on v4 and the v3 entry is gone. | Pedro asked for every dependency to be up to date. Consumers move to v4 in the same change. |
 | 2026-11-13 | Paper is a cool grey (`#eceff3`), not cream. | The cool grey keeps the four accents separate from the panel colour. |
 | 2026-11-13 | Headings and body are IBM Plex Sans. Labels are IBM Plex Mono. | One family reads as one voice. Mono marks a label as data. |
 | 2026-11-13 | The kit is mobile first. | The owner reviews on a phone, and a layout that works at 390 px widens cleanly. |
