@@ -5,8 +5,8 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 | File | Holds | Use it for |
 |---|---|---|
 | `tokens.css` | `--toon-*` CSS variables | Any stylesheet. `var(--toon-color-blue)`, `var(--toon-space-s4)`. |
-| `theme.css` | A Tailwind v4 `@theme` block | Tailwind v4. Unverified against a v4 build. |
-| `preset.js` | A Tailwind v3 preset | Tailwind v3. Adds `toon-*` colours, `font-display`, `shadow-toon-*` and more. |
+| `theme.css` | A Tailwind v4 `@theme` block | Tailwind v4. The build compiles the components against it. |
+| `preset.js` | A Tailwind v3 preset | Legacy Tailwind v3, no longer exercised by the build. Adds `toon-*` colours, `font-display`, `shadow-toon-*` and more. |
 | `tokens.json` | The resolved values | Tools and tests. |
 
 ## Colour

@@ -49,4 +49,8 @@
   --shadow-toon-press: 0 0 0 var(--toon-shadow, #f2706a);
   --ease-spring: cubic-bezier(0.175,0.885,0.32,1.275);
   --ease-bounce: cubic-bezier(0.34,1.8,0.5,1);
+  --toon-border-toon: 2px;
+  --toon-duration-fast: 200ms;
+  --toon-duration-normal: 300ms;
+  --toon-duration-slow: 500ms;
 }

@@ -5,7 +5,7 @@
 ```
 tokens/toonish.tokens.json ──┬─> dist/tokens.css     (--toon-* variables)
                              ├─> dist/theme.css      (Tailwind v4 @theme)
-                             ├─> dist/preset.js      (Tailwind v3 preset)
+                             ├─> dist/preset.js      (legacy Tailwind v3 preset)
                              └─> dist/tokens.json    (resolved values)
 src/components.css ──────────────> dist/toonish.css, dist/toonish.min.css
 src/behaviour.ts   ──────────────> dist/toonish.js, dist/index.js
@@ -13,7 +13,7 @@ src/markup.ts      ──────────────> dist/markup.js, d
 @fontsource/*      ──────────────> dist/fonts/*.woff2
 ```
 
-`bun run build` runs `scripts/build.ts`, which uses Style Dictionary for the tokens and Tailwind v3 to compile the components. The compiled CSS has the kit's base rules and components, with no reset and no utilities.
+`bun run build` runs `scripts/build.ts`, which uses Style Dictionary for the tokens and Tailwind v4 (`@tailwindcss/cli`) to compile the components. The build also compiles `src/toonish.css`, the full entry for a v4 consumer, to a temporary file and checks it holds the components, the reset and the utilities. The compiled CSS has the kit's base rules and components, with no reset and no utilities.
 
 `dist/` is committed. Bun does not run a dependency's build scripts, so a site that installs the kit from Git gets `dist/` as committed. CI rebuilds and fails when `dist/` differs from the commit, and it prints how many files it compared.
 
@@ -27,7 +27,7 @@ bun add github:PeteDio-Labs/toonish-ui#<tag-or-commit>
 
 This is the one rule that lives here: the portfolio pins a commit while the kit is `0.x`. A merge to the kit's `main` does not reach the site until the pin moves. When a site needs a kit change, open a pull request in that site that bumps the pin.
 
-Three ways to use the files are in the [README](../README.md): plain CSS and script, the Tailwind v3 preset, and the Tailwind v4 theme.
+Three ways to use the files are in the [README](../README.md): plain CSS and script, and Tailwind v4 (the full entry file and the theme). The Tailwind v3 preset is legacy.
 
 ## How pdlab.dev deploys
 
@@ -47,7 +47,7 @@ The deploy workflow's authentication is a known gap, tracked in the PeteDio trac
 
 | Check | Where | What it examined |
 |---|---|---|
-| `bun run typecheck` | CI and local | The TypeScript in `src/`, `test/`, `scripts/` and `tailwind.config.ts`. |
+| `bun run typecheck` | CI and local | The TypeScript in `src/`, `test/`, and `scripts/`. |
 | `bun run build` and the `dist/` diff | CI and local | That `dist/` matches a fresh build, with the file count. |
 | `bun test` | CI and local | Tokens and contrast, markup output, `dist/` contents and the docs coverage. |
 | `bun run test:browser` | CI and local | A fixture page at 1280 and 390 px in Chromium: fonts, computed colours, overflow, modal, toggle, reduced motion and console errors. |

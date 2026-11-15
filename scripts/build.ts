@@ -1,7 +1,8 @@
 // Builds dist/ from the sources. dist/ is committed, because Bun does not run a git dependency's build scripts, so
 // the tagged commit has to carry the files a consumer installs. CI rebuilds and fails when dist/ differs.
 // Exits non-zero when a step fails or an output is missing, and prints what it checked.
-import { cp, mkdir, rm } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import StyleDictionary from 'style-dictionary';
 import { group } from '../src/tokens.ts';
 
@@ -38,11 +39,23 @@ emit('spacing', group('space'));
 emit('radius', group('radius'));
 emit('shadow-toon', group('shadow'));
 emit('ease', group('ease'));
+// Tailwind v4 has no theme namespace for border width or duration, so the component CSS reads these through arbitrary values.
+emit('toon-border', group('border'));
+emit('toon-duration', group('duration'));
 await Bun.write(`${dist}/theme.css`, `/* Generated from tokens/toonish.tokens.json. For Tailwind v4: @import "tailwindcss"; @import "toonish-ui/theme.css"; */\n@theme {\n${theme.join('\n')}\n}\n`);
 
-// 3. Component CSS: base rules and components, with Tailwind v3 and the package's own preset.
-run(['bunx', 'tailwindcss', '-c', 'tailwind.config.ts', '-i', 'src/dist.css', '-o', `${dist}/toonish.css`]);
-run(['bunx', 'tailwindcss', '-c', 'tailwind.config.ts', '-i', 'src/dist.css', '-o', `${dist}/toonish.min.css`, '--minify']);
+// 3. Component CSS: base rules and components, with Tailwind v4 and the kit's own theme.
+run(['bunx', 'tailwindcss', '-i', 'src/dist.css', '-o', `${dist}/toonish.css`]);
+run(['bunx', 'tailwindcss', '-i', 'src/dist.css', '-o', `${dist}/toonish.min.css`, '--minify']);
+
+// 3b. The full entry a Tailwind v4 consumer compiles must build too. Output goes to a temp file, not to dist/.
+const full = `${await mkdtemp(`${tmpdir()}/toonish-`)}/full-entry.css`;
+run(['bunx', 'tailwindcss', '-i', 'src/toonish.css', '-o', full]);
+const fullCss = await Bun.file(full).text();
+
+for (const s of ['.toon-btn', '.toon-card', 'box-sizing: border-box', '.block {']) {
+  if (!fullCss.includes(s)) throw new Error(`the full entry src/toonish.css compiled without ${s}`);
+}
 
 // 4. JavaScript: an auto-running script for <script src>, and ES modules for imports.
 for (const [entry, out, format] of [
@@ -75,4 +88,5 @@ for (const f of ['tokens.css', 'tokens.json', 'theme.css', 'toonish.min.css', 't
 const fontUrls = [...css.matchAll(/url\(\.\/fonts\/([^)]+)\)/g)].map((m) => m[1]!);
 for (const f of fontUrls) if (Bun.file(`${dist}/fonts/${f}`).size === 0) throw new Error(`dist/fonts/${f} is named in the CSS but missing`);
 const classes = new Set([...css.matchAll(/\.(toon-[a-z0-9-]+)/g)].map((m) => m[1]));
+console.log(`full entry src/toonish.css compiled: ${fullCss.length} bytes with preflight and utilities`);
 console.log(`built dist/: toonish.css ${css.length} bytes, ${classes.size} toon-* classes, ${fontUrls.length} font files checked`);
