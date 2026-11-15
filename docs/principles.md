@@ -49,7 +49,7 @@ A helper throws on a blank label, an unknown accent or an empty list. A build th
 
 ### 5. Give each value one home
 
-Tokens live in `tokens/toonish.tokens.json`. The preset, `tokens.css`, `theme.css` and `tokens.json` all build from it, and `dist/` is generated. Do not hand-edit `dist/` or repeat a hex value in a component.
+Tokens live in `tokens/toonish.tokens.json`. The legacy preset, `tokens.css`, `theme.css` and `tokens.json` all build from it, and `dist/` is generated. Do not hand-edit `dist/` or repeat a hex value in a component.
 
 ### 6. Compose, don't write bullets
 

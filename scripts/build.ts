@@ -1,7 +1,7 @@
 // Builds dist/ from the sources. dist/ is committed, because Bun does not run a git dependency's build scripts, so
 // the tagged commit has to carry the files a consumer installs. CI rebuilds and fails when dist/ differs.
 // Exits non-zero when a step fails or an output is missing, and prints what it checked.
-import { cp, mkdir, rm } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import StyleDictionary from 'style-dictionary';
 import { group } from '../src/tokens.ts';
@@ -49,9 +49,10 @@ run(['bunx', 'tailwindcss', '-i', 'src/dist.css', '-o', `${dist}/toonish.css`]);
 run(['bunx', 'tailwindcss', '-i', 'src/dist.css', '-o', `${dist}/toonish.min.css`, '--minify']);
 
 // 3b. The full entry a Tailwind v4 consumer compiles must build too. Output goes to a temp file, not to dist/.
-const full = `${tmpdir()}/toonish-full-entry.css`;
+const full = `${await mkdtemp(`${tmpdir()}/toonish-`)}/full-entry.css`;
 run(['bunx', 'tailwindcss', '-i', 'src/toonish.css', '-o', full]);
 const fullCss = await Bun.file(full).text();
+
 for (const s of ['.toon-btn', '.toon-card', 'box-sizing: border-box', '.block {']) {
   if (!fullCss.includes(s)) throw new Error(`the full entry src/toonish.css compiled without ${s}`);
 }

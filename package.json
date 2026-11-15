@@ -13,7 +13,7 @@
     "tailwindcss": "4.3.5",
     "typescript": "7.0.2"
   },
-  "description": "Toonish: an original comic-book UI kit. Design tokens, a Tailwind preset, component CSS and a little behaviour.",
+  "description": "Toonish: an original comic-book UI kit. Design tokens, a Tailwind v4 theme, component CSS and a little behaviour.",
   "license": "MIT",
   "type": "module",
   "homepage": "https://pdlab.dev/work/toonish-ui-design-system.html",

@@ -8,6 +8,7 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - **Breaking:** the kit compiles on Tailwind v4 (4.3.5) through `@tailwindcss/cli`. `src/toonish.css` is the v4 full entry, `tailwind.config.ts` is gone, and `components.css` uses `var(--color-toon-*)` in place of `theme()`. A Tailwind v3 consumer must upgrade or use the precompiled `toonish.css`. `toonish-ui/preset` is still exported but no longer exercised.
+- `dist/toonish.css` is now in cascade layers (`base`, `components`), and carries Tailwind's theme variables and `@property` rules for the few utilities `@apply` uses. A consumer's unlayered CSS, such as a reset, beats the kit regardless of specificity. Move any rule that must lose to the kit into a lower layer.
 - TypeScript 7.0.2. The emitted `dist/types` are byte-identical to the TypeScript 5.8 output.
 - axe-core 4.14.0 and playwright-core 1.65.1.
 - `dist/toonish.css` now carries `.toon-page`, which `docs/components.md` documented but the Tailwind v3 build dropped as unused. It clips sideways overflow and pads the right by 20px. `toon-dots` and `toon-burst-spin` are hook classes with no rules, so they no longer appear in the compiled file.
