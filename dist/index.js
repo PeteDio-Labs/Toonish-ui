@@ -293,6 +293,12 @@ function initToonish(root = document) {
     btn.setAttribute("aria-expanded", String(open));
     panel.hidden = !open;
   });
+  root.addEventListener("click", (e) => {
+    if (e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  }, true);
   root.querySelectorAll("[data-toon-toggle]").forEach((group) => {
     group.addEventListener("click", (e) => {
       const b = e.target.closest("button");
@@ -733,6 +739,207 @@ var spark = (values, o) => {
   const label = `${o.label}. Trend from ${num(vs[0])} to ${num(vs.at(-1))} over ${vs.length} readings`;
   return `<svg class="toon-spark toon-spark-${size}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(label)}" focusable="false">${base}${line}${dots}${last}</svg>`;
 };
+var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
+var pad2 = (n) => String(n).padStart(2, "0");
+var fmtAt = (x, part = "full") => {
+  if (!ISO.test(x))
+    return x;
+  const d = new Date(x.length === 10 ? `${x}T00:00:00Z` : /(Z|[+-]\d{2}:?\d{2})$/.test(x) ? x : `${x}Z`);
+  if (Number.isNaN(d.getTime()))
+    return x;
+  const day = `${MON[d.getUTCMonth()]} ${d.getUTCDate()}`;
+  const time = `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
+  if (part === "day" || x.length === 10)
+    return day;
+  return part === "time" ? time : `${day} ${time} UTC`;
+};
+var STATE_GLYPH = { ok: "✓", down: "✕", unknown: "?" };
+var stateOf = (who, s) => {
+  if (s !== "ok" && s !== "down" && s !== "unknown")
+    throw new Error(`${who}: unknown state "${s}": use ok, down or unknown`);
+  return s;
+};
+var uptime = (o) => {
+  if (!o.label?.trim())
+    throw new Error("uptime: label is required");
+  if (!Array.isArray(o.cells) || !o.cells.length)
+    throw new Error("uptime: at least one cell is required");
+  if (o.cells.length > 150)
+    throw new Error(`uptime: at most 150 cells fit a phone, got ${o.cells.length}; group the readings into longer intervals`);
+  const n = { ok: 0, down: 0, unknown: 0 };
+  const cells = o.cells.map((c, i) => {
+    const s = stateOf(`uptime: cells[${i}]`, c.state);
+    if (typeof c.at !== "string" || !c.at.trim())
+      throw new Error(`uptime: cells[${i}].at is required`);
+    n[s]++;
+    const said = `${fmtAt(c.at)}: ${s}${c.detail?.trim() ? `. ${c.detail.trim()}` : ""}`;
+    return `<span class="toon-uptime-cell toon-uptime-${s}" role="listitem" aria-label="${esc(said)}"></span>`;
+  }).join("");
+  const total = o.cells.length;
+  const parts = [`${n.ok} of ${total} intervals ok`, ...n.down ? [`${n.down} down`] : [], ...n.unknown ? [`${n.unknown} unknown`] : []];
+  const key = ["ok", "down", "unknown"].map((s) => `<span class="toon-uptime-key toon-uptime-key-${s}"><i aria-hidden="true"></i>${s === "ok" ? "Ok" : s === "down" ? "Down" : "Unknown"}</span>`).join("");
+  const first = o.cells[0].at, last = o.cells.at(-1).at;
+  return `<figure class="toon-uptime"><figcaption class="toon-chart-title">${esc(o.label)}${o.windowLabel ? `<span class="toon-chart-unit"> · ${esc(o.windowLabel)}</span>` : ""}</figcaption>` + `<div class="toon-uptime-cells" role="list" aria-label="${esc(o.label)}">${cells}</div>` + `<p class="toon-uptime-ends" aria-hidden="true"><span>${esc(fmtAt(first, "day"))}</span><span>${esc(fmtAt(last, "day"))}</span></p>` + `<p class="toon-uptime-summary"><span aria-hidden="true">${n.unknown || n.down ? "! " : "✓ "}</span>${esc(parts.join(", "))}</p><p class="toon-uptime-keys" aria-hidden="true">${key}</p></figure>`;
+};
+var LINE_TONES = ["blue", "red", "violet", "yellow"];
+var DASH = ["", "7 3", "2 3", "8 3 2 3"];
+var marker = (shape, x, y, c) => {
+  const f = `fill="${c}" stroke="#fff" stroke-width="1"`;
+  switch (shape % 4) {
+    case 0:
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" ${f}/>`;
+    case 1:
+      return `<rect x="${(x - 3.5).toFixed(1)}" y="${(y - 3.5).toFixed(1)}" width="7" height="7" ${f}/>`;
+    case 2:
+      return `<polygon points="${x.toFixed(1)},${(y - 4.5).toFixed(1)} ${(x + 4.5).toFixed(1)},${(y + 3.5).toFixed(1)} ${(x - 4.5).toFixed(1)},${(y + 3.5).toFixed(1)}" ${f}/>`;
+    default:
+      return `<polygon points="${x.toFixed(1)},${(y - 4.5).toFixed(1)} ${(x + 4.5).toFixed(1)},${y.toFixed(1)} ${x.toFixed(1)},${(y + 4.5).toFixed(1)} ${(x - 4.5).toFixed(1)},${y.toFixed(1)}" ${f}/>`;
+  }
+};
+var niceMax = (v) => {
+  if (v <= 0)
+    return 1;
+  const p = 10 ** Math.floor(Math.log10(v));
+  return [1, 2, 2.5, 5, 10].map((s) => s * p).find((s) => s >= v) ?? 10 * p;
+};
+var line = (o) => {
+  if (!o.label?.trim())
+    throw new Error("line: label is required");
+  if (!Array.isArray(o.series) || !o.series.length)
+    throw new Error("line: at least one series is required");
+  if (o.series.length > LINE_TONES.length)
+    throw new Error(`line: at most ${LINE_TONES.length} series, got ${o.series.length}`);
+  const min = o.min ?? 0;
+  if (!Number.isFinite(min))
+    throw new Error("line: min must be a finite number");
+  const names = new Set;
+  const data = o.series.map((s, i) => {
+    if (!s.name?.trim())
+      throw new Error(`line: series[${i}].name is required`);
+    if (names.has(s.name))
+      throw new Error(`line: two series are named "${s.name}"`);
+    names.add(s.name);
+    if (!Array.isArray(s.points) || !s.points.length)
+      throw new Error(`line: series "${s.name}" needs at least one point`);
+    const m = new Map;
+    s.points.forEach((p, j) => {
+      if (typeof p.x !== "string" || !p.x.trim())
+        throw new Error(`line: series "${s.name}" points[${j}].x is required`);
+      if (typeof p.y !== "number" || !Number.isFinite(p.y))
+        throw new Error(`line: series "${s.name}" points[${j}].y must be a finite number, got ${String(p.y)}`);
+      if (p.y < min)
+        throw new Error(`line: series "${s.name}" points[${j}].y ${p.y} is below min ${min}; pass min`);
+      if (m.has(p.x))
+        throw new Error(`line: series "${s.name}" has two points at ${p.x}`);
+      m.set(p.x, p.y);
+    });
+    return { name: s.name, m };
+  });
+  const xs = [...new Set(data.flatMap((s) => [...s.m.keys()]))].sort();
+  if (xs.length < 2)
+    throw new Error("line: at least 2 distinct x values are required");
+  if (o.target !== undefined && !Number.isFinite(o.target))
+    throw new Error("line: target must be a finite number");
+  const top = Math.max(...data.flatMap((s) => [...s.m.values()]), o.target ?? min);
+  const max = o.max ?? niceMax(top);
+  if (!Number.isFinite(max) || !(max > min))
+    throw new Error(`line: max must be above min, got ${min} and ${max}`);
+  if (top > max)
+    throw new Error(`line: a value ${top} is above max ${max}`);
+  const W = 320, H = 168, L = 38, R = 10, T = 10, B = 24;
+  const px = (i) => L + i / (xs.length - 1) * (W - L - R);
+  const py = (v) => T + (1 - (v - min) / (max - min)) * (H - T - B);
+  const sameDay = xs.every((x) => ISO.test(x) && x.slice(0, 10) === xs[0].slice(0, 10) && x.length > 10);
+  const axis = (x) => fmtAt(x, sameDay ? "time" : "day");
+  const grid = [0, 1, 2, 3, 4].map((k) => {
+    const v = min + (max - min) * k / 4;
+    const y = py(v).toFixed(1);
+    return `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="#c9cde0" stroke-width="1"/><text x="${L - 5}" y="${(py(v) + 3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="${INK}">${num(v)}</text>`;
+  }).join("");
+  const ticks = [...new Set([0, Math.floor((xs.length - 1) / 2), xs.length - 1])];
+  const xlabels = ticks.map((i) => `<text x="${px(i).toFixed(1)}" y="${H - 7}" text-anchor="${i === 0 ? "start" : i === xs.length - 1 ? "end" : "middle"}" font-size="10" fill="${INK}">${esc(axis(xs[i]))}</text>`).join("");
+  const tgt = o.target === undefined ? "" : `<line x1="${L}" x2="${W - R}" y1="${py(o.target).toFixed(1)}" y2="${py(o.target).toFixed(1)}" stroke="${INK}" stroke-width="1.5" stroke-dasharray="1 4" stroke-linecap="round"/>`;
+  const unit = o.yUnit?.trim() ? ` ${o.yUnit.trim()}` : "";
+  const drawn = data.map((s, si) => {
+    const colour = HEX_TEXT[LINE_TONES[si]];
+    let d = "";
+    let run = false;
+    xs.forEach((x, i) => {
+      const v = s.m.get(x);
+      if (v === undefined) {
+        run = false;
+        return;
+      }
+      d += `${run ? "L" : "M"}${px(i).toFixed(1)},${py(v).toFixed(1)}`;
+      run = true;
+    });
+    const showAll = xs.length <= 12;
+    const lastX = [...xs].reverse().find((x) => s.m.has(x));
+    const dots = xs.map((x, i) => s.m.has(x) && (showAll || x === lastX) ? marker(si, px(i), py(s.m.get(x)), colour) : "").join("");
+    return `<path d="${d}" fill="none" stroke="${colour}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${DASH[si] ? ` stroke-dasharray="${DASH[si]}"` : ""}/>${dots}`;
+  }).join("");
+  const end = (s) => {
+    const lastX = [...xs].reverse().find((x) => s.m.has(x));
+    return { x: lastX, v: s.m.get(lastX) };
+  };
+  const said = data.map((s) => {
+    const f = xs.find((x) => s.m.has(x));
+    const e = end(s);
+    const vals = [...s.m.values()];
+    return `${s.name}: ${num(s.m.get(f))} to ${num(e.v)}${unit}, from ${num(Math.min(...vals))} to ${num(Math.max(...vals))} over ${vals.length} readings`;
+  }).join(". ");
+  const key = data.map((s, si) => {
+    const c = HEX_TEXT[LINE_TONES[si]];
+    const e = end(s);
+    const sw = `<svg class="toon-chart-swatch" viewBox="0 0 28 10" width="28" height="10" aria-hidden="true" focusable="false"><line x1="1" x2="27" y1="5" y2="5" stroke="${c}" stroke-width="2.5"${DASH[si] ? ` stroke-dasharray="${DASH[si]}"` : ""}/>${marker(si, 14, 5, c)}</svg>`;
+    return `<li>${sw}<span class="toon-chart-name">${esc(s.name)}</span><b class="toon-chart-end">${num(e.v)}${esc(unit)}</b><span class="toon-chart-at">${esc(fmtAt(e.x))}</span></li>`;
+  }).join("");
+  const head = `<tr><th scope="col">Time</th>${data.map((s) => `<th scope="col">${esc(s.name)}${esc(unit ? ` (${unit.trim()})` : "")}</th>`).join("")}</tr>`;
+  const rows = xs.map((x) => `<tr><th scope="row">${esc(fmtAt(x))}</th>${data.map((s) => `<td>${s.m.has(x) ? num(s.m.get(x)) : "–"}</td>`).join("")}</tr>`).join("");
+  const foot = o.target === undefined ? "" : `<tfoot><tr><th scope="row">Target</th><td colspan="${data.length}">${num(o.target)}${esc(unit)}</td></tr></tfoot>`;
+  const tgtSaid = o.target === undefined ? "" : `. Target ${num(o.target)}${unit}`;
+  return `<figure class="toon-chart toon-line"><figcaption class="toon-chart-title">${esc(o.label)}${unit ? `<span class="toon-chart-unit"> · ${esc(unit.trim())}</span>` : ""}</figcaption>` + `<svg class="toon-line-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`${o.label}. ${said}${tgtSaid}`)}" focusable="false">${grid}${tgt}${drawn}${xlabels}</svg>` + `<ul class="toon-chart-key" role="list" aria-label="Latest values">${key}</ul>` + `<details class="toon-chart-table"><summary>${esc(o.tableLabel?.trim() || "Show as table")}</summary><div class="toon-table-wrap"><table class="toon-table"><caption class="toon-chart-cap">${esc(o.label)}</caption><thead>${head}</thead><tbody>${rows}</tbody>${foot}</table></div></details></figure>`;
+};
+var TILE_WORD = { ok: "Ok", warn: "Warning", down: "Down", unknown: "Unknown" };
+var TILE_GLYPH = { ok: "✓", warn: "!", down: "✕", unknown: "?" };
+var statusTile = (o) => {
+  if (!o.label?.trim())
+    throw new Error("statusTile: label is required");
+  if (!Object.hasOwn(TILE_WORD, o.state))
+    throw new Error(`statusTile: unknown state "${String(o.state)}": use ok, warn, down or unknown`);
+  const has = typeof o.value === "string" && o.value.trim() !== "";
+  if (!has && o.state !== "unknown")
+    throw new Error(`statusTile: a ${o.state} tile needs a value; leave it out only when the state is unknown`);
+  const when = o.readAtText?.trim() || (o.readAt?.trim() ? fmtAt(o.readAt) : "");
+  const d = o.delta === undefined ? "" : ` ${delta(typeof o.delta === "number" ? o.delta : o.delta.value, typeof o.delta === "number" ? {} : { unit: o.delta.unit, invert: o.delta.invert })}`;
+  const read = o.readAt?.trim() && !o.readAtText?.trim() ? `<time class="toon-tile-read" datetime="${esc(o.readAt.trim())}">Read ${esc(when)}</time>` : when ? `<span class="toon-tile-read">Read ${esc(when)}</span>` : "";
+  const value = has ? `<span class="toon-tile-value">${esc(o.value)}</span>` : `<span class="toon-tile-value toon-tile-none"><span aria-hidden="true">—</span><span class="toon-tile-sr">no reading</span></span>`;
+  return `<div class="toon-tile toon-tile-${o.state}"><span class="toon-tile-label">${esc(o.label)}</span>${value}` + `<span class="toon-tile-state"><span aria-hidden="true">${TILE_GLYPH[o.state]}</span> ${TILE_WORD[o.state]}${d}</span>` + `${o.detail ? `<span class="toon-tile-detail">${esc(o.detail)}</span>` : ""}${read}${o.extra ?? ""}</div>`;
+};
+var switchRow = (o) => {
+  if (!o.name?.trim())
+    throw new Error("switchRow: name is required");
+  if (o.active !== "lab" && o.active !== "cloud")
+    throw new Error(`switchRow: unknown active "${String(o.active)}": use lab or cloud`);
+  stateOf("switchRow: labState", o.labState);
+  stateOf("switchRow: cloudState", o.cloudState);
+  if (!o.canSwitch && !o.reason?.trim())
+    throw new Error("switchRow: reason is required when canSwitch is false");
+  if (o.id !== undefined && !/^[A-Za-z][\w-]*$/.test(o.id))
+    throw new Error(`switchRow: id "${o.id}" is not a valid id`);
+  const id = o.id ?? `toon-switch-${++uid}`;
+  const other = o.active === "lab" ? "cloud" : "lab";
+  const side = (p, state, age) => {
+    const on = o.active === p;
+    return `<div class="toon-switch-side${on ? " toon-switch-side-on" : ""}"><span class="toon-switch-where">${p === "lab" ? "Lab" : "Cloud"}</span>` + `<span class="toon-switch-state toon-switch-${state}"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === "ok" ? "Up" : state === "down" ? "Down" : "Unknown"}</span>` + `${age ? `<span class="toon-switch-age">Read ${esc(age)}</span>` : ""}${on ? '<span class="toon-switch-serving"><span aria-hidden="true">●</span> Serving</span>' : ""}</div>`;
+  };
+  const reason = !o.canSwitch ? `<p class="toon-switch-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : "";
+  const label = o.buttonLabel?.trim() || `Switch to ${other}`;
+  const button = o.action ?? `<button type="button" class="toon-btn toon-btn-yellow toon-switch-btn" data-toon-switch="${esc(o.name)}" data-toon-switch-to="${other}"${o.canSwitch ? "" : ` aria-disabled="true" aria-describedby="${id}-reason"`}>${esc(label)}</button>`;
+  const tags = `${o.dataClass?.trim() ? chip(o.dataClass.trim()) : ""}${o.pinned ? ' <span class="toon-badge toon-badge-violet">Pinned</span>' : ""}`;
+  return `<div class="toon-switch-row" role="group" aria-labelledby="${id}-name"><div class="toon-switch-head"><b class="toon-switch-name" id="${id}-name">${esc(o.name)}</b>${o.hostname ? `<span class="toon-switch-host">${esc(o.hostname)}</span>` : ""}${tags ? `<span class="toon-switch-tags">${tags}</span>` : ""}</div>` + `<div class="toon-switch-sides">${side("lab", o.labState, o.labAge)}${side("cloud", o.cloudState, o.cloudAge)}</div>${button}${reason}</div>`;
+};
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
   $description: "Toonish design tokens in the W3C Design Tokens format (2025.10). Structure comes from the PeteDio house tokens; colour is the deliberate break from that set. Every fill carries ink text, which keeps contrast at 5.1:1 or better.",
@@ -905,6 +1112,7 @@ export {
   initToonish,
   kicker,
   letters,
+  line,
   meter,
   meters,
   pager,
@@ -918,8 +1126,11 @@ export {
   spark,
   speedLines,
   stat,
+  statusTile,
   steps,
   strip,
+  switchRow,
   tabbar,
-  tabpanel
+  tabpanel,
+  uptime
 };

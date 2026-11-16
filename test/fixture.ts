@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation is docs/components.md. The portfolio's kit page was removed on 2026-11-14.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow } from '../src/markup.ts';
 
 const icon = (d: string) => `<svg viewBox="0 0 20 20" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -81,6 +81,15 @@ ${list([
   disclosure({ id: 'p-02', lead: 'P-02', title: 'Grid outage ends by Friday', badge: { text: 'Lean', tone: 'violet' }, value: 12, delta: { value: -32, unit: '%' }, owner: 'b', ownerLabel: 'Claude', below: scale({ value: 12, history: [44], owner: 'b', label: 'P-02 scores 12, down 32 from 44' }), panel: panelBody('b') }),
   disclosure({ id: 'p-03', lead: 'P-03', title: 'No move this week', value: 50, delta: 0, native: true, panel: panelBody('c') }),
 ], { label: 'Calls' })}
+</section>
+<section id="dash"><h2 class="toon-heading">Dashboard</h2>
+<div class="toon-card" id="dash-card">
+${uptime({ label: 'Plex uptime', windowLabel: 'last 24 hours', cells: Array.from({ length: 96 }, (_, i) => ({ at: `2026-11-16T${String(Math.floor(i / 4)).padStart(2, '0')}:${String((i % 4) * 15).padStart(2, '0')}:00Z`, state: (i === 40 ? 'down' : i > 90 ? 'unknown' : 'ok') as 'ok' | 'down' | 'unknown', detail: i === 40 ? 'timeout after 5 s' : undefined })) })}
+${line({ label: 'CVEs open', yUnit: 'CVEs', target: 5, series: [{ name: 'Critical', points: [3, 4, 4, 2, 3, 1, 0, 1].map((y, i) => ({ x: `2026-11-0${i + 1}`, y })) }, { name: 'High', points: [9, 8, 10, 7, 6, 6, 4, 3].map((y, i) => ({ x: `2026-11-0${i + 1}`, y })) }, { name: 'Medium', points: [12, 13, 11, 11, 9, 8, 8, 7].map((y, i) => ({ x: `2026-11-0${i + 1}`, y })) }] })}
+${line({ label: 'Latency today', yUnit: 'ms', series: [{ name: 'p95', points: Array.from({ length: 30 }, (_, i) => ({ x: `2026-11-16T${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}:00Z`, y: 120 + ((i * 37) % 80) })) }] })}
+</div>
+<div class="toon-tiles" id="tiles">${statusTile({ label: 'Services', value: '41 of 42', state: 'warn', delta: -1, readAt: '2026-11-16T14:02:00Z', detail: 'Vault sealed' })}${statusTile({ label: 'Plex', value: '12 ms', state: 'ok', readAt: '2026-11-16T14:02:00Z', extra: spark([10, 12, 11, 14], { label: 'Plex latency', min: 0, max: 20 }) })}${statusTile({ label: 'Backups', value: '2 failed', state: 'down', readAtText: '4 min ago' })}${statusTile({ label: 'Prometheus', state: 'unknown', readAt: '2026-11-16T09:00:00Z' })}</div>
+<div id="switches" style="display:grid;gap:12px;margin-top:12px">${switchRow({ name: 'Authentik', hostname: 'auth.pdlab.dev', active: 'lab', labState: 'ok', cloudState: 'unknown', labAge: '4 min ago', cloudAge: '3 h ago', dataClass: 'stateless', canSwitch: false, reason: 'Cloud copy has not answered for 3 hours.', id: 'sw-a' })}${switchRow({ name: 'Dashboard', hostname: 'lab.pdlab.dev', active: 'cloud', labState: 'down', cloudState: 'ok', labAge: '1 min ago', cloudAge: '1 min ago', pinned: true, canSwitch: true, id: 'sw-b' })}</div>
 </section>
 <section id="tabs-demo"><h2 class="toon-heading">Tabs</h2>
 ${tabpanel('tab-board', '<p>Board panel.</p>')}${tabpanel('tab-brief', '<p>Brief panel.</p>')}${tabpanel('tab-record', '<p>Record panel.</p>')}

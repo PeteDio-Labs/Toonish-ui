@@ -294,6 +294,12 @@
       btn.setAttribute("aria-expanded", String(open));
       panel.hidden = !open;
     });
+    root.addEventListener("click", (e) => {
+      if (e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    }, true);
     root.querySelectorAll("[data-toon-toggle]").forEach((group) => {
       group.addEventListener("click", (e) => {
         const b = e.target.closest("button");

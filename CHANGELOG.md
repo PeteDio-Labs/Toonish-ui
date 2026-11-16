@@ -5,6 +5,13 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-16
+
+### Added
+
+- Dashboard components, each drawn for paper, with a text equivalent and no meaning carried by colour alone: `uptime()` (a strip of interval cells that counts `unknown` apart from ok), `line()` (a line chart with a marker and dash per series, a key with latest values and a table), `statusTile()` (a figure with a glyph, a word and a read time, where `unknown` is a state) and `switchRow()` (lab and cloud side by side, with a button that carries `data-toon-switch-to` and a visible reason when disabled).
+- The kit script drops a click on a `[data-toon-switch-to][aria-disabled="true"]` button before any handler runs.
+
 ## [0.3.0] - 2026-11-16
 
 ### Changed

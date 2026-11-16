@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -498,4 +498,79 @@ test('delta reads a change that rounds to zero as flat, and meter treats an empt
   const m = meter({ label: 'x', value: 5, valueText: '  ', id: 'z' });
   expect(m).toContain('aria-valuetext="5 of 100"');
   expect(m).toContain('aria-hidden="true">5<');
+});
+
+const cells = (states: ('ok' | 'down' | 'unknown')[]) => states.map((state, i) => ({ at: `2026-11-16T0${i}:00:00Z`, state }));
+
+test('uptime counts every state, so unknown never reads as ok', () => {
+  const u = uptime({ label: 'Plex', windowLabel: 'last 24 hours', cells: cells(['ok', 'ok', 'down', 'unknown']) });
+  expect(u).toContain('2 of 4 intervals ok, 1 down, 1 unknown');
+  expect(u.match(/role="listitem"/g)).toHaveLength(4);
+  expect(u).toContain('aria-label="Nov 16 02:00 UTC: down"');
+  expect(u).toContain('toon-uptime-unknown');
+  expect(uptime({ label: 'x', cells: cells(['ok']) })).toContain('1 of 1 intervals ok<');
+});
+
+test('uptime escapes and throws on bad input', () => {
+  expect(uptime({ label: EVIL, cells: [{ at: EVIL, state: 'ok', detail: EVIL }] }).includes('<img')).toBe(false);
+  expect(() => uptime({ label: ' ', cells: cells(['ok']) })).toThrow('label is required');
+  expect(() => uptime({ label: 'x', cells: [] })).toThrow('at least one cell');
+  expect(() => uptime({ label: 'x', cells: cells(Array(151).fill('ok')) })).toThrow('at most 150');
+  expect(() => uptime({ label: 'x', cells: [{ at: 'a', state: 'up' as never }] })).toThrow('unknown state');
+  expect(() => uptime({ label: 'x', cells: [{ at: ' ', state: 'ok' }] })).toThrow('at is required');
+});
+
+test('line writes a labelled chart, a key with end values and a table of the same numbers', () => {
+  const l = line({ label: 'CVEs', yUnit: 'CVEs', target: 5, series: [{ name: 'High', points: [{ x: '2026-11-01', y: 9 }, { x: '2026-11-02', y: 3 }] }, { name: 'Low', points: [{ x: '2026-11-01', y: 1 }, { x: '2026-11-02', y: 2 }] }] });
+  expect(l).toContain('role="img" aria-label="CVEs. High: 9 to 3 CVEs');
+  expect(l).toContain('Target 5 CVEs');
+  expect(l).toContain('<b class="toon-chart-end">3 CVEs</b>');
+  expect(l).toContain('<th scope="row">Nov 1</th><td>9</td><td>1</td>');
+  expect(l).toContain('stroke-dasharray="7 3"'); // the second series is dashed
+  expect(l).toContain('<summary>Show as table</summary>');
+});
+
+test('line breaks a series at a missing x and throws on bad input', () => {
+  const l = line({ label: 'x', series: [{ name: 'A', points: [{ x: '1', y: 1 }, { x: '3', y: 2 }] }, { name: 'B', points: [{ x: '1', y: 1 }, { x: '2', y: 2 }, { x: '3', y: 3 }] }] });
+  expect(l).toContain('<td>–</td>');
+  const one = (pts: { x: string; y: number }[]) => line({ label: 'x', series: [{ name: 'A', points: pts }] });
+  expect(() => one([{ x: '1', y: 1 }])).toThrow('at least 2 distinct');
+  expect(() => one([{ x: '1', y: NaN }, { x: '2', y: 1 }])).toThrow('finite number');
+  expect(() => one([{ x: '1', y: -1 }, { x: '2', y: 1 }])).toThrow('below min');
+  expect(() => one([{ x: '1', y: 1 }, { x: '1', y: 2 }])).toThrow('two points at 1');
+  expect(() => line({ label: ' ', series: [] })).toThrow('label is required');
+  expect(() => line({ label: 'x', series: [] })).toThrow('at least one series');
+  expect(() => line({ label: 'x', series: Array.from({ length: 5 }, (_, i) => ({ name: `s${i}`, points: [] })) })).toThrow('at most 4');
+  expect(line({ label: EVIL, series: [{ name: EVIL, points: [{ x: EVIL, y: 1 }, { x: 'b', y: 2 }] }] }).includes('<img')).toBe(false);
+});
+
+test('statusTile shows a glyph and a word, and unknown is its own state', () => {
+  const t = statusTile({ label: 'Plex', value: '12 ms', state: 'ok', readAt: '2026-11-16T14:02:00Z', delta: -2 });
+  expect(t).toContain('toon-tile toon-tile-ok');
+  expect(t).toContain('✓</span> Ok');
+  expect(t).toContain('<time class="toon-tile-read" datetime="2026-11-16T14:02:00Z">Read Nov 16 14:02 UTC</time>');
+  expect(t).toContain('toon-delta-down');
+  const u = statusTile({ label: 'Vault', state: 'unknown' });
+  expect(u).toContain('no reading');
+  expect(u).toContain('?</span> Unknown');
+  expect(() => statusTile({ label: 'x', state: 'down' })).toThrow('needs a value');
+  expect(() => statusTile({ label: 'x', state: 'fine' as never, value: '1' })).toThrow('unknown state');
+  expect(() => statusTile({ label: ' ', state: 'ok', value: '1' })).toThrow('label is required');
+  expect(statusTile({ label: EVIL, value: EVIL, state: 'ok', detail: EVIL, readAtText: EVIL }).includes('<img')).toBe(false);
+});
+
+test('switchRow shows both sides, marks the active one, and explains a disabled switch', () => {
+  const s = switchRow({ name: 'Auth', active: 'lab', labState: 'ok', cloudState: 'unknown', labAge: '4 min ago', canSwitch: false, reason: 'Cloud is stale.', id: 'a' });
+  expect(s.match(/toon-switch-side"|toon-switch-side /g)).toHaveLength(2);
+  expect(s.match(/Serving/g)).toHaveLength(1);
+  expect(s).toContain('data-toon-switch-to="cloud" aria-disabled="true" aria-describedby="a-reason"');
+  expect(s).toContain('<p class="toon-switch-reason" id="a-reason">Cloud is stale.</p>');
+  const on = switchRow({ name: 'Auth', active: 'cloud', labState: 'down', cloudState: 'ok', canSwitch: true, pinned: true, id: 'b' });
+  expect(on).toContain('data-toon-switch-to="lab"');
+  expect(on).not.toContain('aria-disabled');
+  expect(on).toContain('Pinned');
+  expect(switchRow({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, action: '<b id="mine"></b>' })).toContain('<b id="mine">');
+  expect(() => switchRow({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: false })).toThrow('reason is required');
+  expect(() => switchRow({ name: 'x', active: 'moon' as never, labState: 'ok', cloudState: 'ok', canSwitch: true })).toThrow('unknown active');
+  expect(switchRow({ name: EVIL, hostname: EVIL, active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: false, reason: EVIL, dataClass: EVIL, buttonLabel: EVIL, labAge: EVIL }).includes('<img')).toBe(false);
 });
