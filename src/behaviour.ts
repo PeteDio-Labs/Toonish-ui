@@ -184,7 +184,8 @@ function initTabs(nav: HTMLElement): void {
   if (!tabs.length) return;
   const panelOf = (t: HTMLElement) => document.getElementById(t.getAttribute('aria-controls') ?? '');
   const byHash = (hash: string) => {
-    const id = decodeURIComponent(hash.replace(/^#/, ''));
+    let id: string;
+    try { id = decodeURIComponent(hash.replace(/^#/, '')); } catch { return undefined; } // a malformed hash such as #% must not stop the script
     return tabs.find((t) => t.getAttribute('aria-controls') === id);
   };
   const select = (tab: HTMLElement, bounce: boolean) => {
@@ -209,7 +210,14 @@ function initTabs(nav: HTMLElement): void {
   };
 
   const home = tabs.find((t) => t.getAttribute('aria-selected') === 'true') ?? tabs[0]!; // the tab the markup selected
-  select(byHash(location.hash) ?? home, false);
+  const first = byHash(location.hash);
+  select(first ?? home, false);
+  if (first) {
+    // The browser scrolled to the panel before the other panels hid, and may scroll again once the page loads.
+    const top = () => window.scrollTo({ top: 0, behavior: 'instant' }); // not the smooth scroll of the page: the visitor has not asked to move
+    top();
+    window.addEventListener('load', top, { once: true });
+  }
 
   nav.addEventListener('click', (e) => {
     const m = e as MouseEvent;

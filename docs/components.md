@@ -212,7 +212,8 @@ Six parts for pages that track values over time: a board of calls, a likelihood 
 - The kit exports `--toon-tabbar-h`, the bar's height with the safe area. Give the page `padding-bottom: var(--toon-tabbar-h)`. It is `0px` for a top bar from `md`. The kit also sets `scroll-padding` so a focused element does not sit under the bar.
 - `icon` is an SVG you trust.
 - The script wires `[data-toon-tabs]`. A click switches panels and scrolls to the top. `ArrowLeft`, `ArrowRight`, `Home` and `End` move between tabs and select them, and the tab stop roves. The selected tab is kept in `location.hash`, so a reload or a link opens it, and Back goes to the previous tab. A modified click still opens a new tab.
-- Without script, every panel shows and each tab is an in-page link.
+- Without script, every panel shows and each tab is an in-page link. A link to an element inside a hidden panel does not open it: link to the tab's id.
+- `tabpanel()` sets `tabindex="0"`, so a keyboard can reach a panel with nothing focusable in it.
 - The selected tab bounces with `toon-boing`, which stops under reduced motion.
 
 ### Disclosure

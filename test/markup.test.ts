@@ -421,7 +421,7 @@ test('tabbar escapes labels and throws on bad input', () => {
 });
 
 test('tabpanel is labelled by its tab', () => {
-  expect(tabpanel('board', '<p>x</p>')).toBe('<div class="toon-tabpanel" role="tabpanel" id="board" aria-labelledby="board-tab"><p>x</p></div>');
+  expect(tabpanel('board', '<p>x</p>')).toBe('<div class="toon-tabpanel" role="tabpanel" tabindex="0" id="board" aria-labelledby="board-tab"><p>x</p></div>');
   expect(() => tabpanel('1x', '')).toThrow('not a valid id');
 });
 
@@ -490,4 +490,12 @@ test('spark escapes the label and throws on bad input', () => {
   expect(() => spark([1, 2], { label: 'x', accent: 'pink' as never })).toThrow('unknown accent');
   expect(() => spark([1, 2], { label: 'x', size: 'xl' as never })).toThrow('unknown spark size');
   expect(spark([-5, 200], { label: 'x', clamp: true })).toContain('from 0 to 100');
+});
+
+test('delta reads a change that rounds to zero as flat, and meter treats an empty valueText as unset', () => {
+  expect(delta(0.004)).toContain('aria-label="no change">· 0<');
+  expect(delta(-0.004)).toContain('toon-delta-flat');
+  const m = meter({ label: 'x', value: 5, valueText: '  ', id: 'z' });
+  expect(m).toContain('aria-valuetext="5 of 100"');
+  expect(m).toContain('aria-hidden="true">5<');
 });

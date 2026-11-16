@@ -184,7 +184,12 @@
       return;
     const panelOf = (t) => document.getElementById(t.getAttribute("aria-controls") ?? "");
     const byHash = (hash) => {
-      const id = decodeURIComponent(hash.replace(/^#/, ""));
+      let id;
+      try {
+        id = decodeURIComponent(hash.replace(/^#/, ""));
+      } catch {
+        return;
+      }
       return tabs.find((t) => t.getAttribute("aria-controls") === id);
     };
     const select = (tab, bounce) => {
@@ -212,7 +217,13 @@
         history.replaceState(null, "", hash);
     };
     const home = tabs.find((t) => t.getAttribute("aria-selected") === "true") ?? tabs[0];
-    select(byHash(location.hash) ?? home, false);
+    const first = byHash(location.hash);
+    select(first ?? home, false);
+    if (first) {
+      const top = () => window.scrollTo({ top: 0, behavior: "instant" });
+      top();
+      window.addEventListener("load", top, { once: true });
+    }
     nav.addEventListener("click", (e) => {
       const m = e;
       const tab = e.target.closest('[role="tab"]');

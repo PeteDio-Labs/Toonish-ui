@@ -493,7 +493,14 @@ try {
     eq(await q(() => `${document.activeElement?.id}|${document.querySelector('#tab-record')!.hasAttribute('hidden')}`), 'tab-record-tab|false', `${name}: End goes to the last tab and shows its panel`);
     await p.goBack();
     eq(await p.evaluate(() => document.querySelector('#tab-board-tab')!.getAttribute('aria-selected')), 'true', `${name}: Back to an entry with no hash returns to the first tab`);
+    await p.goto('about:blank'); // a new document, because a change of hash alone is not a load
+    await p.goto(server.url.href + '#%E0%A4', { waitUntil: 'networkidle' });
+    eq(await q(() => document.querySelector('#p-01-btn')!.getAttribute('aria-controls')), 'p-01', `${name}: a malformed hash does not stop the script`);
+    await p.click('#p-02-btn');
+    eq(await q(() => (document.querySelector('#p-02') as HTMLElement).hidden), false, `${name}: disclosure still works after a malformed hash`);
+    await p.goto('about:blank');
     await p.goto(server.url.href + '#tab-record', { waitUntil: 'networkidle' });
+    eq(await q(() => scrollY < 5), true, `${name}: a load with a tab hash starts at the top`);
     eq(await q(() => document.querySelector('#tab-record-tab')!.getAttribute('aria-selected')), 'true', `${name}: a link with a hash opens that tab on load`);
     eq(await q(() => `${(document.querySelector('.toon-tab') as HTMLElement).getBoundingClientRect().height >= 48}|${[...document.querySelectorAll('.toon-tab')].every((t) => t.getBoundingClientRect().width >= 44)}`), 'true|true', `${name}: tabs are 48 px tall and 44 px wide`);
     const bar = await q(() => { const r = document.querySelector('.toon-tabbar')!.getBoundingClientRect(); return { bottom: Math.round(innerHeight - r.bottom), h: Math.round(r.height), var: getComputedStyle(document.querySelector('.toon-page')!).paddingBottom }; });

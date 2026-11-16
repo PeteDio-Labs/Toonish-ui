@@ -211,7 +211,7 @@ var ownerOf = (who, owner) => {
 var delta = (n, o = {}) => {
   if (typeof n !== "number" || !Number.isFinite(n))
     throw new Error(`delta: n must be a finite number, got ${String(n)}`);
-  const dir = n > 0 ? "up" : n < 0 ? "down" : "flat";
+  const dir = Number(n.toFixed(2)) > 0 ? "up" : Number(n.toFixed(2)) < 0 ? "down" : "flat";
   const unit = o.unit ?? "";
   const spoken = unit.trim() === "%" ? "percent" : unit.trim() || "points";
   const text = `${dir === "up" ? "▲" : dir === "down" ? "▼" : "·"} ${num(Math.abs(n))}${unit}`;
@@ -252,12 +252,13 @@ var meter = (o) => {
   if (o.id !== undefined && !/^[A-Za-z][\w-]*$/.test(o.id))
     throw new Error(`meter: id "${o.id}" is not a valid id`);
   const id = o.id ?? `toon-meter-${++uid}`;
-  const text = o.valueText ?? num(value);
+  const vt = o.valueText?.trim() || undefined;
+  const text = vt ?? num(value);
   const fill = value > 0 ? `<span class="toon-meter-fill${METER_FILL[tone] ? " " + METER_FILL[tone] : ""}" style="--w:${num(value / max * 100)}"></span>` : "";
   const sub = o.sub ? `<span class="toon-meter-sub" id="${id}-sub">${esc(o.sub)}</span>` : "";
   const labels = (o.scaleLabels ?? []).filter((l) => l.trim());
   const scaleRow = labels.length ? `<span class="toon-meter-scale">${labels.map((l) => `<span>${esc(l)}</span>`).join("")}</span>` : "";
-  return `<div class="toon-meter${size === "lg" ? " toon-meter-lg" : ""}"><span class="toon-meter-name"><span class="toon-meter-label" id="${id}-label">${esc(o.label)}</span>${sub}</span>` + `<span class="toon-meter-bar" role="meter" aria-labelledby="${id}-label"${sub ? ` aria-describedby="${id}-sub"` : ""} aria-valuemin="0" aria-valuenow="${num(value)}" aria-valuemax="${num(max)}" aria-valuetext="${esc(o.valueText ?? `${num(value)} of ${num(max)}`)}">${fill}</span>` + `<span class="toon-meter-value" aria-hidden="true">${esc(text)}</span>${scaleRow}</div>`;
+  return `<div class="toon-meter${size === "lg" ? " toon-meter-lg" : ""}"><span class="toon-meter-name"><span class="toon-meter-label" id="${id}-label">${esc(o.label)}</span>${sub}</span>` + `<span class="toon-meter-bar" role="meter" aria-labelledby="${id}-label"${sub ? ` aria-describedby="${id}-sub"` : ""} aria-valuemin="0" aria-valuenow="${num(value)}" aria-valuemax="${num(max)}" aria-valuetext="${esc(vt ?? `${num(value)} of ${num(max)}`)}">${fill}</span>` + `<span class="toon-meter-value" aria-hidden="true">${esc(text)}</span>${scaleRow}</div>`;
 };
 var meters = (items, o) => {
   if (!o.label?.trim())
@@ -291,7 +292,7 @@ var tabbar = (tabs, o) => {
 var tabpanel = (id, html, cls = "") => {
   if (!ID_RE.test(id))
     throw new Error(`tabpanel: id "${id}" is not a valid id`);
-  return `<div class="toon-tabpanel${cls ? " " + esc(cls) : ""}" role="tabpanel" id="${id}" aria-labelledby="${id}-tab">${html}</div>`;
+  return `<div class="toon-tabpanel${cls ? " " + esc(cls) : ""}" role="tabpanel" tabindex="0" id="${id}" aria-labelledby="${id}-tab">${html}</div>`;
 };
 var disclosure = (o) => {
   if (!ID_RE.test(o.id))
