@@ -358,3 +358,110 @@ export interface SparkOptions {
 }
 /** A small inline trend: an ink line, a dot per reading and a ringed last dot in the accent. Drawn for paper. */
 export declare const spark: (values: number[], o: SparkOptions) => string;
+export type UptimeState = 'ok' | 'down' | 'unknown';
+export interface UptimeCell {
+    /** When the interval was read, as an ISO time. */
+    at: string;
+    state: UptimeState;
+    /** Spoken after the state, such as "timeout after 5 s". */
+    detail?: string;
+}
+export interface UptimeOptions {
+    /** Names the strip for a screen reader and heads it. Required. */
+    label: string;
+    /** The span the strip covers, such as "last 24 hours". Shown after the label. */
+    windowLabel?: string;
+    cells: UptimeCell[];
+}
+/**
+ * One cell per interval, oldest first. State shows three ways: colour, height (an unknown cell is short and outlined) and a hatch
+ * on a down cell. The summary line counts all three states, so an unknown interval never reads as ok.
+ */
+export declare const uptime: (o: UptimeOptions) => string;
+export interface LinePoint {
+    /** An ISO time, or any label. Points with the same `x` line up across series. */
+    x: string;
+    y: number;
+}
+export interface LineSeries {
+    name: string;
+    points: LinePoint[];
+}
+export interface LineOptions {
+    /** Names the chart. Required. */
+    label: string;
+    /** Up to four series. Each gets its own colour, dash pattern and marker shape. */
+    series: LineSeries[];
+    /** Printed after the label and after each end value, such as "ms". */
+    yUnit?: string;
+    /** Draws a dashed reference line and names it in the table. */
+    target?: number;
+    /** The bottom of the scale. Default 0. A value below it throws. */
+    min?: number;
+    /** The top of the scale. Default: the largest value or target, rounded up. */
+    max?: number;
+    /** The summary on the table's toggle. Default "Show as table". */
+    tableLabel?: string;
+}
+/**
+ * A line chart for values over time, with a table of the same numbers. The key under the chart prints each series' latest
+ * value, so the chart needs no hover. Points sit on an even category axis, one slot per distinct `x`, oldest first.
+ */
+export declare const line: (o: LineOptions) => string;
+export type TileState = 'ok' | 'warn' | 'down' | 'unknown';
+export interface StatusTileOptions {
+    label: string;
+    /** The reading. Leave it out, or pass `null`, when the state is `unknown`: the tile prints "no reading". */
+    value?: string | null;
+    /** The state: a glyph and a word as well as a colour. `unknown` is a state of its own and never reads as ok. */
+    state: TileState;
+    /** A change since the last reading. A number, or the options of `delta()`. */
+    delta?: number | {
+        value: number;
+        unit?: string;
+        invert?: boolean;
+    };
+    /** When the value was read, as an ISO time. Printed on the tile. */
+    readAt?: string;
+    /** Text to print in place of the formatted `readAt`, such as "4 min ago". */
+    readAtText?: string;
+    /** A line under the value. */
+    detail?: string;
+    /** Markup you trust, such as a `spark()`. It is not escaped. */
+    extra?: string;
+}
+/** A figure with a state. The state is a glyph and a word, so colour is a second cue. Put tiles in `<div class="toon-tiles">`. */
+export declare const statusTile: (o: StatusTileOptions) => string;
+export type Place = 'lab' | 'cloud';
+export interface SwitchRowOptions {
+    /** The service name. Required. */
+    name: string;
+    hostname?: string;
+    /** Which side serves traffic now. */
+    active: Place;
+    labState: UptimeState;
+    cloudState: UptimeState;
+    /** How old each reading is, as text such as "4 min ago". */
+    labAge?: string;
+    cloudAge?: string;
+    /** What the service holds, such as "stateless" or "database". */
+    dataClass?: string;
+    /** The service is pinned to its side and the switch is off the table. */
+    pinned?: boolean;
+    /** Whether a switch is allowed now. When it is not, `reason` is required. */
+    canSwitch: boolean;
+    /** Why a switch is not allowed. Shown under the row, and the button points to it. */
+    reason?: string;
+    /** The button's text. Default "Switch to cloud" or "Switch to lab". */
+    buttonLabel?: string;
+    /** Markup you trust, in place of the default button. You attach its handler. */
+    action?: string;
+    /** The id prefix. Default is generated. */
+    id?: string;
+}
+/**
+ * A service that runs in the lab or in the cloud: both sides next to each other, each with a state glyph and word and the age
+ * of its reading, and a button to switch. The kit attaches no handler. The button carries `data-toon-switch` (the name) and
+ * `data-toon-switch-to` (the side), and `aria-disabled` while `canSwitch` is false: the kit script drops a click on it.
+ */
+export declare const switchRow: (o: SwitchRowOptions) => string;

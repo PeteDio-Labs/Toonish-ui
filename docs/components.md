@@ -245,6 +245,55 @@ Slots in the panel, all optional, in this order:
 - `aria-label` is your label followed by "Trend from 73 to 82 over 8 readings".
 - It is drawn in ink, for paper.
 
+## Dashboard components
+
+Four parts for a status dashboard: an uptime strip, a line chart, a status tile and a service switch row. They follow the desk rules above, and add these.
+
+- **Put them on paper.** Draw each one inside a `toon-card` or another paper surface. Their text and strokes are ink and the deeper `-text` accents, which fail contrast on the navy ground.
+- **Colour is never the only cue.** A glyph (`✓`, `!`, `✕`, `?`), a height, a hatch, a dash pattern, a marker shape or a word says the same thing.
+- **`unknown` is a state, and it never reads as ok.** Every state count includes it.
+- **Every chart has a text equivalent.** The line chart carries a table. The uptime strip is a list of spoken cells with a summary line. For `bars()`, write your own `<details>` table.
+- **Times are ISO 8601 strings,** printed in UTC as "Nov 16 14:02 UTC".
+
+### Uptime
+
+`toon-uptime` is one cell per interval, oldest first. Parts: `toon-uptime-cells`, `toon-uptime-cell`, `toon-uptime-ok`, `toon-uptime-down`, `toon-uptime-unknown`, `toon-uptime-ends`, `toon-uptime-summary`, `toon-uptime-keys`, `toon-uptime-key`, `toon-uptime-key-down`, `toon-uptime-key-unknown`. Helper: `uptime({ label, windowLabel, cells })`, where a cell is `{ at, state, detail }` and `state` is `ok`, `down` or `unknown`.
+
+- An ok cell is solid blue and full height. A down cell is red with an ink hatch. An unknown cell is short, empty and outlined.
+- The list is `role="list"` and each cell is a `listitem` with a spoken label such as "Nov 16 02:00 UTC: down. timeout after 5 s".
+- The summary line reads "90 of 96 intervals ok, 1 down, 5 unknown". It leaves out a zero count.
+- The strip fills its container and the cells share it, so 96 cells fit at 320 px. The helper throws above 150 cells: group the readings into longer intervals.
+
+### Line chart
+
+`toon-line` is a line chart of one to four series. Parts: `toon-chart`, `toon-chart-title`, `toon-chart-unit`, `toon-chart-cap`, `toon-line-svg`, `toon-chart-key`, `toon-chart-swatch`, `toon-chart-name`, `toon-chart-end`, `toon-chart-at`, `toon-chart-table`. Helper: `line({ label, series, yUnit, target, min, max, tableLabel })`, where a series is `{ name, points }` and a point is `{ x, y }`.
+
+- Each series has its own colour, dash pattern and marker shape (circle, square, triangle, diamond). The key repeats all three.
+- The key prints each series' latest value and its time, so the chart needs no hover.
+- Points sit on an even category axis with one slot per distinct `x`. When every `x` is an ISO time the slots run oldest first, and other labels keep the order you give them. A series with no point at an `x` breaks there. Markers show on every point up to 12 readings, and beyond that on the last point and on any point with no neighbour.
+- `min` defaults to 0 and a lower value throws. `max` defaults to the largest value or `target`, rounded up.
+- `target` must be at least `min`. It draws a dotted ink line and a row in the table.
+- The SVG is `role="img"` and its label gives each series' first, last, lowest and highest value. The `<details>` table has the same numbers, with a visible toggle that is 44 px tall.
+- The SVG is at most 560 px wide.
+
+### Status tile
+
+`toon-tile` is a figure with a state. Parts: `toon-tiles`, `toon-tile-ok`, `toon-tile-warn`, `toon-tile-down`, `toon-tile-unknown`, `toon-tile-label`, `toon-tile-value`, `toon-tile-none`, `toon-tile-state`, `toon-tile-detail`, `toon-tile-read`, `toon-tile-sr`. Helper: `statusTile({ label, value, state, delta, readAt, readAtText, detail, extra })`. Put tiles in `<div class="toon-tiles">`.
+
+- The state line is a glyph and a word: "✓ Ok", "! Warning", "✕ Down" or "? Unknown". An unknown tile has a dashed border.
+- Leave `value` out only for `unknown`. The tile prints "—" and says "no reading" aloud.
+- `readAt` prints "Read Nov 16 14:02 UTC" in a `<time>` element. `readAtText` replaces it with your own text, such as "4 min ago".
+- `delta` is a number or the options of `delta()`. `extra` is markup you trust, such as a `spark()`. It is not escaped.
+
+### Switch row
+
+`toon-switch-row` shows a service that runs in the lab or in the cloud, with both sides next to each other. Parts: `toon-switch-head`, `toon-switch-name`, `toon-switch-host`, `toon-switch-tags`, `toon-switch-sides`, `toon-switch-side`, `toon-switch-side-on`, `toon-switch-where`, `toon-switch-state`, `toon-switch-ok`, `toon-switch-down`, `toon-switch-unknown`, `toon-switch-age`, `toon-switch-serving`, `toon-switch-btn`, `toon-switch-reason`. Helper: `switchRow({ name, hostname, active, labState, cloudState, labAge, cloudAge, dataClass, pinned, canSwitch, reason, buttonLabel, action, id })`.
+
+- The serving side has a solid border and the word "Serving". The other side is dashed. Each side shows a glyph and "Up", "Down" or "Unknown", and the age of its reading.
+- The button carries `data-toon-switch` (the name) and `data-toon-switch-to` (`lab` or `cloud`). The kit attaches no handler: you listen for a click on `[data-toon-switch-to]`.
+- When `canSwitch` is false, `reason` is required. The button gets `aria-disabled="true"` and `aria-describedby` pointing at the visible reason. It stays focusable, and the kit script drops its click before your handler sees it.
+- `action` is markup you trust, in place of the default button. You then own its disabled state: give it `aria-disabled="true"`, `data-toon-switch-to` and `aria-describedby="<id>-reason"` when `canSwitch` is false. `dataClass` is a chip and `pinned` adds a "Pinned" badge.
+
 ## Interactive
 
 ### Modal

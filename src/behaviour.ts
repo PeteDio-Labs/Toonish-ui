@@ -294,6 +294,11 @@ export function initToonish(root: Document = document): void {
     panel.hidden = !open;
   });
 
+  // A switch button that says it is disabled keeps focus and its visible reason, so it is aria-disabled and not `disabled`. Drop its click before any handler sees it.
+  root.addEventListener('click', (e) => {
+    if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) { e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
+
   // Toggle groups: one pressed button at a time, with a bounce on the newly pressed one.
   root.querySelectorAll<HTMLElement>('[data-toon-toggle]').forEach((group) => {
     group.addEventListener('click', (e) => {
