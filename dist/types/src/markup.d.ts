@@ -225,3 +225,136 @@ export interface PagerOptions {
  * destination's title under it. Pass either link or both. Every string is escaped.
  */
 export declare const pager: (o: PagerOptions) => string;
+/** Who owns an item. `a` is ink with a solid dot; `b` is violet with a ringed dot, so the shape changes as well as the colour. */
+export type Owner = 'a' | 'b';
+export interface DeltaOptions {
+    /** Text after the number, such as "%". The spoken form says "points" when you give none. */
+    unit?: string;
+    /** Swap the colours for a measure where down is good. The glyph still says which way it moved. */
+    invert?: boolean;
+    /** Use the colours that read on the navy ground. The default reads on paper. */
+    ground?: boolean;
+}
+/** A signed change such as "▲ 4", "▼ 32" or "· 0". The glyph is visible text, and `aria-label` says it aloud. Direction is never colour alone. */
+export declare const delta: (n: number, o?: DeltaOptions) => string;
+export interface ScaleOptions {
+    /** The current value from 0 to 100, or `null` for an item with no score. */
+    value: number | null;
+    /** Past values, oldest first. The last one is the previous value, and the move segment runs from it to `value`. */
+    history?: number[];
+    owner?: Owner;
+    /** Draw ticks at 25, 50 and 75. Default true. */
+    ticks?: boolean;
+    /** Says the score and the move for a screen reader, such as "P-01 scores 82, up 4 from 78". Required. */
+    label: string;
+    /** Clamp a value outside 0 to 100 instead of throwing. */
+    clamp?: boolean;
+}
+/** A 0 to 100 track with one current marker, faint dots for past values and a segment for the latest move. Every part is a span, so it can sit inside a button. */
+export declare const scale: (o: ScaleOptions) => string;
+/** The axis row for a column of scales: 0, 25, 50, 75 and 100. It repeats what the page says, so it is hidden from a screen reader. */
+export declare const scaleAxis: () => string;
+export type MeterTone = 'blue' | 'red' | 'yellow' | 'violet' | 'mist';
+export interface MeterOptions {
+    /** Names the bar for a screen reader, and shows above it. Required. */
+    label: string;
+    value: number;
+    /** The value that fills the bar. Default 100. */
+    max?: number;
+    tone?: MeterTone;
+    /** `lg` makes the bar 16 px tall and the number larger. Default `md`. */
+    size?: 'md' | 'lg';
+    /** A second line under the label, such as "vs US, was 42". */
+    sub?: string;
+    /** Labels under a large meter, left to right, such as "0 · coincidence". */
+    scaleLabels?: string[];
+    /** Replaces the printed number and the spoken value, such as "~7%". */
+    valueText?: string;
+    /** Clamp a value outside 0 to `max` instead of throwing. */
+    clamp?: boolean;
+    /** The id prefix for the label. Default is generated, so pass one for stable output. */
+    id?: string;
+}
+/** One value out of a maximum. The bar is `role="meter"`, named by the visible label. */
+export declare const meter: (o: MeterOptions) => string;
+export interface MetersOptions {
+    /** Names the list for a screen reader. Required. */
+    label: string;
+    cls?: string;
+}
+/** A list of meters with ink dividers, for use inside a card. Pass options, or markup from `meter()`. */
+export declare const meters: (items: (MeterOptions | string)[], o: MetersOptions) => string;
+export interface TabSpec {
+    /** The id of the panel this tab opens. The hash holds it, so `#board` opens the tab for `board`. */
+    id: string;
+    label: string;
+    /** An SVG you trust. The helper hides it from a screen reader. */
+    icon?: string;
+}
+export interface TabbarOptions {
+    /** Names the nav for a screen reader. Required. */
+    label: string;
+    /** The id of the selected tab. Default is the first. */
+    selected?: string;
+    /** From md, show the bar as a row of pills at the top of the page. */
+    top?: boolean;
+    cls?: string;
+}
+/**
+ * A tab bar for a single-page app with up to five sections. `initToonish` wires it: a click switches panels, the arrow keys,
+ * Home and End move between tabs, and the hash keeps the selected tab. Without script every panel shows and each tab is an in-page link.
+ * Pair each tab with `tabpanel(id, html)`.
+ */
+export declare const tabbar: (tabs: TabSpec[], o: TabbarOptions) => string;
+/** The panel for a tab made by `tabbar()`. It is labelled by that tab. `html` is markup you wrote and is not escaped. */
+export declare const tabpanel: (id: string, html: string, cls?: string) => string;
+export interface DisclosureOptions {
+    /** Prefix for the ids. The panel takes it, and the button takes `<id>-btn`. Required. */
+    id: string;
+    /** A mono id for the row, such as "P-01". Required. */
+    lead: string;
+    title: string;
+    /** A badge after the title. Text, or text with a tone (default yellow). */
+    badge?: string | {
+        text: string;
+        tone?: Tone;
+    };
+    /** A large figure at the end of the line. */
+    value?: string | number;
+    /** The signed change after the value. */
+    delta?: number | (DeltaOptions & {
+        value: number;
+    });
+    /** A full-width slot under the line, such as a `scale()`. Markup you trust, not escaped. */
+    below?: string;
+    /** The detail. Markup you trust, not escaped. */
+    panel: string;
+    open?: boolean;
+    owner?: Owner;
+    /** Says the owner aloud, such as "Pedro". The dot and colour show it to the eye. */
+    ownerLabel?: string;
+    /** Use `<details>` and `<summary>`, which work without script. */
+    native?: boolean;
+    /** Wrap the button in a heading of this level. Not for `native`. */
+    heading?: 2 | 3 | 4 | 5 | 6;
+}
+/**
+ * A list row that opens to show detail. It is a `listitem`, so put it in `list()`. By default the row is a `<button>` with
+ * `aria-expanded` and `aria-controls` that `initToonish` toggles. With `native`, it is `<details>` and needs no script.
+ */
+export declare const disclosure: (o: DisclosureOptions) => string;
+export interface SparkOptions {
+    min?: number;
+    max?: number;
+    accent?: Accent;
+    /** Draws a dashed baseline at this value. */
+    target?: number;
+    /** Names what the trend measures. The helper adds "Trend from 73 to 82 over 8 readings". Required. */
+    label: string;
+    /** `sm` is 64 by 20. `lg` is 120 by 32. Default `sm`. */
+    size?: 'sm' | 'lg';
+    /** Clamp a value outside `min` to `max` instead of throwing. */
+    clamp?: boolean;
+}
+/** A small inline trend: an ink line, a dot per reading and a ringed last dot in the accent. Drawn for paper. */
+export declare const spark: (values: number[], o: SparkOptions) => string;

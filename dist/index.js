@@ -177,6 +177,89 @@ function initDeck(deck) {
     mq.addListener(apply);
   apply();
 }
+function initTabs(nav) {
+  const tabs = [...nav.querySelectorAll('[role="tab"]')];
+  if (!tabs.length)
+    return;
+  const panelOf = (t) => document.getElementById(t.getAttribute("aria-controls") ?? "");
+  const byHash = (hash) => {
+    let id;
+    try {
+      id = decodeURIComponent(hash.replace(/^#/, ""));
+    } catch {
+      return;
+    }
+    return tabs.find((t) => t.getAttribute("aria-controls") === id);
+  };
+  const select = (tab, bounce) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      const p = panelOf(t);
+      if (p)
+        p.hidden = !on;
+    });
+    if (bounce) {
+      tab.classList.remove("toon-boing");
+      tab.offsetWidth;
+      tab.classList.add("toon-boing");
+    }
+  };
+  const record = (tab, push) => {
+    const hash = "#" + (tab.getAttribute("aria-controls") ?? "");
+    if (location.hash === hash)
+      return;
+    if (push)
+      history.pushState(null, "", hash);
+    else
+      history.replaceState(null, "", hash);
+  };
+  const home = tabs.find((t) => t.getAttribute("aria-selected") === "true") ?? tabs[0];
+  const first = byHash(location.hash);
+  select(first ?? home, false);
+  if (first) {
+    const top = () => window.scrollTo({ top: 0, behavior: "instant" });
+    top();
+    window.addEventListener("load", top, { once: true });
+  }
+  nav.addEventListener("click", (e) => {
+    const m = e;
+    const tab = e.target.closest('[role="tab"]');
+    if (!tab || !nav.contains(tab) || m.button !== 0 || m.metaKey || m.ctrlKey || m.shiftKey || m.altKey)
+      return;
+    e.preventDefault();
+    select(tab, true);
+    record(tab, true);
+    window.scrollTo(0, 0);
+  });
+  nav.addEventListener("keydown", (e) => {
+    const tab = e.target.closest('[role="tab"]');
+    if (!tab || e.altKey || e.ctrlKey || e.metaKey)
+      return;
+    if (e.key === " ") {
+      e.preventDefault();
+      tab.click();
+      return;
+    }
+    const i = tabs.indexOf(tab);
+    const to = e.key === "ArrowRight" ? (i + 1) % tabs.length : e.key === "ArrowLeft" ? (i - 1 + tabs.length) % tabs.length : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
+    if (to < 0)
+      return;
+    e.preventDefault();
+    const next = tabs[to];
+    select(next, true);
+    record(next, false);
+    next.focus();
+  });
+  window.addEventListener("hashchange", () => {
+    const tab = byHash(location.hash) ?? (location.hash === "" ? home : undefined);
+    if (!tab)
+      return;
+    select(tab, false);
+    window.scrollTo(0, 0);
+  });
+}
 function initToonish(root = document) {
   if (started.has(root))
     return;
@@ -198,6 +281,18 @@ function initToonish(root = document) {
     });
   }
   root.querySelectorAll("[data-toon-deck]").forEach(initDeck);
+  root.querySelectorAll("[data-toon-tabs]").forEach(initTabs);
+  root.addEventListener("click", (e) => {
+    const btn = e.target.closest("button.toon-disclosure-btn[aria-controls]");
+    if (!btn)
+      return;
+    const panel = root.getElementById(btn.getAttribute("aria-controls") ?? "");
+    if (!panel)
+      return;
+    const open = btn.getAttribute("aria-expanded") !== "true";
+    btn.setAttribute("aria-expanded", String(open));
+    panel.hidden = !open;
+  });
   root.querySelectorAll("[data-toon-toggle]").forEach((group) => {
     group.addEventListener("click", (e) => {
       const b = e.target.closest("button");
@@ -490,6 +585,154 @@ var pager = (o) => {
   };
   return `<nav class="toon-pager${o.cls ? " " + esc(o.cls) : ""}" aria-label="${esc(o.label)}">${o.prev ? link(o.prev, "prev") : ""}${o.next ? link(o.next, "next") : ""}</nav>`;
 };
+var INK = "#0a0a1f";
+var num = (n) => String(Number(n.toFixed(2)) + 0);
+var bound = (who, what, v, lo, hi, clamp) => {
+  if (typeof v !== "number" || !Number.isFinite(v))
+    throw new Error(`${who}: ${what} must be a finite number, got ${String(v)}`);
+  if (v >= lo && v <= hi)
+    return v;
+  if (!clamp)
+    throw new Error(`${who}: ${what} ${v} is outside ${lo} to ${hi}; pass clamp: true to clamp it`);
+  return Math.min(hi, Math.max(lo, v));
+};
+var ownerOf = (who, owner) => {
+  if (owner !== "a" && owner !== "b")
+    throw new Error(`${who}: unknown owner "${owner}": use a or b`);
+  return owner;
+};
+var delta = (n, o = {}) => {
+  if (typeof n !== "number" || !Number.isFinite(n))
+    throw new Error(`delta: n must be a finite number, got ${String(n)}`);
+  const dir = Number(n.toFixed(2)) > 0 ? "up" : Number(n.toFixed(2)) < 0 ? "down" : "flat";
+  const unit = o.unit ?? "";
+  const spoken = unit.trim() === "%" ? "percent" : unit.trim() || "points";
+  const text = `${dir === "up" ? "▲" : dir === "down" ? "▼" : "·"} ${num(Math.abs(n))}${unit}`;
+  const label = dir === "flat" ? "no change" : `${dir} ${num(Math.abs(n))} ${spoken}`;
+  const cls = ["toon-delta", `toon-delta-${dir}`, o.invert ? "toon-delta-invert" : "", o.ground ? "toon-delta-ground" : ""].filter(Boolean).join(" ");
+  return `<span class="${cls}" role="img" aria-label="${esc(label)}">${esc(text)}</span>`;
+};
+var scale = (o) => {
+  if (!o.label?.trim())
+    throw new Error("scale: label is required");
+  const owner = ownerOf("scale", o.owner ?? "a");
+  if (o.value === null)
+    return `<span class="toon-scale toon-scale-empty" role="img" aria-label="${esc(o.label)}"></span>`;
+  const value = bound("scale", "value", o.value, 0, 100, o.clamp);
+  const history2 = (o.history ?? []).map((h, i) => bound("scale", `history[${i}]`, h, 0, 100, o.clamp));
+  const prev = history2.at(-1);
+  const ticks = o.ticks === false ? "" : [25, 50, 75].map((t) => `<span class="toon-scale-tick" style="--at:${t}"></span>`).join("");
+  const past = history2.map((h) => `<span class="toon-scale-past" style="--at:${num(h)}"></span>`).join("");
+  const move = prev === undefined || prev === value ? "" : `<span class="toon-scale-move toon-scale-move-${value > prev ? "up" : "down"}" style="--lo:${num(Math.min(prev, value))};--hi:${num(Math.max(prev, value))}"></span>`;
+  return `<span class="toon-scale" role="img" aria-label="${esc(o.label)}" style="--v:${num(value)};--p:${num(prev ?? value)}">${ticks}${past}${move}<span class="toon-scale-mark toon-owner-${owner}"></span></span>`;
+};
+var scaleAxis = () => `<span class="toon-scale-axis" aria-hidden="true">${[0, 25, 50, 75, 100].map((t) => `<span style="--at:${t}">${t}</span>`).join("")}</span>`;
+var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist" };
+var uid = 0;
+var meter = (o) => {
+  if (!o.label?.trim())
+    throw new Error("meter: label is required");
+  const max = o.max ?? 100;
+  if (typeof max !== "number" || !Number.isFinite(max) || max <= 0)
+    throw new Error(`meter: max must be above 0, got ${String(max)}`);
+  const value = bound("meter", "value", o.value, 0, max, o.clamp);
+  const tone = o.tone ?? "blue";
+  if (!Object.hasOwn(METER_FILL, tone))
+    throw new Error(`unknown meter tone "${tone}": use one of ${Object.keys(METER_FILL).join(", ")}`);
+  const size = o.size ?? "md";
+  if (size !== "md" && size !== "lg")
+    throw new Error(`unknown meter size "${String(size)}": use md or lg`);
+  if (o.id !== undefined && !/^[A-Za-z][\w-]*$/.test(o.id))
+    throw new Error(`meter: id "${o.id}" is not a valid id`);
+  const id = o.id ?? `toon-meter-${++uid}`;
+  const vt = o.valueText?.trim() || undefined;
+  const text = vt ?? num(value);
+  const fill = value > 0 ? `<span class="toon-meter-fill${METER_FILL[tone] ? " " + METER_FILL[tone] : ""}" style="--w:${num(value / max * 100)}"></span>` : "";
+  const sub = o.sub ? `<span class="toon-meter-sub" id="${id}-sub">${esc(o.sub)}</span>` : "";
+  const labels = (o.scaleLabels ?? []).filter((l) => l.trim());
+  const scaleRow = labels.length ? `<span class="toon-meter-scale">${labels.map((l) => `<span>${esc(l)}</span>`).join("")}</span>` : "";
+  return `<div class="toon-meter${size === "lg" ? " toon-meter-lg" : ""}"><span class="toon-meter-name"><span class="toon-meter-label" id="${id}-label">${esc(o.label)}</span>${sub}</span>` + `<span class="toon-meter-bar" role="meter" aria-labelledby="${id}-label"${sub ? ` aria-describedby="${id}-sub"` : ""} aria-valuemin="0" aria-valuenow="${num(value)}" aria-valuemax="${num(max)}" aria-valuetext="${esc(vt ?? `${num(value)} of ${num(max)}`)}">${fill}</span>` + `<span class="toon-meter-value" aria-hidden="true">${esc(text)}</span>${scaleRow}</div>`;
+};
+var meters = (items, o) => {
+  if (!o.label?.trim())
+    throw new Error("meters: label is required");
+  if (!items.length)
+    throw new Error("meters: at least one meter is required");
+  return `<div class="toon-meters${o.cls ? " " + esc(o.cls) : ""}" role="list" aria-label="${esc(o.label)}">${items.map((m) => `<div class="toon-meters-item" role="listitem">${typeof m === "string" ? m : meter(m)}</div>`).join("")}</div>`;
+};
+var ID_RE = /^[A-Za-z][\w-]*$/;
+var tabbar = (tabs, o) => {
+  if (!o.label?.trim())
+    throw new Error("tabbar: label is required");
+  if (tabs.length < 2 || tabs.length > 5)
+    throw new Error(`tabbar: needs 2 to 5 tabs, got ${tabs.length}`);
+  const ids = new Set;
+  for (const t of tabs) {
+    if (!ID_RE.test(t.id))
+      throw new Error(`tabbar: tab id "${t.id}" is not a valid id`);
+    if (!t.label.trim())
+      throw new Error(`tabbar: tab "${t.id}" needs a label`);
+    if (ids.has(t.id))
+      throw new Error(`tabbar: tab id "${t.id}" is used twice`);
+    ids.add(t.id);
+  }
+  const selected = o.selected ?? tabs[0].id;
+  if (!ids.has(selected))
+    throw new Error(`tabbar: selected tab "${selected}" is not one of the tabs`);
+  const items = tabs.map((t) => `<a class="toon-tab" role="tab" id="${t.id}-tab" href="#${t.id}" aria-selected="${t.id === selected}" aria-controls="${t.id}">${t.icon ? `<span class="toon-tab-icon" aria-hidden="true">${t.icon}</span>` : ""}<span class="toon-tab-label">${esc(t.label)}</span></a>`).join("");
+  return `<nav class="toon-tabbar${o.top ? " toon-tabbar-top" : ""}${o.cls ? " " + esc(o.cls) : ""}" aria-label="${esc(o.label)}" data-toon-tabs><div class="toon-tablist" role="tablist" aria-label="${esc(o.label)}">${items}</div></nav>`;
+};
+var tabpanel = (id, html, cls = "") => {
+  if (!ID_RE.test(id))
+    throw new Error(`tabpanel: id "${id}" is not a valid id`);
+  return `<div class="toon-tabpanel${cls ? " " + esc(cls) : ""}" role="tabpanel" tabindex="0" id="${id}" aria-labelledby="${id}-tab">${html}</div>`;
+};
+var disclosure = (o) => {
+  if (!ID_RE.test(o.id))
+    throw new Error(`disclosure: id "${o.id}" is not a valid id`);
+  if (!o.lead?.trim() || !o.title?.trim())
+    throw new Error("disclosure: lead and title are required");
+  const owner = ownerOf("disclosure", o.owner ?? "a");
+  if (o.heading !== undefined && (o.native || ![2, 3, 4, 5, 6].includes(o.heading)))
+    throw new Error("disclosure: heading is a level from 2 to 6, and not for native");
+  const b = typeof o.badge === "string" ? { text: o.badge, tone: "yellow" } : o.badge ? { text: o.badge.text, tone: o.badge.tone ?? "yellow" } : undefined;
+  const d = o.delta === undefined ? "" : typeof o.delta === "number" ? delta(o.delta) : delta(o.delta.value, o.delta);
+  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ""}${esc(o.lead)}</span>` + `<span class="toon-disclosure-title">${esc(o.title)}${b ? " " + badge(b.text, b.tone) : ""}</span>` + `${o.value === undefined ? "" : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${d}` + `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ""}`;
+  const panel = `<div class="toon-disclosure-panel" id="${o.id}"${o.native || o.open ? "" : " hidden"}>${o.panel}</div>`;
+  if (o.native)
+    return `<div class="toon-disclosure" role="listitem"><details class="toon-disclosure-details"${o.open ? " open" : ""}><summary class="toon-disclosure-btn" id="${o.id}-btn">${inner}</summary>${panel}</details></div>`;
+  const btn = `<button type="button" class="toon-disclosure-btn" id="${o.id}-btn" aria-expanded="${o.open ? "true" : "false"}" aria-controls="${o.id}">${inner}</button>`;
+  return `<div class="toon-disclosure" role="listitem">${o.heading ? `<h${o.heading} class="toon-disclosure-h">${btn}</h${o.heading}>` : btn}${panel}</div>`;
+};
+var SPARK_SIZE = { sm: { w: 64, h: 20 }, lg: { w: 120, h: 32 } };
+var spark = (values, o) => {
+  if (!o.label?.trim())
+    throw new Error("spark: label is required");
+  if (!Array.isArray(values) || values.length < 2)
+    throw new Error("spark: at least 2 values are required");
+  const min = o.min ?? 0;
+  const max = o.max ?? 100;
+  if (!Number.isFinite(min) || !Number.isFinite(max) || !(max > min))
+    throw new Error(`spark: max must be above min, got ${min} and ${max}`);
+  const accent = accentOf(o.accent ?? "blue");
+  const size = o.size ?? "sm";
+  if (!Object.hasOwn(SPARK_SIZE, size))
+    throw new Error(`unknown spark size "${String(size)}": use sm or lg`);
+  const vs = values.map((v, i) => bound("spark", `values[${i}]`, v, min, max, o.clamp));
+  const { w, h } = SPARK_SIZE[size];
+  const pad = 5;
+  const x = (i) => pad + i / (vs.length - 1) * (w - pad * 2);
+  const y = (v) => h - pad - (v - min) / (max - min) * (h - pad * 2);
+  const pts = vs.map((v, i) => [x(i), y(v)]);
+  const line = `<polyline points="${pts.map(([px, py]) => `${px.toFixed(1)},${py.toFixed(1)}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const dots = pts.slice(0, -1).map(([px, py]) => `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="1.5" fill="${INK}"/>`).join("");
+  const [lx, ly] = pts.at(-1);
+  const last = `<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="3" fill="${HEX[accent]}" stroke="${INK}" stroke-width="1.5"/>`;
+  const ty = o.target === undefined ? undefined : y(bound("spark", "target", o.target, min, max, o.clamp)).toFixed(1);
+  const base = ty === undefined ? "" : `<line class="toon-spark-target" x1="0" x2="${w}" y1="${ty}" y2="${ty}" stroke="#4a4d78" stroke-width="1" stroke-dasharray="3 3"/>`;
+  const label = `${o.label}. Trend from ${num(vs[0])} to ${num(vs.at(-1))} over ${vs.length} readings`;
+  return `<svg class="toon-spark toon-spark-${size}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(label)}" focusable="false">${base}${line}${dots}${last}</svg>`;
+};
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
   $description: "Toonish design tokens in the W3C Design Tokens format (2025.10). Structure comes from the PeteDio house tokens; colour is the deliberate break from that set. Every fill carries ink text, which keeps contrast at 5.1:1 or better.",
@@ -654,20 +897,29 @@ export {
   burst,
   chip,
   deck,
+  delta,
+  disclosure,
   esc,
   figure,
   fitSize,
   initToonish,
   kicker,
   letters,
+  meter,
+  meters,
   pager,
   portrait,
   preset_default as preset,
   row,
+  scale,
+  scaleAxis,
   sfx,
   shot,
+  spark,
   speedLines,
   stat,
   steps,
-  strip
+  strip,
+  tabbar,
+  tabpanel
 };

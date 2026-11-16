@@ -1,12 +1,19 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation is docs/components.md. The portfolio's kit page was removed on 2026-11-14.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark } from '../src/markup.ts';
+
+const icon = (d: string) => `<svg viewBox="0 0 20 20" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const panelBody = (k: string): string => `${chip('Watching')}<p>Body text for the call.</p>` +
+  meters([{ label: 'Evidence', value: 70, id: `${k}-evidence` }, { label: 'Reach', value: 35, tone: 'red', sub: 'vs US, was 42', id: `${k}-reach` }, { label: 'Spread', value: 0, tone: 'mist', id: `${k}-spread` }], { label: 'Vectors' }) +
+  '<dl class="toon-kv"><dt>Basis</dt><dd>Two filings.</dd><dt class="toon-kv-warn">Risk</dt><dd>A source may retract.</dd></dl>' +
+  '<div class="toon-note"><b>16 Nov:</b> Raised from 78 to 82.</div><p class="toon-meta">Last revised 16 Nov</p>';
 
 export const fixture = (): string => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc('toonish-ui fixture')}</title>
 <link rel="icon" href="data:,"><link rel="stylesheet" href="/dist/toonish.css"></head>
-<body>${skipLink('main')}<div class="toon-page"><main id="main">
+<body>${skipLink('main')}<div class="toon-page" style="padding-bottom:var(--toon-tabbar-h)"><main id="main">
 <h1>${letters('toonish-ui', 'yellow', { live: true })}</h1>
 <section id="buttons"><h2 class="toon-heading">Buttons</h2>
 <button class="toon-btn" type="button">Blue</button> <button class="toon-btn toon-btn-red" type="button">Red</button>
@@ -55,5 +62,28 @@ ${deck([
 ${deck(['<div class="toon-card">Always one</div>', '<div class="toon-card">Always two</div>'], { label: 'Always on', always: true, cols: 2, cls: 'deck-always' })}
 ${pager({ label: 'Sample pages', cls: 'pager-demo', prev: { href: '#prev', title: 'Recovering a burnt server from backups and config in git' }, next: { href: '#next', title: 'How this site is built and deployed: a private bucket, a strict policy and a deploy that checks itself, with a title long enough to be cut at two lines on a phone' } })}
 </section>
-</main><footer class="toon-footer"><p>Footer</p></footer></div>
+<section id="desk"><h2 class="toon-heading">Desk</h2>
+<p id="ground-deltas">${delta(4, { ground: true })} ${delta(-32, { ground: true })} ${delta(0, { ground: true })} ${delta(6, { ground: true, invert: true, unit: '%' })}</p>
+<div class="toon-card" id="desk-card"><p>${delta(4)} ${delta(-32)} ${delta(0)} ${delta(1.5, { unit: '%', invert: true })}</p>
+${scaleAxis()}
+${scale({ value: 82, history: [70, 74, 78], label: 'P-01 scores 82, up 4 from 78' })}
+${scale({ value: 12, history: [40, 30], owner: 'b', ticks: false, label: 'P-02 scores 12, down 18 from 30' })}
+${scale({ value: 100, label: 'P-03 scores 100' })}
+${scale({ value: 0, label: 'P-04 scores 0' })}
+${scale({ value: null, label: 'P-05 has no score' })}
+${meter({ label: 'Likelihood', value: 7, size: 'lg', tone: 'red', valueText: '~7%', scaleLabels: ['0 · coincidence', '50 · coin flip', '100 · confirmed op'], id: 'gauge' })}
+${meter({ label: 'Of five', value: 3, max: 5, tone: 'violet', id: 'of-five' })}
+<p>Trend ${spark([73, 75, 71, 78, 80, 79, 81, 82], { label: 'P-01', target: 50 })} and ${spark([10, 30, 20, 60], { label: 'P-02', size: 'lg', accent: 'red' })}</p>
+<div class="toon-stats"><div class="toon-stat"><span class="toon-stat-label">Score</span><span class="toon-stat-value">82</span><span class="toon-stat-detail">${delta(4)} ${spark([73, 78, 82], { label: 'Score', accent: 'yellow' })}</span></div></div></div>
+<h3 class="toon-heading">Calls</h3>
+${list([
+  disclosure({ id: 'p-01', lead: 'P-01', title: 'Ceasefire holds through March, with a title long enough to wrap onto a second line on a phone', badge: 'Hold', value: 82, delta: 4, owner: 'a', ownerLabel: 'Pedro', open: true, heading: 4, below: scale({ value: 82, history: [70, 74, 78], label: 'P-01 scores 82, up 4 from 78' }), panel: panelBody('a') }),
+  disclosure({ id: 'p-02', lead: 'P-02', title: 'Grid outage ends by Friday', badge: { text: 'Lean', tone: 'violet' }, value: 12, delta: { value: -32, unit: '%' }, owner: 'b', ownerLabel: 'Claude', below: scale({ value: 12, history: [44], owner: 'b', label: 'P-02 scores 12, down 32 from 44' }), panel: panelBody('b') }),
+  disclosure({ id: 'p-03', lead: 'P-03', title: 'No move this week', value: 50, delta: 0, native: true, panel: panelBody('c') }),
+], { label: 'Calls' })}
+</section>
+<section id="tabs-demo"><h2 class="toon-heading">Tabs</h2>
+${tabpanel('tab-board', '<p>Board panel.</p>')}${tabpanel('tab-brief', '<p>Brief panel.</p>')}${tabpanel('tab-record', '<p>Record panel.</p>')}
+</section>
+</main>${tabbar([{ id: 'tab-board', label: 'Board', icon: icon('M3 15V9M10 15V4M17 15v-8') }, { id: 'tab-brief', label: 'Brief', icon: icon('M4 5h12M4 10h12M4 15h8') }, { id: 'tab-record', label: 'Record' }], { label: 'Desk sections' })}<footer class="toon-footer"><p>Footer</p></footer></div>
 <script src="/dist/toonish.js"></script></body></html>`;

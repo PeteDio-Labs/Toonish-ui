@@ -445,7 +445,7 @@ try {
     eq(rings.n > 10, true, `a11y ${name}: focus ring checked ${rings.n} elements`);
     eq(rings.out.join(' | '), '', `a11y ${name}: every focusable element has an ink ring and an outline`);
     // Target size: WCAG 2.2 asks 24 px; the kit's own controls keep 44 px, Apple's minimum.
-    const TARGETS = '.toon-btn,.toon-nav a,.toon-nav button,.toon-pager-link,.toon-deck-btn,.toon-modal-x,.toon-motion,.toon-kicker-link,.toon-shot-text > summary';
+    const TARGETS = '.toon-btn,.toon-nav a,.toon-nav button,.toon-pager-link,.toon-deck-btn,.toon-modal-x,.toon-motion,.toon-kicker-link,.toon-shot-text > summary,.toon-tab,.toon-disclosure-btn';
     const sizes = (sel: string) => p.evaluate((s) => { const els = [...document.querySelectorAll<HTMLElement>(s)].filter((e) => e.getClientRects().length); return { n: els.length, small: els.filter((e) => e.getBoundingClientRect().height < 43.5).map((e) => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 30)} ${Math.round(e.getBoundingClientRect().height)}px`) }; }, sel);
     const at = await sizes(TARGETS);
     console.log(`a11y ${name}: target size read on ${at.n} kit controls`);
@@ -467,12 +467,89 @@ try {
     await c.close();
   }
 
+  // Desk components: tab bar and disclosure behaviour, and layout claims that axe cannot make.
+  for (const [name, width, height] of [['desktop', 1280, 900], ['phone', 390, 844]] as const) {
+    const c = await browser.newContext({ viewport: { width, height } });
+    const p = await c.newPage();
+    await p.goto(server.url.href, { waitUntil: 'networkidle' });
+    const q = <T>(fn: () => T) => p.evaluate(fn);
+    const tabs = '[role="tab"]';
+    // Initial state: the first tab is selected, the others leave the tab order, and only its panel shows.
+    eq(await q(() => [...document.querySelectorAll('[role="tab"]')].map((t) => `${t.getAttribute('aria-selected')}/${(t as HTMLElement).tabIndex}`).join()), 'true/0,false/-1,false/-1', `${name}: tabs start with the first selected and a roving tab stop`);
+    eq(await q(() => [...document.querySelectorAll('.toon-tabpanel')].map((e) => (e as HTMLElement).hidden).join()), 'false,true,true', `${name}: only the first panel shows`);
+    await p.click('#tab-brief-tab');
+    eq(await q(() => `${location.hash}|${document.querySelector('#tab-brief')!.hasAttribute('hidden')}|${document.querySelector('#tab-board')!.hasAttribute('hidden')}|${document.querySelector('#tab-brief-tab')!.getAttribute('aria-selected')}`), '#tab-brief|false|true|true', `${name}: a click opens the panel and keeps it in the hash`);
+    eq(await q(() => scrollY), 0, `${name}: a tab click scrolls to the top`);
+    await p.focus('#tab-brief-tab');
+    await p.keyboard.press('ArrowRight');
+    eq(await q(() => `${document.activeElement?.id}|${location.hash}`), 'tab-record-tab|#tab-record', `${name}: ArrowRight moves to the next tab`);
+    await p.keyboard.press('ArrowRight');
+    eq(await q(() => document.activeElement?.id), 'tab-board-tab', `${name}: ArrowRight wraps to the first tab`);
+    await p.keyboard.press('ArrowLeft');
+    eq(await q(() => document.activeElement?.id), 'tab-record-tab', `${name}: ArrowLeft wraps to the last tab`);
+    await p.keyboard.press('Home');
+    eq(await q(() => document.activeElement?.id), 'tab-board-tab', `${name}: Home goes to the first tab`);
+    await p.keyboard.press('End');
+    eq(await q(() => `${document.activeElement?.id}|${document.querySelector('#tab-record')!.hasAttribute('hidden')}`), 'tab-record-tab|false', `${name}: End goes to the last tab and shows its panel`);
+    await p.goBack();
+    eq(await p.evaluate(() => document.querySelector('#tab-board-tab')!.getAttribute('aria-selected')), 'true', `${name}: Back to an entry with no hash returns to the first tab`);
+    await p.goto('about:blank'); // a new document, because a change of hash alone is not a load
+    await p.goto(server.url.href + '#%E0%A4', { waitUntil: 'networkidle' });
+    eq(await q(() => document.querySelector('#p-01-btn')!.getAttribute('aria-controls')), 'p-01', `${name}: a malformed hash does not stop the script`);
+    await p.click('#p-02-btn');
+    eq(await q(() => (document.querySelector('#p-02') as HTMLElement).hidden), false, `${name}: disclosure still works after a malformed hash`);
+    await p.goto('about:blank');
+    await p.goto(server.url.href + '#tab-record', { waitUntil: 'networkidle' });
+    eq(await q(() => scrollY < 5), true, `${name}: a load with a tab hash starts at the top`);
+    eq(await q(() => document.querySelector('#tab-record-tab')!.getAttribute('aria-selected')), 'true', `${name}: a link with a hash opens that tab on load`);
+    eq(await q(() => `${(document.querySelector('.toon-tab') as HTMLElement).getBoundingClientRect().height >= 48}|${[...document.querySelectorAll('.toon-tab')].every((t) => t.getBoundingClientRect().width >= 44)}`), 'true|true', `${name}: tabs are 48 px tall and 44 px wide`);
+    const bar = await q(() => { const r = document.querySelector('.toon-tabbar')!.getBoundingClientRect(); return { bottom: Math.round(innerHeight - r.bottom), h: Math.round(r.height), var: getComputedStyle(document.querySelector('.toon-page')!).paddingBottom }; });
+    eq(bar.bottom, 0, `${name}: the tab bar sits at the bottom`);
+    eq(`${bar.h}px`, bar.var, `${name}: --toon-tabbar-h equals the bar's height (${bar.h}px)`);
+    eq(await p.$eval('.toon-tabbar', (e) => getComputedStyle(e).borderTopWidth), '3px', `${name}: the tab bar has a 3px top border`);
+    await p.waitForTimeout(500); // the fill transitions
+    eq(await p.$eval('.toon-tab[aria-selected="true"]', (e) => getComputedStyle(e).backgroundColor), 'rgb(242, 201, 76)', `${name}: the selected tab is yellow`);
+
+    // Disclosure: a click toggles aria-expanded and the panel; the native row opens with its summary.
+    await p.goto(server.url.href, { waitUntil: 'networkidle' });
+    eq(await q(() => `${document.querySelector('#p-01-btn')!.getAttribute('aria-expanded')}|${document.querySelector('#p-02-btn')!.getAttribute('aria-expanded')}`), 'true|false', `${name}: disclosure open state starts as written`);
+    await p.click('#p-02-btn');
+    eq(await q(() => `${document.querySelector('#p-02-btn')!.getAttribute('aria-expanded')}|${(document.querySelector('#p-02') as HTMLElement).hidden}`), 'true|false', `${name}: a click opens a disclosure`);
+    await p.focus('#p-02-btn');
+    await p.keyboard.press('Enter');
+    eq(await q(() => `${document.querySelector('#p-02-btn')!.getAttribute('aria-expanded')}|${(document.querySelector('#p-02') as HTMLElement).hidden}`), 'false|true', `${name}: Enter closes it again`);
+    await p.keyboard.press('Space');
+    eq(await q(() => (document.querySelector('#p-02') as HTMLElement).hidden), false, `${name}: Space opens it`);
+    await p.click('#p-03-btn');
+    eq(await q(() => (document.querySelector('#p-03-btn')!.closest('details') as HTMLDetailsElement).open), true, `${name}: the native row opens with its summary`);
+    eq(await q(() => [...document.querySelectorAll('.toon-disclosure-btn')].every((b) => b.getBoundingClientRect().height >= 43.5)), true, `${name}: every disclosure row is 44 px tall`);
+    // Layout: the panel indents to the title from sm and is full width on a phone.
+    const ind = await q(() => { const t = document.querySelector('#p-01-btn .toon-disclosure-title')!.getBoundingClientRect().left; const pn = document.querySelector('#p-01 > .toon-chip')!.getBoundingClientRect().left; const row = document.querySelector('#p-01')!.getBoundingClientRect().left; return { t, pn, row }; });
+    eq(width >= 640 ? Math.abs(ind.pn - ind.t) < 1 : Math.abs(ind.pn - ind.row - 16) < 1, true, `${name}: the panel ${width >= 640 ? 'lines up with the title' : 'is full width'} (${JSON.stringify(ind)})`);
+    // The delta says its direction in text, and the marker and the fill differ by owner.
+    eq(await q(() => [...document.querySelectorAll('#desk-card > p:first-child .toon-delta')].map((d) => d.textContent).join('|')), '▲ 4|▼ 32|· 0|▲ 1.5%', `${name}: deltas show a glyph and a signed number`);
+    eq(await q(() => `${getComputedStyle(document.querySelector('.toon-owner-a.toon-scale-mark')!).backgroundColor}|${getComputedStyle(document.querySelector('.toon-owner-b.toon-scale-mark')!).backgroundColor}`), 'rgb(10, 10, 31)|rgb(169, 149, 240)', `${name}: owner a is ink and owner b is violet`);
+    eq(await q(() => `${getComputedStyle(document.querySelector('#desk-card .toon-delta-up')!).color}|${getComputedStyle(document.querySelector('#desk-card .toon-delta-down')!).color}|${getComputedStyle(document.querySelector('#ground-deltas .toon-delta-up')!).color}|${getComputedStyle(document.querySelector('#ground-deltas .toon-delta-flat')!).color}`), 'rgb(200, 50, 43)|rgb(42, 87, 214)|rgb(242, 112, 106)|rgb(185, 189, 224)', `${name}: delta colours are red-text and blue-text on paper, red and mist on the ground`);
+    eq(await q(() => `${getComputedStyle(document.querySelector('#desk-card .toon-delta-invert')!).color}`), 'rgb(42, 87, 214)', `${name}: invert swaps up to blue`);
+    // The scale: the marker follows its value on the track, past dots are faint, and nothing widens the page.
+    const sc = await q(() => { const t = document.querySelector('#desk-card .toon-scale')!.getBoundingClientRect(); const m = document.querySelector('#desk-card .toon-scale-mark')!.getBoundingClientRect(); return { at: (m.left + m.width / 2 - t.left) / t.width, w: m.width, past: getComputedStyle(document.querySelector('.toon-scale-past')!).opacity, trackH: t.height, over: document.documentElement.scrollWidth - innerWidth }; });
+    eq(Math.abs(sc.at - 0.82) < 0.02 && sc.w === 16 && sc.past === '0.4' && sc.trackH === 6 && sc.over <= 0, true, `${name}: scale marker sits at 82% (${JSON.stringify(sc)})`);
+    // The meter: the fill is its share of the well, and the row is two lines on a phone and one row from sm.
+    const mt = await q(() => { const root = document.querySelector('#desk-card .toon-meter')!; const bar = root.querySelector('.toon-meter-bar')!.getBoundingClientRect(); const fill = root.querySelector('.toon-meter-fill')!.getBoundingClientRect(); const lab = root.querySelector('.toon-meter-label')!.getBoundingClientRect(); return { share: fill.width / (bar.width - 4), barH: bar.height, labelAbove: lab.bottom <= bar.top + 1 }; });
+    eq(Math.abs(mt.share - 0.07) < 0.02 && mt.barH === 16 && mt.labelAbove === (width < 640), true, `${name}: large meter fill is 7%, 16px tall, label ${width < 640 ? 'above' : 'beside'} the bar (${JSON.stringify(mt)})`);
+    eq(await q(() => document.documentElement.scrollWidth - innerWidth <= 0), true, `${name}: the desk components do not widen the page`);
+    await p.setViewportSize({ width: 320, height: 700 });
+    eq(await q(() => document.documentElement.scrollWidth - innerWidth <= 0 && [...document.querySelectorAll('#desk *')].every((e) => e.getBoundingClientRect().right <= innerWidth + 1)), true, `${name}: the desk components fit at 320 px`);
+    await c.close();
+  }
+
   // Reduced motion: every animation stops.
   const ctx = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await ctx.newPage();
   await page.goto(server.url.href, { waitUntil: 'networkidle' });
   eq(await page.$eval('.toon-btn', (b) => getComputedStyle(b).transitionDuration), '0s', 'reduced motion: transitions stop');
   eq(await page.evaluate(() => [...document.querySelectorAll('*')].every((e) => getComputedStyle(e).animationName === 'none')), true, 'reduced motion: animations stop');
+  eq(await page.evaluate(() => ['.toon-scale-mark', '.toon-scale-move', '.toon-meter-fill', '.toon-disclosure-panel'].map((s) => getComputedStyle(document.querySelector(s)!).animationName).join()), 'none,none,none,none', 'reduced motion: scale, meter and disclosure animations stop');
   await ctx.close();
 
   // The motion switch: data-motion="off" stops every animation without the system preference.

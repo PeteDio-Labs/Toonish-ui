@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -305,4 +305,197 @@ test('a11y contract: list is a labelled list of listitems, skipLink points at an
   expect(() => skipLink('a b')).toThrow('not a valid id');
   expect(deck(['a', 'b'], { label: 'L' })).toContain('role="group" aria-roledescription="slide" aria-label="1 of 2"');
   expect(figure('214', 'blue', 52, 200)).toContain('--toon-fill:#2a57d6');
+});
+
+const EVIL = '"><img src=x onerror=alert(1)>';
+
+test('delta writes the glyph, a signed number and the spoken form', () => {
+  expect(delta(4)).toContain('toon-delta-up');
+  expect(delta(4)).toContain('role="img" aria-label="up 4 points">▲ 4<');
+  expect(delta(-32, { unit: '%' })).toContain('aria-label="down 32 percent">▼ 32%<');
+  expect(delta(0)).toContain('toon-delta-flat');
+  expect(delta(0)).toContain('aria-label="no change">· 0<');
+  expect(delta(-0)).toContain('· 0<');
+  expect(delta(2, { invert: true, ground: true })).toContain('toon-delta-invert toon-delta-ground');
+  expect(delta(0.1 + 0.2)).toContain('▲ 0.3<');
+});
+
+test('delta escapes its unit and throws on NaN', () => {
+  expect(delta(1, { unit: EVIL }).includes('<img')).toBe(false);
+  expect(() => delta(NaN)).toThrow('finite number');
+  expect(() => delta(Infinity)).toThrow('finite number');
+});
+
+test('scale writes role img with its label, a marker, past dots and the move', () => {
+  const up = scale({ value: 82, history: [70, 78], label: 'P-01 scores 82, up 4 from 78' });
+  expect(up).toContain('role="img" aria-label="P-01 scores 82, up 4 from 78"');
+  expect(up).toContain('--v:82;--p:78');
+  expect(up.match(/toon-scale-past/g)).toHaveLength(2);
+  expect(up.match(/toon-scale-tick/g)).toHaveLength(3);
+  expect(up).toContain('toon-scale-move-up" style="--lo:78;--hi:82"');
+  expect(up).toContain('toon-scale-mark toon-owner-a');
+  expect(scale({ value: 10, history: [30], label: 'x', owner: 'b', ticks: false })).toContain('toon-scale-move-down" style="--lo:10;--hi:30"');
+  expect(scale({ value: 10, history: [30], label: 'x', owner: 'b', ticks: false })).toContain('toon-owner-b');
+  expect(scale({ value: 5, history: [5], label: 'x' })).not.toContain('toon-scale-move');
+  expect(scale({ value: 5, label: 'x', ticks: false })).not.toContain('tick');
+});
+
+test('scale draws an empty track for null and escapes the label', () => {
+  expect(scale({ value: null, label: 'P-05 has no score' })).toContain('toon-scale-empty');
+  expect(scale({ value: 1, label: EVIL }).includes('<img')).toBe(false);
+});
+
+test('scale throws on a blank label, NaN, a bad owner and a value out of range unless clamped', () => {
+  expect(() => scale({ value: 1, label: '  ' })).toThrow('label is required');
+  expect(() => scale({ value: NaN, label: 'x' })).toThrow('finite number');
+  expect(() => scale({ value: 101, label: 'x' })).toThrow('outside 0 to 100');
+  expect(() => scale({ value: 50, history: [-1], label: 'x' })).toThrow('history[0]');
+  expect(() => scale({ value: 1, label: 'x', owner: 'c' as never })).toThrow('unknown owner');
+  expect(scale({ value: 140, history: [-5], label: 'x', clamp: true })).toContain('--v:100;--p:0');
+});
+
+test('scaleAxis is decoration with five labels', () => {
+  const a = scaleAxis();
+  expect(a).toContain('aria-hidden="true"');
+  expect(a.match(/<span style=/g)).toHaveLength(5);
+});
+
+test('meter names the bar by its label and writes the value attributes', () => {
+  const m = meter({ label: 'Evidence', value: 70, id: 'ev', sub: 'vs US, was 42' });
+  expect(m).toContain('role="meter" aria-labelledby="ev-label" aria-describedby="ev-sub" aria-valuemin="0" aria-valuenow="70" aria-valuemax="100" aria-valuetext="70 of 100"');
+  expect(m).toContain('id="ev-label">Evidence<');
+  expect(m).toContain('--w:70');
+  const big = meter({ label: 'Likelihood', value: 7, size: 'lg', tone: 'red', valueText: '~7%', scaleLabels: ['0 · coincidence', '100 · confirmed'], id: 'g' });
+  expect(big).toContain('toon-meter toon-meter-lg');
+  expect(big).toContain('toon-meter-fill-red');
+  expect(big).toContain('aria-valuetext="~7%"');
+  expect(big).toContain('<span class="toon-meter-value" aria-hidden="true">~7%</span>');
+  expect(big.match(/<span>0 · coincidence<\/span>/g)).toHaveLength(1);
+  expect(meter({ label: 'x', value: 3, max: 5, id: 'm' })).toContain('--w:60');
+  expect(meter({ label: 'x', value: 0, id: 'm' })).not.toContain('toon-meter-fill');
+  expect(meter({ label: 'a', value: 1 })).not.toBe(meter({ label: 'a', value: 1 }));
+});
+
+test('meter escapes every string and throws on bad input', () => {
+  const html = meter({ label: EVIL, value: 1, sub: EVIL, valueText: EVIL, scaleLabels: [EVIL], id: 'e' });
+  expect(html.includes('<img')).toBe(false);
+  expect(() => meter({ label: ' ', value: 1 })).toThrow('label is required');
+  expect(() => meter({ label: 'x', value: NaN })).toThrow('finite number');
+  expect(() => meter({ label: 'x', value: 101 })).toThrow('outside 0 to 100');
+  expect(meter({ label: 'x', value: 101, clamp: true, id: 'c' })).toContain('aria-valuenow="100"');
+  expect(() => meter({ label: 'x', value: 1, max: 0 })).toThrow('max must be above 0');
+  expect(() => meter({ label: 'x', value: 1, tone: 'pink' as never })).toThrow('unknown meter tone');
+  expect(() => meter({ label: 'x', value: 1, size: 'xl' as never })).toThrow('unknown meter size');
+  expect(() => meter({ label: 'x', value: 1, id: '1 bad' })).toThrow('not a valid id');
+});
+
+test('meters is a labelled list of list items', () => {
+  const html = meters([{ label: 'A', value: 1, id: 'a' }, meter({ label: 'B', value: 2, id: 'b' })], { label: 'Vectors' });
+  expect(html).toContain('role="list" aria-label="Vectors"');
+  expect(html.match(/role="listitem"/g)).toHaveLength(2);
+  expect(() => meters([], { label: 'x' })).toThrow('at least one');
+  expect(() => meters([{ label: 'A', value: 1 }], { label: ' ' })).toThrow('label is required');
+});
+
+test('tabbar writes a nav around a tablist of tabs wired to their panels', () => {
+  const html = tabbar([{ id: 'board', label: 'Board', icon: '<svg></svg>' }, { id: 'brief', label: 'Brief' }], { label: 'Sections', selected: 'brief' });
+  expect(html).toContain('<nav class="toon-tabbar" aria-label="Sections" data-toon-tabs>');
+  expect(html).toContain('role="tablist"');
+  expect(html).toContain('id="board-tab" href="#board" aria-selected="false" aria-controls="board"');
+  expect(html).toContain('id="brief-tab" href="#brief" aria-selected="true" aria-controls="brief"');
+  expect(html).toContain('<span class="toon-tab-icon" aria-hidden="true"><svg></svg></span>');
+  expect(tabbar([{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }], { label: 'x', top: true })).toContain('toon-tabbar toon-tabbar-top');
+  expect(tabbar([{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }], { label: 'x' })).toContain('id="a-tab" href="#a" aria-selected="true"');
+});
+
+test('tabbar escapes labels and throws on bad input', () => {
+  const two = [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }];
+  expect(tabbar([{ id: 'a', label: EVIL }, two[1]!], { label: EVIL }).includes('<img')).toBe(false);
+  expect(() => tabbar(two, { label: ' ' })).toThrow('label is required');
+  expect(() => tabbar([two[0]!], { label: 'x' })).toThrow('2 to 5');
+  expect(() => tabbar([...two, ...two, ...two].map((t, i) => ({ ...t, id: `t${i}` })), { label: 'x' })).toThrow('2 to 5');
+  expect(() => tabbar([{ id: 'a', label: 'A' }, { id: 'a', label: 'B' }], { label: 'x' })).toThrow('used twice');
+  expect(() => tabbar([{ id: 'a b', label: 'A' }, two[1]!], { label: 'x' })).toThrow('not a valid id');
+  expect(() => tabbar([{ id: 'a', label: ' ' }, two[1]!], { label: 'x' })).toThrow('needs a label');
+  expect(() => tabbar(two, { label: 'x', selected: 'zz' })).toThrow('not one of the tabs');
+});
+
+test('tabpanel is labelled by its tab', () => {
+  expect(tabpanel('board', '<p>x</p>')).toBe('<div class="toon-tabpanel" role="tabpanel" tabindex="0" id="board" aria-labelledby="board-tab"><p>x</p></div>');
+  expect(() => tabpanel('1x', '')).toThrow('not a valid id');
+});
+
+test('disclosure writes a button with aria-expanded and aria-controls, and a hidden panel', () => {
+  const html = disclosure({ id: 'p-01', lead: 'P-01', title: 'A call', badge: 'Hold', value: 82, delta: 4, below: '<i>scale</i>', panel: '<p>Detail</p>' });
+  expect(html).toContain('<div class="toon-disclosure" role="listitem">');
+  expect(html).toContain('<button type="button" class="toon-disclosure-btn" id="p-01-btn" aria-expanded="false" aria-controls="p-01">');
+  expect(html).toContain('<div class="toon-disclosure-panel" id="p-01" hidden><p>Detail</p></div>');
+  expect(html).toContain('toon-disclosure-lead toon-owner-a');
+  expect(html).toContain('toon-badge-yellow');
+  expect(html).toContain('<span class="toon-disclosure-value">82</span>');
+  expect(html).toContain('aria-label="up 4 points"');
+  expect(html).toContain('<span class="toon-disclosure-below"><i>scale</i></span>');
+});
+
+test('disclosure supports open, owner, heading and the native version', () => {
+  const open = disclosure({ id: 'x', lead: 'X', title: 'T', panel: 'p', open: true, owner: 'b', ownerLabel: 'Claude', heading: 3, delta: { value: -2, unit: '%', invert: true }, badge: { text: 'Lean', tone: 'violet' } });
+  expect(open).toContain('aria-expanded="true"');
+  expect(open).not.toContain('hidden');
+  expect(open).toContain('toon-owner-b');
+  expect(open).toContain('Owner: Claude. ');
+  expect(open).toContain('<h3 class="toon-disclosure-h"><button');
+  expect(open).toContain('toon-delta-invert');
+  expect(open).toContain('toon-badge-violet');
+  const native = disclosure({ id: 'n', lead: 'N', title: 'T', panel: 'p', native: true });
+  expect(native).toContain('<details class="toon-disclosure-details"><summary class="toon-disclosure-btn" id="n-btn">');
+  expect(native).not.toContain('hidden');
+  expect(native).not.toContain('<button');
+  expect(disclosure({ id: 'n', lead: 'N', title: 'T', panel: 'p', native: true, open: true })).toContain('<details class="toon-disclosure-details" open>');
+});
+
+test('disclosure escapes its text and throws on bad input', () => {
+  const html = disclosure({ id: 'e', lead: EVIL, title: EVIL, badge: EVIL, value: EVIL, ownerLabel: EVIL, panel: 'ok' });
+  expect(html.includes('<img')).toBe(false);
+  expect(() => disclosure({ id: '1', lead: 'L', title: 'T', panel: '' })).toThrow('not a valid id');
+  expect(() => disclosure({ id: 'a', lead: ' ', title: 'T', panel: '' })).toThrow('lead and title');
+  expect(() => disclosure({ id: 'a', lead: 'L', title: '', panel: '' })).toThrow('lead and title');
+  expect(() => disclosure({ id: 'a', lead: 'L', title: 'T', panel: '', owner: 'z' as never })).toThrow('unknown owner');
+  expect(() => disclosure({ id: 'a', lead: 'L', title: 'T', panel: '', native: true, heading: 3 })).toThrow('heading');
+  expect(() => disclosure({ id: 'a', lead: 'L', title: 'T', panel: '', heading: 9 as never })).toThrow('heading');
+  expect(() => disclosure({ id: 'a', lead: 'L', title: 'T', panel: '', delta: NaN })).toThrow('finite number');
+});
+
+test('spark writes role img with the generated trend label, and one dot per reading', () => {
+  const s = spark([73, 75, 71, 78, 80, 79, 81, 82], { label: 'P-01' });
+  expect(s).toContain('role="img" aria-label="P-01. Trend from 73 to 82 over 8 readings"');
+  expect(s).toContain('toon-spark toon-spark-sm');
+  expect(s).toContain('viewBox="0 0 64 20"');
+  expect(s.match(/<circle/g)).toHaveLength(8);
+  expect(s).toContain('r="3" fill="#5f8dff"');
+  expect(s).not.toContain('toon-spark-target');
+  const lg = spark([0, 100], { label: 'x', size: 'lg', accent: 'red', target: 50 });
+  expect(lg).toContain('viewBox="0 0 120 32"');
+  expect(lg).toContain('toon-spark-target');
+  expect(lg).toContain('fill="#f2706a"');
+});
+
+test('spark escapes the label and throws on bad input', () => {
+  expect(spark([1, 2], { label: EVIL }).includes('<img')).toBe(false);
+  expect(() => spark([1], { label: 'x' })).toThrow('at least 2');
+  expect(() => spark([1, 2], { label: ' ' })).toThrow('label is required');
+  expect(() => spark([1, NaN], { label: 'x' })).toThrow('finite number');
+  expect(() => spark([1, 200], { label: 'x' })).toThrow('outside 0 to 100');
+  expect(() => spark([1, 2], { label: 'x', target: 500 })).toThrow('target');
+  expect(() => spark([1, 2], { label: 'x', min: 5, max: 5 })).toThrow('max must be above min');
+  expect(() => spark([1, 2], { label: 'x', accent: 'pink' as never })).toThrow('unknown accent');
+  expect(() => spark([1, 2], { label: 'x', size: 'xl' as never })).toThrow('unknown spark size');
+  expect(spark([-5, 200], { label: 'x', clamp: true })).toContain('from 0 to 100');
+});
+
+test('delta reads a change that rounds to zero as flat, and meter treats an empty valueText as unset', () => {
+  expect(delta(0.004)).toContain('aria-label="no change">· 0<');
+  expect(delta(-0.004)).toContain('toon-delta-flat');
+  const m = meter({ label: 'x', value: 5, valueText: '  ', id: 'z' });
+  expect(m).toContain('aria-valuetext="5 of 100"');
+  expect(m).toContain('aria-hidden="true">5<');
 });

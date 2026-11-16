@@ -32,6 +32,12 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-portrait` | `<img alt>` over an `aria-hidden` SVG | Required `alt` | None | Say who is shown and how. The helper throws on a blank `alt`. |
 | `toon-sfx`, `toon-burst`, `toon-speed`, `toon-kicker-rule` | `aria-hidden="true"` | None | None | Decoration. Put the meaning in text elsewhere. |
 | `toon-type`, `toon-type-comic` | Real text in one span per letter | Its text | None | The comic face is for large words only. The fill must read on its ground. |
+| `toon-delta` | `<span role="img" aria-label>` | "up 4 points", "down 32 percent" or "no change" | None | The glyph and the signed number are visible text, so direction is never colour alone. |
+| `toon-scale` | `<span role="img" aria-label>` | Required label that says the score and the move | None | The graphic carries no other meaning: the score and delta also appear as text in the row. Every part is a span, so it can sit in a button. |
+| `toon-meter`, `toon-meters` | `role="meter"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-valuetext` and `aria-labelledby` the visible label; `meters()` is `role="list"` | The label, and the label on the list is required | None | The printed value is `aria-hidden`, because `aria-valuetext` says it. A sub line is the description. |
+| `toon-tabbar` | `<nav aria-label>` around `role="tablist"`; `role="tab"` links with `aria-selected` and `aria-controls`; `role="tabpanel"` panels with `aria-labelledby` | Required label | `Tab` to the selected tab, `ArrowLeft`, `ArrowRight`, `Home`, `End` move and select | Tabs are 48 px tall and 44 px wide. Icons are `aria-hidden`. Without script, every panel shows and the tabs are in-page links. |
+| `toon-disclosure` | `role="listitem"` with a `<button aria-expanded aria-controls>` and a panel with `hidden`; or `<details>` with `<summary>` | The row's text, which includes the lead, title, value and delta | `Enter`, `Space` | The row is 44 px tall. A chevron shows the state as well as the tint. `ownerLabel` says the owner aloud. |
+| `toon-spark` | `<svg role="img" aria-label>` | Your label, then "Trend from 73 to 82 over 8 readings" | None | Drawn for paper. Put the figure beside it as text. |
 | `toon-motion` | `<button aria-pressed>` | Its text, or an `aria-label` | `Enter`, `Space` | It lets a visitor stop motion. |
 
 **Contrast on paper.** The fill accents are for the navy ground and for shapes. Large text on paper uses the `-text` accents. `figure()` and `strip()` do this for you.
@@ -157,6 +163,87 @@ Put `<table class="toon-table">` in a `<div class="toon-table-wrap">`. The wrap 
 ### Portrait
 
 `toon-portrait` puts a cut-out person on a vector studio backdrop, with `toon-portrait-bg` for the SVG. Helper: `portrait({ src, alt, width, height, backdrop, accent, eager, cls })`. Images lazy-load unless you set `eager`. Pass a PNG or WebP with a transparent background. `backdrop` is `slate` (dark studio grey) or `paper` (the kit's cool grey). The accent colours the ring and the halftone corner. The backdrop is vector, so it stays sharp and adds no image bytes.
+
+## Desk components
+
+Six parts for pages that track values over time: a board of calls, a likelihood gauge, a tab bar and a trend. They share four rules.
+
+- **Direction is never colour alone.** Every up or down shows a ▲ or ▼ and a signed number. Colour backs it up: toward is red, away is blue and flat is muted (mist on the ground).
+- **Two owners.** `owner` is `a` or `b`, written as `toon-owner-a` or `toon-owner-b`. Owner `a` is ink with a solid dot. Owner `b` is violet with a dot inside an ink ring, so the shape changes with the colour. The helper throws on any other value.
+- **The scale is 0 to 100.** A helper throws on `NaN` and on a value outside its range. Pass `clamp: true` to clamp instead.
+- **Text on paper uses the `-text` accents.** Fills stay on shapes. Inside a disclosure row, accent text mixes toward ink, so it keeps 4.5:1 on the hover and open tint.
+
+### Delta
+
+`toon-delta` is a signed change such as `▲ 4`, `▼ 32` or `· 0`. Modifiers: `toon-delta-up`, `toon-delta-down`, `toon-delta-flat`, `toon-delta-invert` and `toon-delta-ground`. Helper: `delta(n, { unit, invert, ground })`.
+
+- On paper, up is `red-text`, down is `blue-text` and flat is `muted`. `ground` uses `red`, `blue` and `mist` for the navy ground.
+- `invert` swaps the colours for a measure where down is good. The glyph still says which way it moved.
+- `aria-label` says "up 4 points". A `unit` of `%` says "percent", and another unit is spoken as written.
+
+### Scale
+
+`toon-scale` is a 0 to 100 track with one current marker, faint dots for past values and a segment for the latest move. Parts: `toon-scale-tick`, `toon-scale-past`, `toon-scale-move`, `toon-scale-move-up`, `toon-scale-move-down`, `toon-scale-mark`, `toon-scale-axis` and `toon-scale-empty`. Helpers: `scale({ value, history, owner, ticks, label, clamp })` and `scaleAxis()`.
+
+- `history` holds past values, oldest first. The last entry is the previous value, and the move segment runs from it to `value`: red when the value rose, blue when it fell.
+- `label` is required, for example "P-01 scores 82, up 4 from 78". The helper throws when it is blank.
+- `value: null` draws a dashed `toon-scale-empty` track for an item with no score.
+- The marker is 16 px with a 2 px ink border and a 2 px yellow shadow. It is ink for owner `a` and violet for owner `b`.
+- The track keeps 10 px at each end, so a value of 0 or 100 cannot widen the page at 320 px.
+- `scaleAxis()` writes the 0, 25, 50, 75 and 100 labels, with the first at the left edge and the last at the right edge. It is `aria-hidden`.
+- On first render the marker slides from the previous value to the current one and the move segment grows. Both stop under reduced motion.
+
+### Meter
+
+`toon-meter` is a bar for one value out of a maximum. Parts: `toon-meter-name`, `toon-meter-label`, `toon-meter-sub`, `toon-meter-bar`, `toon-meter-fill`, `toon-meter-value`, `toon-meter-scale`, `toon-meter-lg`. Fill tones: `toon-meter-fill-red`, `toon-meter-fill-yellow`, `toon-meter-fill-violet`, `toon-meter-fill-mist`. `toon-meters` and `toon-meters-item` make a list with ink dividers, for use inside a card. Helpers: `meter({ label, value, max, tone, size, sub, scaleLabels, valueText, clamp, id })` and `meters(items, { label, cls })`.
+
+- A phone shows two lines: the label, then the bar and the value. From `sm` it is one row (`120px 1fr 3ch`).
+- `size: 'lg'` makes the bar 16 px and the number larger. `scaleLabels` adds a row of labels under it, such as "0 · coincidence".
+- `valueText` replaces the printed number and the spoken value, such as "~7%".
+- `meter()` generates the ids that tie the label to the bar. Pass `id` for stable output.
+- `meters()` takes options or markup from `meter()`, and writes `role="list"` with a required label.
+- The fill grows from 0 when it appears, including when a closed panel opens. It stops under reduced motion.
+
+### Tab bar
+
+`toon-tabbar` is a bottom tab bar for a single-page app with two to five sections. Parts: `toon-tablist`, `toon-tab`, `toon-tab-icon`, `toon-tab-label`, `toon-tabpanel` and `toon-tabbar-top`. Helpers: `tabbar(tabs, { label, selected, top, cls })`, where a tab is `{ id, label, icon? }`, and `tabpanel(id, html, cls?)`.
+
+- The bar is fixed to the bottom of the page. `toon-tabbar-top` makes it a sticky row of pills from `md`.
+- The kit exports `--toon-tabbar-h`, the bar's height with the safe area. Give the page `padding-bottom: var(--toon-tabbar-h)`. It is `0px` for a top bar from `md`. The kit also sets `scroll-padding` so a focused element does not sit under the bar.
+- `icon` is an SVG you trust.
+- The script wires `[data-toon-tabs]`. A click switches panels and scrolls to the top. `ArrowLeft`, `ArrowRight`, `Home` and `End` move between tabs and select them, and the tab stop roves. The selected tab is kept in `location.hash`, so a reload or a link opens it, and Back goes to the previous tab. A modified click still opens a new tab.
+- Without script, every panel shows and each tab is an in-page link. A link to an element inside a hidden panel does not open it: link to the tab's id.
+- `tabpanel()` sets `tabindex="0"`, so a keyboard can reach a panel with nothing focusable in it.
+- The selected tab bounces with `toon-boing`, which stops under reduced motion.
+
+### Disclosure
+
+`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, badge, value, delta, below, panel, open, owner, ownerLabel, native, heading })`.
+
+- `id` names the panel, and the button takes `<id>-btn`. `lead` is a mono id such as "P-01" in the owner colour. `lead` and `title` are required.
+- `badge` is text or `{ text, tone }`, and `delta` is a number or `{ value, unit, invert }`. `below` and `panel` are markup you trust and are not escaped. Escape any text you put in them.
+- `below` is a full-width slot under the line, for example a `scale()`.
+- By default the row is a `<button>` with `aria-expanded` and `aria-controls`, and the panel uses `hidden`. The script toggles it. `native: true` writes `<details>` and `<summary>` with the same classes, and needs no script.
+- `heading` wraps the button in a heading of that level. It is not available with `native`.
+- `ownerLabel` says the owner aloud, such as "Pedro". The dot and colour show it to the eye.
+- From `sm` the panel indents to the title column. On a phone it is full width. The panel slides in over `duration.normal`, unless motion is reduced.
+
+Slots in the panel, all optional, in this order:
+
+1. A status chip: `toon-chip`, which takes a paper fill and a violet shadow here.
+2. Body text.
+3. `toon-meters`.
+4. `toon-kv`: a `<dl>` with `dt` in uppercase mono 11 px `muted` and `dd` in body text. Put `toon-kv-warn` on a `dt` for `red-text`.
+5. `toon-note`: a dated update log in a pale yellow box with a 2 px ink border and a 3 px yellow shadow. The fill is `yellow` at 20% over white, so the kit adds no new colour.
+6. `toon-meta`: an uppercase mono 11 px line such as "Last revised 16 Nov".
+
+### Spark
+
+`toon-spark` is a small inline trend: a 2 px ink line, a dot per reading and a ringed last dot in the accent. Sizes: `toon-spark-sm` (64 by 20) and `toon-spark-lg` (120 by 32). A dashed baseline marks a `target` (`toon-spark-target`). Helper: `spark(values, { min, max, accent, target, label, size, clamp })`.
+
+- It throws on fewer than two values and on a blank label.
+- `aria-label` is your label followed by "Trend from 73 to 82 over 8 readings".
+- It is drawn in ink, for paper.
 
 ## Interactive
 
