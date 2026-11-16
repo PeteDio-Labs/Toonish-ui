@@ -270,9 +270,9 @@ Four parts for a status dashboard: an uptime strip, a line chart, a status tile 
 
 - Each series has its own colour, dash pattern and marker shape (circle, square, triangle, diamond). The key repeats all three.
 - The key prints each series' latest value and its time, so the chart needs no hover.
-- Points sit on an even category axis with one slot per distinct `x`, sorted. A series with no point at an `x` breaks there. Markers show on every point up to 12 readings and on the last point beyond that.
+- Points sit on an even category axis with one slot per distinct `x`. When every `x` is an ISO time the slots run oldest first, and other labels keep the order you give them. A series with no point at an `x` breaks there. Markers show on every point up to 12 readings, and beyond that on the last point and on any point with no neighbour.
 - `min` defaults to 0 and a lower value throws. `max` defaults to the largest value or `target`, rounded up.
-- `target` draws a dotted ink line and a row in the table.
+- `target` must be at least `min`. It draws a dotted ink line and a row in the table.
 - The SVG is `role="img"` and its label gives each series' first, last, lowest and highest value. The `<details>` table has the same numbers, with a visible toggle that is 44 px tall.
 - The SVG is at most 560 px wide.
 
@@ -292,7 +292,7 @@ Four parts for a status dashboard: an uptime strip, a line chart, a status tile 
 - The serving side has a solid border and the word "Serving". The other side is dashed. Each side shows a glyph and "Up", "Down" or "Unknown", and the age of its reading.
 - The button carries `data-toon-switch` (the name) and `data-toon-switch-to` (`lab` or `cloud`). The kit attaches no handler: you listen for a click on `[data-toon-switch-to]`.
 - When `canSwitch` is false, `reason` is required. The button gets `aria-disabled="true"` and `aria-describedby` pointing at the visible reason. It stays focusable, and the kit script drops its click before your handler sees it.
-- `action` is markup you trust, in place of the default button. `dataClass` is a chip and `pinned` adds a "Pinned" badge.
+- `action` is markup you trust, in place of the default button. You then own its disabled state: give it `aria-disabled="true"`, `data-toon-switch-to` and `aria-describedby="<id>-reason"` when `canSwitch` is false. `dataClass` is a chip and `pinned` adds a "Pinned" badge.
 
 ## Interactive
 

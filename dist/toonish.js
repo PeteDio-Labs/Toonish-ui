@@ -295,7 +295,7 @@
       panel.hidden = !open;
     });
     root.addEventListener("click", (e) => {
-      if (e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) {
+      if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) {
         e.preventDefault();
         e.stopImmediatePropagation();
       }

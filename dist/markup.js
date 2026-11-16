@@ -437,11 +437,14 @@ var line = (o) => {
     });
     return { name: s.name, m };
   });
-  const xs = [...new Set(data.flatMap((s) => [...s.m.keys()]))].sort();
+  const seen = [...new Set(data.flatMap((s) => [...s.m.keys()]))];
+  const ms = (x) => new Date(x.length === 10 ? `${x}T00:00:00Z` : /(Z|[+-]\d{2}:?\d{2})$/.test(x) ? x : `${x}Z`).getTime();
+  const allIso = seen.every((x) => ISO.test(x) && !Number.isNaN(ms(x)));
+  const xs = allIso ? [...seen].sort((a, b) => ms(a) - ms(b)) : seen;
   if (xs.length < 2)
     throw new Error("line: at least 2 distinct x values are required");
-  if (o.target !== undefined && !Number.isFinite(o.target))
-    throw new Error("line: target must be a finite number");
+  if (o.target !== undefined && (!Number.isFinite(o.target) || o.target < min))
+    throw new Error(`line: target must be a finite number of at least min ${min}, got ${String(o.target)}`);
   const top = Math.max(...data.flatMap((s) => [...s.m.values()]), o.target ?? min);
   const max = o.max ?? niceMax(top);
   if (!Number.isFinite(max) || !(max > min))
@@ -451,7 +454,7 @@ var line = (o) => {
   const W = 320, H = 168, L = 38, R = 10, T = 10, B = 24;
   const px = (i) => L + i / (xs.length - 1) * (W - L - R);
   const py = (v) => T + (1 - (v - min) / (max - min)) * (H - T - B);
-  const sameDay = xs.every((x) => ISO.test(x) && x.slice(0, 10) === xs[0].slice(0, 10) && x.length > 10);
+  const sameDay = allIso && xs.every((x) => x.length > 10 && new Date(ms(x)).toISOString().slice(0, 10) === new Date(ms(xs[0])).toISOString().slice(0, 10));
   const axis = (x) => fmtAt(x, sameDay ? "time" : "day");
   const grid = [0, 1, 2, 3, 4].map((k) => {
     const v = min + (max - min) * k / 4;
@@ -477,7 +480,7 @@ var line = (o) => {
     });
     const showAll = xs.length <= 12;
     const lastX = [...xs].reverse().find((x) => s.m.has(x));
-    const dots = xs.map((x, i) => s.m.has(x) && (showAll || x === lastX) ? marker(si, px(i), py(s.m.get(x)), colour) : "").join("");
+    const dots = xs.map((x, i) => s.m.has(x) && (showAll || x === lastX || !s.m.has(xs[i - 1]) && !s.m.has(xs[i + 1])) ? marker(si, px(i), py(s.m.get(x)), colour) : "").join("");
     return `<path d="${d}" fill="none" stroke="${colour}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${DASH[si] ? ` stroke-dasharray="${DASH[si]}"` : ""}/>${dots}`;
   }).join("");
   const end = (s) => {

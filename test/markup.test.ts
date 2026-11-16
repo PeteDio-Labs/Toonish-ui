@@ -574,3 +574,14 @@ test('switchRow shows both sides, marks the active one, and explains a disabled 
   expect(() => switchRow({ name: 'x', active: 'moon' as never, labState: 'ok', cloudState: 'ok', canSwitch: true })).toThrow('unknown active');
   expect(switchRow({ name: EVIL, hostname: EVIL, active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: false, reason: EVIL, dataClass: EVIL, buttonLabel: EVIL, labAge: EVIL }).includes('<img')).toBe(false);
 });
+
+test('line orders ISO times by instant, keeps other labels in order, marks a lone point and rejects a target below min', () => {
+  const l = line({ label: 'x', series: [{ name: 'A', points: [{ x: 'Mar', y: 1 }, { x: 'Jan', y: 2 }, { x: 'Feb', y: 3 }] }] });
+  expect(l.indexOf('<th scope="row">Mar')).toBeLessThan(l.indexOf('<th scope="row">Jan'));
+  const z = line({ label: 'x', series: [{ name: 'A', points: [{ x: '2026-11-16T01:00:00+05:00', y: 1 }, { x: '2026-11-15T22:00:00Z', y: 2 }] }] });
+  expect(z.indexOf('<th scope="row">Nov 15 20:00')).toBeLessThan(z.indexOf('<th scope="row">Nov 15 22:00'));
+  const pts = Array.from({ length: 13 }, (_, i) => ({ x: `2026-11-${String(i + 1).padStart(2, '0')}`, y: 1 })).filter((p) => ['2026-11-01', '2026-11-02', '2026-11-05', '2026-11-13'].includes(p.x));
+  const wide = line({ label: 'x', series: [{ name: 'A', points: pts }, { name: 'B', points: Array.from({ length: 13 }, (_, i) => ({ x: `2026-11-${String(i + 1).padStart(2, '0')}`, y: 2 })) }] });
+  expect(wide).toContain('<circle'); // the lone point at Nov 5 and the last point both carry a marker
+  expect(() => line({ label: 'x', target: -5, series: [{ name: 'A', points: [{ x: 'a', y: 1 }, { x: 'b', y: 2 }] }] })).toThrow('target');
+});
