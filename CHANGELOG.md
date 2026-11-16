@@ -5,6 +5,8 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-16
+
 ### Changed
 
 - **Breaking:** the kit compiles on Tailwind v4 (4.3.5) through `@tailwindcss/cli`. `src/toonish.css` is the v4 full entry, `tailwind.config.ts` is gone, and `components.css` uses `var(--color-toon-*)` in place of `theme()`. A Tailwind v3 consumer must upgrade or use the precompiled `toonish.css`. `toonish-ui/preset` is still exported but no longer exercised.
@@ -17,6 +19,15 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Desk components for pages that track values over time. Every one is accessible by default, stops its motion under reduced motion, and has a markup helper that escapes its input and throws on a bad argument.
+- `toon-delta` and `delta(n, { unit, invert, ground })`: a signed change with a ▲, ▼ or · glyph, colour as a second cue, and a spoken form.
+- `toon-scale` and `scale({ value, history, owner, ticks, label, clamp })`, with `scaleAxis()`: a 0 to 100 track with a current marker, past dots and a segment for the latest move. `value: null` draws an empty track.
+- `toon-meter`, `toon-meters` and `meter()`, `meters()`: a bar for one value out of a maximum, with `role="meter"`, a large size, scale labels and `valueText`.
+- `toon-tabbar`, `toon-tabpanel` and `tabbar()`, `tabpanel()`: a bottom tab bar for up to five sections, wired by `initToonish`: arrow keys, `Home`, `End`, a roving tab stop and the selected tab in `location.hash`. It exports `--toon-tabbar-h`, and `toon-tabbar-top` makes it a row of pills from `md`.
+- `toon-disclosure` and `disclosure()`: a list row that opens to show detail, as a button or as `<details>` with `native: true`. Panel slots `toon-kv`, `toon-kv-warn`, `toon-note` and `toon-meta`.
+- `toon-spark` and `spark()`: an inline trend with a generated `aria-label`.
+- Owner `a` or `b`, shown by colour and by dot shape, on `scale()` and `disclosure()`.
+- The browser check covers all six at 1280, 390 and 320 px, with tab and disclosure behaviour, delta colours, layout and reduced motion.
 - Accessibility as a hard rule, in code, tests and docs. An axe check at WCAG 2.2 AA runs in `test/browser.ts` on the fixture at both widths, with checks for the focus ring, target size, heading order and the skip link. `docs/components.md` carries the contract per component.
 - `list()`, `skipLink()` and `toon-skip`; the `-text` accent tokens and `HEX_TEXT`, which read on paper; and `letters(..., { onPaper })`.
 - Forced-colours support: a visible focus ring, and plain lettering.

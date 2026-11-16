@@ -1,4 +1,4 @@
-// Browser behaviour for the kit: toggle groups, modals, scroll reveal and the card deck. No framework, no dependencies.
+// Browser behaviour for the kit: toggle groups, modals, scroll reveal, the card deck, tab bars and disclosure rows. No framework, no dependencies.
 // dist/toonish.js runs it on load. Import `initToonish` from the package instead to run it yourself.
 //
 // Modals: a native <dialog> gives the focus trap, Esc and an inert page. This adds opening, backdrop taps, scroll lock,
@@ -174,6 +174,79 @@ function initDeck(deck: HTMLElement): void {
   apply();
 }
 
+/**
+ * A tab bar (see `tabbar()` in markup.ts). A click switches panels and scrolls to the top. ArrowLeft, ArrowRight, Home and End move
+ * between tabs, and the focused tab is the selected one, so the tab stop roves. The selected tab is kept in `location.hash`, and a
+ * link to `#id` or a reload opens that tab. Each tab is a real link, so a modified click still opens a new tab.
+ */
+function initTabs(nav: HTMLElement): void {
+  const tabs = [...nav.querySelectorAll<HTMLElement>('[role="tab"]')];
+  if (!tabs.length) return;
+  const panelOf = (t: HTMLElement) => document.getElementById(t.getAttribute('aria-controls') ?? '');
+  const byHash = (hash: string) => {
+    const id = decodeURIComponent(hash.replace(/^#/, ''));
+    return tabs.find((t) => t.getAttribute('aria-controls') === id);
+  };
+  const select = (tab: HTMLElement, bounce: boolean) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const p = panelOf(t);
+      if (p) p.hidden = !on;
+    });
+    if (bounce) {
+      tab.classList.remove('toon-boing');
+      void tab.offsetWidth; // restart the animation on a repeat tap
+      tab.classList.add('toon-boing');
+    }
+  };
+  const record = (tab: HTMLElement, push: boolean) => {
+    const hash = '#' + (tab.getAttribute('aria-controls') ?? '');
+    if (location.hash === hash) return;
+    if (push) history.pushState(null, '', hash);
+    else history.replaceState(null, '', hash);
+  };
+
+  const home = tabs.find((t) => t.getAttribute('aria-selected') === 'true') ?? tabs[0]!; // the tab the markup selected
+  select(byHash(location.hash) ?? home, false);
+
+  nav.addEventListener('click', (e) => {
+    const m = e as MouseEvent;
+    const tab = (e.target as Element).closest<HTMLElement>('[role="tab"]');
+    if (!tab || !nav.contains(tab) || m.button !== 0 || m.metaKey || m.ctrlKey || m.shiftKey || m.altKey) return;
+    e.preventDefault();
+    select(tab, true);
+    record(tab, true);
+    window.scrollTo(0, 0);
+  });
+  nav.addEventListener('keydown', (e) => {
+    const tab = (e.target as Element).closest<HTMLElement>('[role="tab"]');
+    if (!tab || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === ' ') {
+      e.preventDefault();
+      tab.click();
+      return;
+    }
+    const i = tabs.indexOf(tab);
+    const to = e.key === 'ArrowRight' ? (i + 1) % tabs.length : e.key === 'ArrowLeft' ? (i - 1 + tabs.length) % tabs.length : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : -1;
+    if (to < 0) return;
+    e.preventDefault();
+    const next = tabs[to]!;
+    select(next, true);
+    record(next, false);
+    next.focus();
+  });
+  // A link to a tab's hash, the Back button, or an edit of the address.
+  window.addEventListener('hashchange', () => {
+    // Back to an entry with no hash returns to the tab the markup selected.
+    const tab = byHash(location.hash) ?? (location.hash === '' ? home : undefined);
+    if (!tab) return;
+    select(tab, false);
+    window.scrollTo(0, 0);
+  });
+}
+
 export function initToonish(root: Document = document): void {
   if (started.has(root)) return;
   started.add(root);
@@ -200,6 +273,18 @@ export function initToonish(root: Document = document): void {
   }
 
   root.querySelectorAll<HTMLElement>('[data-toon-deck]').forEach(initDeck);
+  root.querySelectorAll<HTMLElement>('[data-toon-tabs]').forEach(initTabs);
+
+  // Disclosure rows: a button with aria-controls shows or hides its panel. A `<details>` row needs no script.
+  root.addEventListener('click', (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>('button.toon-disclosure-btn[aria-controls]');
+    if (!btn) return;
+    const panel = root.getElementById(btn.getAttribute('aria-controls') ?? '');
+    if (!panel) return;
+    const open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
+  });
 
   // Toggle groups: one pressed button at a time, with a bounce on the newly pressed one.
   root.querySelectorAll<HTMLElement>('[data-toon-toggle]').forEach((group) => {

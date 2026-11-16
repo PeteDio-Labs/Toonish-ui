@@ -178,6 +178,78 @@
       mq.addListener(apply);
     apply();
   }
+  function initTabs(nav) {
+    const tabs = [...nav.querySelectorAll('[role="tab"]')];
+    if (!tabs.length)
+      return;
+    const panelOf = (t) => document.getElementById(t.getAttribute("aria-controls") ?? "");
+    const byHash = (hash) => {
+      const id = decodeURIComponent(hash.replace(/^#/, ""));
+      return tabs.find((t) => t.getAttribute("aria-controls") === id);
+    };
+    const select = (tab, bounce) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        const p = panelOf(t);
+        if (p)
+          p.hidden = !on;
+      });
+      if (bounce) {
+        tab.classList.remove("toon-boing");
+        tab.offsetWidth;
+        tab.classList.add("toon-boing");
+      }
+    };
+    const record = (tab, push) => {
+      const hash = "#" + (tab.getAttribute("aria-controls") ?? "");
+      if (location.hash === hash)
+        return;
+      if (push)
+        history.pushState(null, "", hash);
+      else
+        history.replaceState(null, "", hash);
+    };
+    const home = tabs.find((t) => t.getAttribute("aria-selected") === "true") ?? tabs[0];
+    select(byHash(location.hash) ?? home, false);
+    nav.addEventListener("click", (e) => {
+      const m = e;
+      const tab = e.target.closest('[role="tab"]');
+      if (!tab || !nav.contains(tab) || m.button !== 0 || m.metaKey || m.ctrlKey || m.shiftKey || m.altKey)
+        return;
+      e.preventDefault();
+      select(tab, true);
+      record(tab, true);
+      window.scrollTo(0, 0);
+    });
+    nav.addEventListener("keydown", (e) => {
+      const tab = e.target.closest('[role="tab"]');
+      if (!tab || e.altKey || e.ctrlKey || e.metaKey)
+        return;
+      if (e.key === " ") {
+        e.preventDefault();
+        tab.click();
+        return;
+      }
+      const i = tabs.indexOf(tab);
+      const to = e.key === "ArrowRight" ? (i + 1) % tabs.length : e.key === "ArrowLeft" ? (i - 1 + tabs.length) % tabs.length : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
+      if (to < 0)
+        return;
+      e.preventDefault();
+      const next = tabs[to];
+      select(next, true);
+      record(next, false);
+      next.focus();
+    });
+    window.addEventListener("hashchange", () => {
+      const tab = byHash(location.hash) ?? (location.hash === "" ? home : undefined);
+      if (!tab)
+        return;
+      select(tab, false);
+      window.scrollTo(0, 0);
+    });
+  }
   function initToonish(root = document) {
     if (started.has(root))
       return;
@@ -199,6 +271,18 @@
       });
     }
     root.querySelectorAll("[data-toon-deck]").forEach(initDeck);
+    root.querySelectorAll("[data-toon-tabs]").forEach(initTabs);
+    root.addEventListener("click", (e) => {
+      const btn = e.target.closest("button.toon-disclosure-btn[aria-controls]");
+      if (!btn)
+        return;
+      const panel = root.getElementById(btn.getAttribute("aria-controls") ?? "");
+      if (!panel)
+        return;
+      const open = btn.getAttribute("aria-expanded") !== "true";
+      btn.setAttribute("aria-expanded", String(open));
+      panel.hidden = !open;
+    });
     root.querySelectorAll("[data-toon-toggle]").forEach((group) => {
       group.addEventListener("click", (e) => {
         const b = e.target.closest("button");

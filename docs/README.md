@@ -33,3 +33,4 @@ A test (`test/docs.test.ts`) fails when `dist/toonish.css` defines a `toon-*` cl
 | 2026-11-13 | Accessibility is a hard rule: semantic HTML first, ARIA where needed, WCAG 2.2 AA, enforced by axe in CI. | The site must work for anyone. A tool-checked rule keeps it true as the kit grows. |
 | 2026-11-13 | Text on paper uses deeper accents (`blue-text`, `red-text`, `violet-text`, `yellow-text`). | The fill accents are 1.4 to 2.7:1 on paper, which fails WCAG for text. |
 | 2026-11-14 | The portfolio's kit page is removed. The fixture and `docs/components.md` replace it. | A component gallery reads as a side project. The kit still powers the site. |
+| 2026-11-16 | Add `toon-delta`, `toon-scale`, `toon-meter`, `toon-tabbar`, `toon-disclosure` and `toon-spark`, with owner `a` or `b` shown by colour and by dot shape. | The World Desk pages drop their hand-drawn CSS. Direction and owner must not depend on colour alone. |
