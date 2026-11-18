@@ -24,6 +24,8 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 | `color.red-text` | `#c8322b` | Red for large text on paper. 4.6:1. |
 | `color.violet-text` | `#6b4fd6` | Violet for large text on paper. 4.9:1. |
 | `color.yellow-text` | `#7a5c00` | Yellow for large text on paper. 5.4:1. |
+| `color.green` | `#4ccf8f` | The ok state: a fill and a shadow. Not an accent. |
+| `color.green-text` | `#0f6e42` | An ok state's text on paper. 5.5:1. |
 | `color.muted` | `#4a4d78` | Secondary text on paper. |
 | `color.mist` | `#b9bde0` | Secondary text on the ground, and the quiet fill for a closed or inactive state. |
 | `color.rule` | `#d3d8e0` | Grid lines, and the current-row fill on paper. |
@@ -33,6 +35,8 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 **Text on the ground.** Running text on the navy ground is `paper` at full strength, 15 px or larger. `mist` is 9.5:1 on the ground and is for short labels, such as an unselected tab. Do not lower a text's opacity to rank it: `readout()` shows the quiet form that stays readable. The tests assert 7:1 for `paper` and `mist` on the ground.
 
 **Accents on paper.** The fills are 1.4 to 2.7:1 on paper, so they fail as text. Use the `-text` tokens for any text on paper. The tests assert 4.5:1 for each. `figure()` and `strip()` use them.
+
+**Green is a state, not an accent.** It says ok, clear or serving, and nothing else: an ok `verdict()`, an ok tile, the serving side of a `switchCard()`. Do not use it for decoration, a button or a chart series, or it stops meaning ok. Ink on green is 9.6:1, and green never carries the state alone: a glyph and a word say it too. Pedro added it on 2026-11-18.
 
 **Pairing.** A shadow takes its fill's pair: blue and red use yellow, yellow uses blue, violet uses red.
 

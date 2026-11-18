@@ -256,7 +256,7 @@ export interface ScaleOptions {
 export declare const scale: (o: ScaleOptions) => string;
 /** The axis row for a column of scales: 0, 25, 50, 75 and 100. It repeats what the page says, so it is hidden from a screen reader. */
 export declare const scaleAxis: () => string;
-export type MeterTone = 'blue' | 'red' | 'yellow' | 'violet' | 'mist';
+export type MeterTone = 'blue' | 'red' | 'yellow' | 'violet' | 'mist' | 'green';
 export interface MeterOptions {
     /** Names the bar for a screen reader, and shows above it. Required. */
     label: string;
@@ -563,3 +563,33 @@ export interface MastheadOptions {
 }
 /** The header of an app page: a caption box, the title in comic lettering and one line that says what the page is for. */
 export declare const masthead: (o: MastheadOptions) => string;
+export interface SwitchCardOptions {
+    /** The service name. Required. */
+    name: string;
+    /** Which side serves traffic now. */
+    active: Place;
+    labState: UptimeState;
+    cloudState: UptimeState;
+    /** Whether a switch to the other side is allowed now. When it is not, `reason` is required. */
+    canSwitch: boolean;
+    /** One short sentence: why a switch is refused, or what it waits for. The idle side's button points to it. */
+    reason?: string;
+    /** A chip beside the name, such as "replicated". */
+    dataClass?: string;
+    /** Adds a "Pinned" badge. */
+    pinned?: boolean;
+    /** The words for each side. Default "Lab" and "Cloud". */
+    labels?: {
+        lab?: string;
+        cloud?: string;
+    };
+    /** The id prefix. Default is generated. */
+    id?: string;
+}
+/**
+ * A service that runs on one of two sides, as two buttons. The side that serves is pressed and filled: green when it is up,
+ * red when it is down. The other side is a raised button that asks for the switch, or a dashed flat one with a reason when
+ * a switch is refused. Each button says its side and its state with a glyph and a word. The kit attaches no handler: listen
+ * for a click on `[data-toon-switch-to]`, and ignore the pressed one.
+ */
+export declare const switchCard: (o: SwitchCardOptions) => string;

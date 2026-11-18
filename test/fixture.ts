@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation is docs/components.md. The portfolio's kit page was removed on 2026-11-14.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard } from '../src/markup.ts';
 
 const icon = (d: string) => `<svg viewBox="0 0 20 20" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -99,8 +99,10 @@ ${readout('Read 3 alerts, 4 services and 1 item that needs you, 30 hours ago. So
 ${barsKey([{ label: 'Needs you', tone: 'red' }, { label: 'No action', tone: 'mist' }, { label: 'Unreadable', tone: 'hatch' }])}
 ${chartTable({ caption: 'alerts per day', head: ['Day', 'Needs you', 'No action', 'Unreadable'], rows: [['2026-11-15', '2', '0', '3'], ['2026-11-16', '0', '1', '0']] })}
 ${readout('Read 2 days and 6 alerts.', { onPaper: true, label: 'Source' })}
+${meter({ label: 'Probes healthy', value: 6, max: 8, tone: 'green', valueText: '6 of 8', id: 'm-green' })}
 <p style="margin-top:12px">${toggle({ label: 'Motion: on', checked: true, off: 'Off', on: 'On', id: 'tg-free' })}</p></div>
 <div id="toggles" style="display:grid;gap:12px;margin-top:16px">${switchRow({ name: 'Tracerr', hostname: 'trace.pdlab.dev', active: 'lab', labState: 'ok', cloudState: 'unknown', labAge: '1 min ago', dataClass: 'snapshot', canSwitch: false, reason: 'The cloud side is unknown. A switch needs it healthy first.', control: 'toggle', labels: { lab: 'On-prem' }, id: 'tg-a' })}${switchRow({ name: 'Dashboard API', active: 'cloud', labState: 'ok', cloudState: 'ok', labAge: '1 min ago', cloudAge: '1 min ago', canSwitch: true, reason: 'Waits for your tap on lab-write.', control: 'toggle', labels: { lab: 'On-prem' }, id: 'tg-b' })}</div>
+<div id="switch-cards" style="display:grid;gap:12px;margin:16px 0">${switchCard({ name: 'tracerr', active: 'lab', labState: 'ok', cloudState: 'unknown', dataClass: 'snapshot', canSwitch: false, reason: 'The cloud side is unknown. A switch needs it healthy first.', labels: { lab: 'On-prem' }, id: 'sc-a' })}${switchCard({ name: 'dashboard-api', active: 'cloud', labState: 'ok', cloudState: 'ok', canSwitch: true, reason: 'Waits for your tap on lab-write.', labels: { lab: 'On-prem' }, id: 'sc-b' })}${switchCard({ name: 'plex', active: 'lab', labState: 'down', cloudState: 'unknown', pinned: true, canSwitch: false, reason: 'Pinned on-prem. This service does not move.', id: 'sc-c' })}</div>
 ${list([disclosure({ id: 'n-01', lead: '01', title: 'Plex backup on pve03 failed', note: '15 hours ago', native: true, panel: '<p>Detail.</p>' })], { label: 'Notes' })}
 </section>
 <section id="tabs-demo"><h2 class="toon-heading">Tabs</h2>

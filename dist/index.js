@@ -639,7 +639,7 @@ var scale = (o) => {
   return `<span class="toon-scale" role="img" aria-label="${esc(o.label)}" style="--v:${num(value)};--p:${num(prev ?? value)}">${ticks}${past}${move}<span class="toon-scale-mark toon-owner-${owner}"></span></span>`;
 };
 var scaleAxis = () => `<span class="toon-scale-axis" aria-hidden="true">${[0, 25, 50, 75, 100].map((t) => `<span style="--at:${t}">${t}</span>`).join("")}</span>`;
-var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist" };
+var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist", green: "toon-meter-fill-green" };
 var uid = 0;
 var meter = (o) => {
   if (!o.label?.trim())
@@ -986,6 +986,8 @@ var toonish_tokens_default = {
     "red-text": { $value: "#c8322b", $description: "Red for large figures on paper (4.6:1)." },
     "violet-text": { $value: "#6b4fd6", $description: "Violet for large figures on paper (4.9:1)." },
     "yellow-text": { $value: "#7a5c00", $description: "Yellow for large figures on paper (5.4:1). The fill yellow is 1.4:1 on paper." },
+    green: { $value: "#4ccf8f", $description: "The ok state: a fill and a shadow. Not a fifth accent. Green says healthy, clear or serving, and nothing else." },
+    "green-text": { $value: "#0f6e42", $description: "Green for an ok state's text on paper (5.5:1). The fill green is 1.7:1 on paper." },
     muted: { $value: "#4a4d78", $description: "Secondary text on paper." },
     mist: { $value: "#b9bde0", $description: "Secondary text on the ground, and the quiet fill for a closed or inactive state." },
     rule: { $value: "#d3d8e0", $description: "Grid lines and the current-row fill on paper." }

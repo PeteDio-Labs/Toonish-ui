@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -671,4 +671,22 @@ test('kicker can make its label a heading, and a disclosure can end in a note', 
   expect(d).toContain('<span class="toon-disclosure-value toon-disclosure-note">15 hours ago</span>');
   expect(() => disclosure({ id: 'a', lead: '01', title: 't', note: 'x', value: 1, panel: '' })).toThrow('not both');
   expect(disclosure({ id: 'a', lead: '01', title: 't', note: EVIL, panel: '' }).includes('<img')).toBe(false);
+});
+
+test('switchCard is two buttons: the serving side is pressed and the other asks for the switch or says why not', () => {
+  const c = switchCard({ name: 'auth', active: 'lab', labState: 'ok', cloudState: 'unknown', canSwitch: false, reason: 'Cloud is unknown.', labels: { lab: 'On-prem' }, id: 'a' });
+  expect(c).toContain('<button type="button" class="toon-switch-card-side toon-switch-card-ok" id="a-lab" aria-pressed="true" data-toon-switch="auth" data-toon-switch-to="lab">');
+  expect(c).toContain('id="a-cloud" aria-pressed="false" data-toon-switch="auth" data-toon-switch-to="cloud" aria-disabled="true" aria-describedby="a-reason">');
+  expect(c).toContain('<span class="toon-switch-card-where">On-prem</span><span class="toon-switch-card-state"><span aria-hidden="true">✓</span> Up</span><span class="toon-switch-card-serving">Serving</span>');
+  expect(c.match(/Serving/g)).toHaveLength(1);
+  expect(c).toContain('<p class="toon-switch-card-reason" id="a-reason">Cloud is unknown.</p>');
+  const go = switchCard({ name: 'auth', active: 'cloud', labState: 'ok', cloudState: 'down', canSwitch: true, pinned: true, dataClass: 'replicated', id: 'b' });
+  expect(go).toContain('id="b-lab" aria-pressed="false" data-toon-switch="auth" data-toon-switch-to="lab">');
+  expect(go).not.toContain('aria-disabled');
+  expect(go).toContain('toon-switch-card-down" id="b-cloud" aria-pressed="true"');
+  expect(go).toContain('Pinned');
+  expect(() => switchCard({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: false })).toThrow('reason is required');
+  expect(() => switchCard({ name: 'x', active: 'moon' as never, labState: 'ok', cloudState: 'ok', canSwitch: true })).toThrow('unknown active');
+  expect(() => switchCard({ name: 'x', active: 'lab', labState: 'fine' as never, cloudState: 'ok', canSwitch: true })).toThrow('unknown state');
+  expect(switchCard({ name: EVIL, active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: false, reason: EVIL, dataClass: EVIL, labels: { lab: EVIL, cloud: EVIL } }).includes('<img')).toBe(false);
 });

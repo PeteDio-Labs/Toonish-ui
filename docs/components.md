@@ -41,6 +41,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-verdict` | A `<div>` of paragraphs, or a heading for the title when you pass `heading` | The state word, then the answer | None | The state is a glyph and a word. The fill backs it up. `unknown` is dashed and never reads as ok. |
 | `toon-readout` | `<p>` | Its label, then its text | None | Paper text at 15 px on the ground. Do not dim it or shrink it. |
 | `toon-toggle` | `<button role="switch" aria-checked aria-label>` | Required label that says what "on" means | `Enter`, `Space` | 44 px tall. The side words are `aria-hidden`, because the label and the checked state say them. Disabled is `aria-disabled` with a visible reason, so it keeps focus. |
+| `toon-switch-card` | `role="group"` named by the service, with two `<button aria-pressed>` | The side, its state and "Serving" | `Enter`, `Space` | Each button is 72 px tall. A refused side is `aria-disabled` and points to the visible reason. Text is ink on every fill. |
 | `toon-masthead` | `<header>` with the page's `<h1>` | The title | None | The lettering is `aria-hidden` and an `sr-only` span carries the title. |
 | `toon-motion` | `<button aria-pressed>` | Its text, or an `aria-label` | `Enter`, `Space` | It lets a visitor stop motion. |
 
@@ -202,7 +203,7 @@ Six parts for pages that track values over time: a board of calls, a likelihood 
 
 ### Meter
 
-`toon-meter` is a bar for one value out of a maximum. Parts: `toon-meter-name`, `toon-meter-label`, `toon-meter-sub`, `toon-meter-bar`, `toon-meter-fill`, `toon-meter-value`, `toon-meter-scale`, `toon-meter-lg`. Fill tones: `toon-meter-fill-red`, `toon-meter-fill-yellow`, `toon-meter-fill-violet`, `toon-meter-fill-mist`. `toon-meters` and `toon-meters-item` make a list with ink dividers, for use inside a card. Helpers: `meter({ label, value, max, tone, size, sub, scaleLabels, valueText, clamp, id })` and `meters(items, { label, cls })`.
+`toon-meter` is a bar for one value out of a maximum. Parts: `toon-meter-name`, `toon-meter-label`, `toon-meter-sub`, `toon-meter-bar`, `toon-meter-fill`, `toon-meter-value`, `toon-meter-scale`, `toon-meter-lg`. Fill tones: `toon-meter-fill-red`, `toon-meter-fill-yellow`, `toon-meter-fill-violet`, `toon-meter-fill-mist`, `toon-meter-fill-green`. Use `green` only for a count of ok things. `toon-meters` and `toon-meters-item` make a list with ink dividers, for use inside a card. Helpers: `meter({ label, value, max, tone, size, sub, scaleLabels, valueText, clamp, id })` and `meters(items, { label, cls })`.
 
 - A phone shows two lines: the label, then the bar and the value. From `sm` it is one row (`120px 1fr 3ch`).
 - `size: 'lg'` makes the bar 16 px and the number larger. `scaleLabels` adds a row of labels under it, such as "0 · coincidence".
@@ -288,7 +289,7 @@ Four parts for a status dashboard: an uptime strip, a line chart, a status tile 
 
 `toon-tile` is a figure with a state. Parts: `toon-tiles`, `toon-tile-ok`, `toon-tile-warn`, `toon-tile-down`, `toon-tile-unknown`, `toon-tile-label`, `toon-tile-value`, `toon-tile-none`, `toon-tile-state`, `toon-tile-detail`, `toon-tile-read`, `toon-tile-sr`. Helper: `statusTile({ label, value, state, delta, readAt, readAtText, detail, extra })`. Put tiles in `<div class="toon-tiles">`.
 
-- The state line is a glyph and a word: "✓ Ok", "! Warning", "✕ Down" or "? Unknown". An unknown tile has a dashed border.
+- The state line is a glyph and a word: "✓ Ok", "! Warning", "✕ Down" or "? Unknown". An ok tile has a green shadow and `green-text` for its state. An unknown tile has a dashed border.
 - Leave `value` out only for `unknown`. The tile prints "—" and says "no reading" aloud.
 - `readAt` prints "Read Nov 16 14:02 UTC" in a `<time>` element. `readAtText` replaces it with your own text, such as "4 min ago".
 - `delta` is a number or the options of `delta()`. `extra` is markup you trust, such as a `spark()`. It is not escaped.
@@ -314,7 +315,7 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 
 - The state line is a glyph and a word: "✓ Ok", "! Warning", "✕ Down" or "? Unknown". `stateText` replaces the word, such as "Needs you".
 - `title` is the answer in one short sentence. `body` is one or two sentences under it.
-- Ok is paper, a warning is yellow and down is red, each with ink text. Unknown is a dashed paper panel, so it never reads as ok.
+- Ok is green, a warning is yellow and down is red, each with ink text. Unknown is a dashed paper panel, so it never reads as ok.
 - `heading` makes the title a heading of that level. Without it the title is a paragraph.
 
 ### Readout
@@ -335,6 +336,17 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 - `disabled` sets `aria-disabled="true"`: the control turns dashed and hollow, keeps focus, and the kit script drops its click. Point `describedBy` at the id of the visible reason.
 - `attrs` adds `data-*` attributes for your handler. Any other attribute name throws.
 - It is drawn for paper.
+
+### Switch card
+
+`toon-switch-card` is a service that runs on one of two sides, drawn as two buttons. Use it in place of `switchRow()` when the page is for acting, not for reading. Parts: `toon-switch-card-head`, `toon-switch-card-name`, `toon-switch-card-tags`, `toon-switch-card-sides`, `toon-switch-card-side`, `toon-switch-card-ok`, `toon-switch-card-down`, `toon-switch-card-unknown`, `toon-switch-card-where`, `toon-switch-card-state`, `toon-switch-card-serving`, `toon-switch-card-reason`. Helper: `switchCard({ name, active, labState, cloudState, canSwitch, reason, dataClass, pinned, labels, id })`.
+
+- Each side is a `<button aria-pressed>` that says its side and its state with a glyph and a word: "✓ Up", "✕ Down" or "? Unknown".
+- The side that serves is pressed and says "Serving". Its fill is green when it is up, red when it is down and mist when it is unknown.
+- The other side is a raised white button. A click on it asks for the switch. When `canSwitch` is false it is dashed and flat, carries `aria-disabled="true"`, and points to `reason`, which is then required.
+- `reason` is one short sentence under the buttons. Pass it while a switch is allowed to say what the switch waits for.
+- Both buttons carry `data-toon-switch` (the name) and `data-toon-switch-to` (`lab` or `cloud`). The kit attaches no handler. Listen for a click and ignore the pressed side. The kit script drops a click on an `aria-disabled` side.
+- `labels` renames the sides. `dataClass` is a chip and `pinned` adds a badge.
 
 ### Masthead
 

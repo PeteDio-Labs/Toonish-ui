@@ -9,6 +9,7 @@ The reasoning behind these rules is in the [design philosophy skill](../.claude/
 - **Ink outlines.** Every filled shape has a `2px` ink border (`--toon-border-toon`). Ink is also the text colour on every fill, so contrast never depends on which accent you choose.
 - **Hard shadows.** A shadow is an offset copy with no blur: `4px 4px 0` in an accent. A shadow takes the *pair* of its fill, never its own colour. The pairs are in [Tokens](tokens.md#colour).
 - **Four accents, one ground.** Blue, red, yellow and violet sit on navy (`ground`). Panels and bubbles are `paper`. No lime, no pink, no mascot.
+- **Green means ok.** Green is a state colour, not a fifth accent. It marks a healthy, clear or serving state, always with a glyph and a word.
 - **Lettering is Bangers.** Display words use the comic face with an ink outline and a hard shadow, one span per letter so each can tilt and bob (`letters()` with `live`). Body copy is never Bangers.
 - **Bounce, then rest.** Hover lifts a panel (`lift`), press flattens it (`press`), and entrances overshoot (`bounce`). Motion is short, and it stops when the visitor asks.
 - **Halftone, speed lines and bursts** are the only ornaments. Use them to point at something, not to fill space.

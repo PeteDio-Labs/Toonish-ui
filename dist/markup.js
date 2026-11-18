@@ -237,7 +237,7 @@ var scale = (o) => {
   return `<span class="toon-scale" role="img" aria-label="${esc(o.label)}" style="--v:${num(value)};--p:${num(prev ?? value)}">${ticks}${past}${move}<span class="toon-scale-mark toon-owner-${owner}"></span></span>`;
 };
 var scaleAxis = () => `<span class="toon-scale-axis" aria-hidden="true">${[0, 25, 50, 75, 100].map((t) => `<span style="--at:${t}">${t}</span>`).join("")}</span>`;
-var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist" };
+var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist", green: "toon-meter-fill-green" };
 var uid = 0;
 var meter = (o) => {
   if (!o.label?.trim())
@@ -616,6 +616,27 @@ var masthead = (o) => {
   const title = o.title.trim();
   return `<header class="toon-masthead${o.cls ? " " + esc(o.cls) : ""}">${o.eyebrow?.trim() ? `<p class="toon-masthead-eyebrow"><span class="toon-caption">${esc(o.eyebrow.trim())}</span></p>` : ""}` + `<h1 class="toon-masthead-title"><span class="toon-masthead-sr">${esc(title)}</span><span aria-hidden="true">${letters(title, o.accent ?? "yellow", { live: true })}</span></h1>` + `${o.lede?.trim() ? `<p class="toon-masthead-lede">${esc(o.lede.trim())}</p>` : ""}</header>`;
 };
+var switchCard = (o) => {
+  if (!o.name?.trim())
+    throw new Error("switchCard: name is required");
+  if (o.active !== "lab" && o.active !== "cloud")
+    throw new Error(`switchCard: unknown active "${String(o.active)}": use lab or cloud`);
+  stateOf("switchCard: labState", o.labState);
+  stateOf("switchCard: cloudState", o.cloudState);
+  if (!o.canSwitch && !o.reason?.trim())
+    throw new Error("switchCard: reason is required when canSwitch is false");
+  if (o.id !== undefined && !ID_RE.test(o.id))
+    throw new Error(`switchCard: id "${o.id}" is not a valid id`);
+  const id = o.id ?? `toon-switch-card-${++uid}`;
+  const word = { lab: o.labels?.lab?.trim() || "Lab", cloud: o.labels?.cloud?.trim() || "Cloud" };
+  const why = o.reason?.trim() ? ` aria-describedby="${id}-reason"` : "";
+  const side = (pl, state) => {
+    const on = o.active === pl;
+    return `<button type="button" class="toon-switch-card-side toon-switch-card-${state}" id="${id}-${pl}" aria-pressed="${on ? "true" : "false"}" data-toon-switch="${esc(o.name)}" data-toon-switch-to="${pl}"${on ? "" : `${o.canSwitch ? "" : ' aria-disabled="true"'}${why}`}>` + `<span class="toon-switch-card-where">${esc(word[pl])}</span><span class="toon-switch-card-state"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === "ok" ? "Up" : state === "down" ? "Down" : "Unknown"}</span>` + `${on ? '<span class="toon-switch-card-serving">Serving</span>' : ""}</button>`;
+  };
+  const tags = `${o.dataClass?.trim() ? chip(o.dataClass.trim()) : ""}${o.pinned ? ' <span class="toon-badge toon-badge-violet">Pinned</span>' : ""}`;
+  return `<div class="toon-switch-card" role="group" aria-labelledby="${id}-name"><div class="toon-switch-card-head"><b class="toon-switch-card-name" id="${id}-name">${esc(o.name)}</b>${tags ? `<span class="toon-switch-card-tags">${tags}</span>` : ""}</div>` + `<div class="toon-switch-card-sides">${side("lab", o.labState)}${side("cloud", o.cloudState)}</div>${o.reason?.trim() ? `<p class="toon-switch-card-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : ""}</div>`;
+};
 export {
   BADGE,
   HEX,
@@ -655,6 +676,7 @@ export {
   statusTile,
   steps,
   strip,
+  switchCard,
   switchRow,
   tabbar,
   tabpanel,

@@ -7,7 +7,7 @@ const ext = preset.theme.extend;
 // The values below are the ones tailwind.config.js held in pdlabs-portfolio before the extraction. A change to a
 // token must change this file on purpose.
 test('the preset keeps every value the portfolio config held', () => {
-  expect(ext.colors.toon).toEqual({ ground: '#0c1240', ink: '#0a0a1f', paper: '#eceff3', blue: '#5f8dff', red: '#f2706a', yellow: '#f2c94c', violet: '#a995f0', 'blue-text': '#2a57d6', 'red-text': '#c8322b', 'violet-text': '#6b4fd6', 'yellow-text': '#7a5c00', muted: '#4a4d78', mist: '#b9bde0', rule: '#d3d8e0' });
+  expect(ext.colors.toon).toEqual({ ground: '#0c1240', ink: '#0a0a1f', paper: '#eceff3', blue: '#5f8dff', red: '#f2706a', yellow: '#f2c94c', violet: '#a995f0', 'blue-text': '#2a57d6', 'red-text': '#c8322b', 'violet-text': '#6b4fd6', 'yellow-text': '#7a5c00', green: '#4ccf8f', 'green-text': '#0f6e42', muted: '#4a4d78', mist: '#b9bde0', rule: '#d3d8e0' });
   expect(ext.fontFamily).toEqual({
     display: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
     comic: ['Bangers', '"Arial Black"', 'Impact', 'sans-serif'],
@@ -51,11 +51,11 @@ const contrast = (a: string, b: string) => {
 test('ink on every fill meets the 5.1:1 the README promises', () => {
   const c = group('color');
   const checked: string[] = [];
-  for (const fill of ['blue', 'red', 'yellow', 'violet', 'paper']) {
+  for (const fill of ['blue', 'red', 'yellow', 'violet', 'green', 'paper']) {
     expect(contrast(c.ink!, c[fill]!)).toBeGreaterThanOrEqual(5.1);
     checked.push(fill);
   }
-  expect(checked).toHaveLength(5);
+  expect(checked).toHaveLength(6);
 });
 
 test('paper on the ground meets 15.4:1', () => {
@@ -72,7 +72,7 @@ test('the secondary-text colours meet 4.5:1 on their surfaces', () => {
 
 test('the -text accents meet 4.5:1 on paper, where the fills do not', () => {
   const c = group('color');
-  for (const a of ['blue', 'red', 'yellow', 'violet']) {
+  for (const a of ['blue', 'red', 'yellow', 'violet', 'green']) {
     expect(contrast(c[`${a}-text`]!, c.paper!)).toBeGreaterThanOrEqual(4.5);
     expect(contrast(c[a]!, c.paper!)).toBeLessThan(3); // the reason the -text tokens exist
   }
@@ -81,9 +81,9 @@ test('the -text accents meet 4.5:1 on paper, where the fills do not', () => {
 test('text on the ground meets 7:1, so running text there is comfortable and not only legal', () => {
   const c = group('color');
   const checked: string[] = [];
-  for (const text of ['paper', 'mist', 'yellow']) {
+  for (const text of ['paper', 'mist', 'yellow', 'green']) {
     expect(contrast(c[text]!, c.ground!)).toBeGreaterThanOrEqual(7);
     checked.push(text);
   }
-  expect(checked).toHaveLength(3);
+  expect(checked).toHaveLength(4);
 });

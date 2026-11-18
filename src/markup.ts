@@ -490,8 +490,8 @@ export const scale = (o: ScaleOptions): string => {
 export const scaleAxis = (): string =>
   `<span class="toon-scale-axis" aria-hidden="true">${[0, 25, 50, 75, 100].map((t) => `<span style="--at:${t}">${t}</span>`).join('')}</span>`;
 
-export type MeterTone = 'blue' | 'red' | 'yellow' | 'violet' | 'mist';
-const METER_FILL: Record<MeterTone, string> = { blue: '', red: 'toon-meter-fill-red', yellow: 'toon-meter-fill-yellow', violet: 'toon-meter-fill-violet', mist: 'toon-meter-fill-mist' };
+export type MeterTone = 'blue' | 'red' | 'yellow' | 'violet' | 'mist' | 'green';
+const METER_FILL: Record<MeterTone, string> = { blue: '', red: 'toon-meter-fill-red', yellow: 'toon-meter-fill-yellow', violet: 'toon-meter-fill-violet', mist: 'toon-meter-fill-mist', green: 'toon-meter-fill-green' };
 
 export interface MeterOptions {
   /** Names the bar for a screen reader, and shows above it. Required. */
@@ -1109,4 +1109,52 @@ export const masthead = (o: MastheadOptions): string => {
   return `<header class="toon-masthead${o.cls ? ' ' + esc(o.cls) : ''}">${o.eyebrow?.trim() ? `<p class="toon-masthead-eyebrow"><span class="toon-caption">${esc(o.eyebrow.trim())}</span></p>` : ''}` +
     `<h1 class="toon-masthead-title"><span class="toon-masthead-sr">${esc(title)}</span><span aria-hidden="true">${letters(title, o.accent ?? 'yellow', { live: true })}</span></h1>` +
     `${o.lede?.trim() ? `<p class="toon-masthead-lede">${esc(o.lede.trim())}</p>` : ''}</header>`;
+};
+
+export interface SwitchCardOptions {
+  /** The service name. Required. */
+  name: string;
+  /** Which side serves traffic now. */
+  active: Place;
+  labState: UptimeState;
+  cloudState: UptimeState;
+  /** Whether a switch to the other side is allowed now. When it is not, `reason` is required. */
+  canSwitch: boolean;
+  /** One short sentence: why a switch is refused, or what it waits for. The idle side's button points to it. */
+  reason?: string;
+  /** A chip beside the name, such as "replicated". */
+  dataClass?: string;
+  /** Adds a "Pinned" badge. */
+  pinned?: boolean;
+  /** The words for each side. Default "Lab" and "Cloud". */
+  labels?: { lab?: string; cloud?: string };
+  /** The id prefix. Default is generated. */
+  id?: string;
+}
+
+/**
+ * A service that runs on one of two sides, as two buttons. The side that serves is pressed and filled: green when it is up,
+ * red when it is down. The other side is a raised button that asks for the switch, or a dashed flat one with a reason when
+ * a switch is refused. Each button says its side and its state with a glyph and a word. The kit attaches no handler: listen
+ * for a click on `[data-toon-switch-to]`, and ignore the pressed one.
+ */
+export const switchCard = (o: SwitchCardOptions): string => {
+  if (!o.name?.trim()) throw new Error('switchCard: name is required');
+  if (o.active !== 'lab' && o.active !== 'cloud') throw new Error(`switchCard: unknown active "${String(o.active)}": use lab or cloud`);
+  stateOf('switchCard: labState', o.labState);
+  stateOf('switchCard: cloudState', o.cloudState);
+  if (!o.canSwitch && !o.reason?.trim()) throw new Error('switchCard: reason is required when canSwitch is false');
+  if (o.id !== undefined && !ID_RE.test(o.id)) throw new Error(`switchCard: id "${o.id}" is not a valid id`);
+  const id = o.id ?? `toon-switch-card-${++uid}`;
+  const word: Record<Place, string> = { lab: o.labels?.lab?.trim() || 'Lab', cloud: o.labels?.cloud?.trim() || 'Cloud' };
+  const why = o.reason?.trim() ? ` aria-describedby="${id}-reason"` : '';
+  const side = (pl: Place, state: UptimeState) => {
+    const on = o.active === pl;
+    return `<button type="button" class="toon-switch-card-side toon-switch-card-${state}" id="${id}-${pl}" aria-pressed="${on ? 'true' : 'false'}" data-toon-switch="${esc(o.name)}" data-toon-switch-to="${pl}"${on ? '' : `${o.canSwitch ? '' : ' aria-disabled="true"'}${why}`}>` +
+      `<span class="toon-switch-card-where">${esc(word[pl])}</span><span class="toon-switch-card-state"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === 'ok' ? 'Up' : state === 'down' ? 'Down' : 'Unknown'}</span>` +
+      `${on ? '<span class="toon-switch-card-serving">Serving</span>' : ''}</button>`;
+  };
+  const tags = `${o.dataClass?.trim() ? chip(o.dataClass.trim()) : ''}${o.pinned ? ' <span class="toon-badge toon-badge-violet">Pinned</span>' : ''}`;
+  return `<div class="toon-switch-card" role="group" aria-labelledby="${id}-name"><div class="toon-switch-card-head"><b class="toon-switch-card-name" id="${id}-name">${esc(o.name)}</b>${tags ? `<span class="toon-switch-card-tags">${tags}</span>` : ''}</div>` +
+    `<div class="toon-switch-card-sides">${side('lab', o.labState)}${side('cloud', o.cloudState)}</div>${o.reason?.trim() ? `<p class="toon-switch-card-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : ''}</div>`;
 };

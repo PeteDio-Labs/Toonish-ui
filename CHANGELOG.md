@@ -9,6 +9,8 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `color.green` (`#4ccf8f`) and `color.green-text` (`#0f6e42`): the ok state. Green is a state colour, not a fifth accent. An ok `verdict()` is green, an ok `statusTile()` has a green shadow and green state text, an up side in `switchRow()` is green text, and `meter()` takes `tone: 'green'`.
+- `switchCard({ name, active, labState, cloudState, canSwitch, reason })` and `toon-switch-card`: a service's two sides as two buttons. The serving side is pressed, and the other asks for the switch or says why it cannot.
 - `verdict({ state, title, body, stateText, heading })` and `toon-verdict`: the answer a view leads with. A glyph and a word say the state, the fill backs it up, and `unknown` is a dashed panel.
 - `readout(text, { label, onPaper })` and `toon-readout`: what a view read, as a last line that stays readable. Paper text at 15 px on the ground, under a yellow mono label.
 - `toggle({ label, checked, off, on, disabled, describedBy, attrs })` and `toon-toggle`: a 44 px `role="switch"` between two visible words. `switchRow({ control: 'toggle', labels })` draws it in place of the button.

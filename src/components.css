@@ -630,6 +630,7 @@
   .toon-meter-fill-yellow { background: var(--color-toon-yellow); }
   .toon-meter-fill-violet { background: var(--color-toon-violet); }
   .toon-meter-fill-mist { background: var(--color-toon-mist); }
+  .toon-meter-fill-green { background: var(--color-toon-green); }
   .toon-meter-value { text-align: right; font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
   .toon-meter-lg .toon-meter-value { font-size: var(--text-title3); }
   .toon-meter-scale { grid-column: 1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--spacing-s3); font-family: var(--font-mono); font-size: 11px; color: var(--color-toon-muted); }
@@ -775,12 +776,13 @@
     border: var(--toon-border-toon) solid var(--color-toon-ink); border-radius: var(--radius-toon); background: var(--color-toon-paper); color: var(--color-toon-ink);
     box-shadow: 4px 4px 0 var(--toon-shadow); background-clip: padding-box;
   }
+  .toon-tile-ok { --toon-shadow: var(--color-toon-green); }
   .toon-tile-down { --toon-shadow: var(--color-toon-red); }
   .toon-tile-unknown { --toon-shadow: var(--color-toon-mist); border-style: dashed; }
   .toon-tile-label { font-family: var(--font-mono); font-size: var(--text-caption1); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--color-toon-muted); }
   .toon-tile-value { font-family: var(--font-display); font-size: var(--text-title1); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
   .toon-tile-state { font-weight: 700; font-size: var(--text-subhead); }
-  .toon-tile-ok .toon-tile-state { color: var(--color-toon-blue-text); }
+  .toon-tile-ok .toon-tile-state { color: var(--color-toon-green-text); }
   .toon-tile-warn .toon-tile-state { color: var(--color-toon-yellow-text); }
   .toon-tile-down .toon-tile-state { color: var(--color-toon-red-text); }
   .toon-tile-unknown .toon-tile-state { color: var(--color-toon-ink); }
@@ -801,7 +803,7 @@
   .toon-switch-side-on { border: 3px solid var(--color-toon-ink); box-shadow: 3px 3px 0 var(--color-toon-yellow); }
   .toon-switch-where { font-family: var(--font-mono); font-size: var(--text-caption1); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
   .toon-switch-state { font-weight: 700; }
-  .toon-switch-ok { color: var(--color-toon-blue-text); }
+  .toon-switch-ok { color: var(--color-toon-green-text); }
   .toon-switch-down { color: var(--color-toon-red-text); }
   .toon-switch-unknown { color: var(--color-toon-ink); }
   .toon-switch-age { font-family: var(--font-mono); font-size: var(--text-caption1); color: var(--color-toon-muted); }
@@ -830,13 +832,43 @@
   .toon-toggle[aria-disabled="true"] { border-style: dashed; background: var(--color-toon-paper); box-shadow: none; cursor: not-allowed; }
   .toon-toggle[aria-disabled="true"] .toon-toggle-thumb { background: var(--color-toon-paper); }
 
+  /* 8h-2. Switch card: a service on two sides, as two buttons. The pressed side serves: green when up, red when down, mist
+     when unknown. The idle side is a raised white button that asks for the switch, or dashed and flat when a switch is
+     refused. Text is ink on every fill, and a glyph and a word say each state, so colour is the second cue. */
+  .toon-switch-card {
+    --toon-shadow: var(--color-toon-blue);
+    display: grid; gap: var(--spacing-s3); box-sizing: border-box; padding: var(--spacing-s4); border: var(--toon-border-toon) solid var(--color-toon-ink); border-radius: var(--radius-toon);
+    background: var(--color-toon-paper); color: var(--color-toon-ink); box-shadow: 4px 4px 0 var(--toon-shadow); background-clip: padding-box;
+  }
+  .toon-switch-card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-s1) var(--spacing-s3); }
+  .toon-switch-card-name { font-size: var(--text-title3); line-height: 1.2; overflow-wrap: anywhere; }
+  .toon-switch-card-tags { display: inline-flex; flex-wrap: wrap; gap: var(--spacing-s1); }
+  .toon-switch-card-sides { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-s3); }
+  .toon-switch-card-side {
+    display: grid; align-content: center; justify-items: start; gap: 2px; box-sizing: border-box; min-width: 0; min-height: 72px; padding: var(--spacing-s2) var(--spacing-s3);
+    border: var(--toon-border-toon) solid var(--color-toon-ink); border-radius: var(--radius-toon); background: white; color: var(--color-toon-ink); font: inherit; text-align: left; cursor: pointer;
+    box-shadow: 3px 3px 0 var(--color-toon-blue); background-clip: padding-box; transition: transform var(--toon-duration-fast) var(--ease-bounce), box-shadow var(--toon-duration-fast) var(--ease-bounce);
+  }
+  @media (hover: hover) { .toon-switch-card-side:not([aria-pressed="true"], [aria-disabled="true"]):hover { transform: translateY(-2px); box-shadow: 5px 6px 0 var(--color-toon-blue); } }
+  .toon-switch-card-side:not([aria-pressed="true"], [aria-disabled="true"]):active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--color-toon-blue); }
+  .toon-switch-card-side[aria-pressed="true"] { border-width: 3px; background: var(--color-toon-mist); box-shadow: none; cursor: default; }
+  .toon-switch-card-side[aria-pressed="true"].toon-switch-card-ok { background: var(--color-toon-green); }
+  .toon-switch-card-side[aria-pressed="true"].toon-switch-card-down { background: var(--color-toon-red); }
+  .toon-switch-card-side[aria-disabled="true"] { border-style: dashed; background: var(--color-toon-paper); box-shadow: none; cursor: not-allowed; }
+  .toon-switch-card-where { font-family: var(--font-mono); font-size: var(--text-caption1); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .toon-switch-card-state { font-size: var(--text-body); font-weight: 700; line-height: 1.2; }
+  .toon-switch-card-serving { font-family: var(--font-mono); font-size: var(--text-caption1); font-weight: 700; }
+  .toon-switch-card-serving::before { content: "● "; }
+  .toon-switch-card-reason { margin: 0; font-size: var(--text-footnote); font-weight: 600; line-height: 1.4; }
+
   /* 8i. Verdict: the answer a view leads with. A state line (glyph and word), the answer, and one line under it. The fill
-     backs the state up: paper for ok, yellow for a warning, red for down, and a dashed paper panel for unknown. Text is ink. */
+     backs the state up: green for ok, yellow for a warning, red for down, and a dashed paper panel for unknown. Text is ink. */
   .toon-verdict {
     --toon-shadow: var(--color-toon-blue);
     display: grid; gap: var(--spacing-s2); box-sizing: border-box; padding: var(--spacing-s4) var(--spacing-s5); border: 3px solid var(--color-toon-ink); border-radius: var(--radius-card);
     background: var(--color-toon-paper); color: var(--color-toon-ink); box-shadow: 6px 6px 0 var(--toon-shadow); background-clip: padding-box;
   }
+  .toon-verdict-ok { background: var(--color-toon-green); }
   .toon-verdict-warn { --toon-shadow: var(--color-toon-blue); background: var(--color-toon-yellow); }
   .toon-verdict-down { --toon-shadow: var(--color-toon-yellow); background: var(--color-toon-red); }
   .toon-verdict-unknown { --toon-shadow: var(--color-toon-mist); border-style: dashed; }
@@ -901,6 +933,7 @@
 .toon-modal-x:focus-visible { box-shadow: none; }
 .toon-tab[aria-selected="true"]:focus-visible { box-shadow: 0 0 0 2px #0a0a1f, 2px 2px 0 var(--color-toon-blue); }
 .toon-toggle:focus-visible { box-shadow: 0 0 0 2px #0a0a1f, 3px 3px 0 var(--color-toon-blue); }
+.toon-switch-card-side:focus-visible { box-shadow: 0 0 0 2px #0a0a1f; }
 /* Windows high-contrast and other forced colours drop shadows and fills, so say what must survive: a visible focus ring. */
 @media (forced-colors: active) {
   :focus-visible { outline: 3px solid Highlight; box-shadow: none; }
