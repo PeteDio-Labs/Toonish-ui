@@ -85,7 +85,9 @@
   .toon-card:nth-child(even) { --toon-shadow: var(--color-toon-violet); }
   .toon-card:nth-child(3n) { --toon-shadow: var(--color-toon-blue); }
   .toon-card:hover { transform: rotate(0) translateY(-3px); }
-  @media (hover: hover) { .toon-card:hover { animation: toon-hop .55s cubic-bezier(.34,1.8,.5,1); } }
+  /* The hop replaces `animation`. On a card that also carries `toon-pop` or `toon-reveal`, leaving the card would swap the
+     entrance animation back in and replay it from opacity 0, so the card would vanish. Those cards lift by transition only. */
+  @media (hover: hover) { .toon-card:not(.toon-pop, .toon-reveal):hover { animation: toon-hop .55s cubic-bezier(.34,1.8,.5,1); } }
   /* Card label or number: a tilted pill tucked into the top right corner. It sizes to its text ("Featured" fits)
      and stays inside the gutter, so the page wrapper never clips it. */
   .toon-corner {
@@ -217,7 +219,7 @@
   .toon-row:has(.toon-row-icon) .toon-row-lead + .toon-row-body { @apply mt-s1; }
   .toon-row:has(.toon-row-icon) .toon-row-aside { @apply mt-s2 whitespace-normal; }
   @media (min-width: 640px) {
-    .toon-row:has(.toon-row-icon) { grid-template-columns: 3rem minmax(0, 1fr) auto; }
+    .toon-row:has(.toon-row-icon), .toon-list-stack .toon-row:has(.toon-row-icon) { grid-template-columns: 3rem minmax(0, 1fr) auto; }
     .toon-row:has(.toon-row-icon) .toon-row-aside { @apply mt-0 whitespace-nowrap; grid-column: 3; grid-row: 1 / span 3; align-self: center; }
   }
 

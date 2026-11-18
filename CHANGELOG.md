@@ -5,6 +5,8 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-11-18
+
 ### Added
 
 - `buildBadge({ env, sha })` and `toon-build`: a quiet line that names the environment and the short commit hash on a non-production build, and draws nothing for production. A page passes build-time variables, so a local run can set them too.
@@ -14,6 +16,17 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 - `row()` puts `sub` on its own line under the title. `row({ leadTone })` and `disclosure({ tone })` colour the lead dot, and a row lead now has the dot too. On a phone, a disclosure's fact and chevron sit on the lead line, so the title gets the full width. `toon-disclosure-note` and `toon-row-aside` are bold mono, and an open panel ending in a button or link has a 12 px bottom gap.
 - The `design-philosophy` skill gains two rules: make components very legible, and hard-code a locked design into the kit.
+
+## [0.7.2] - 2026-11-18
+
+### Added
+
+- `bun run test:layout`: finds clipped svg drawings, cut text and overlapping text at 1280 and 390 px, at rest and under hover, and compares each fixture section with a committed baseline. CI runs it and uploads diffs only on failure.
+
+### Fixed
+
+- A `toon-card` that also has `toon-pop` or `toon-reveal` no longer vanishes when you hover it. The hover hop replaced the entrance animation, and leaving the card replayed that animation from opacity 0. Those cards now lift by transition only. `test/browser.ts` samples the card's opacity through a hover and a leave.
+- A row with an icon inside `toon-list-stack` keeps its three-column layout from 640 px up. The stack rule had given it two columns, so the icon column took the space and the text centred. `test/fixture.ts` has the case and `test/browser.ts` asserts the layout.
 
 ## [0.7.0] - 2026-11-18
 
