@@ -302,7 +302,7 @@
     transform: rotate(0) translateY(-3px);
   }
   @media (hover: hover) {
-    .toon-card:hover {
+    .toon-card:not(.toon-pop, .toon-reveal):hover {
       animation: toon-hop .55s cubic-bezier(.34,1.8,.5,1);
     }
   }

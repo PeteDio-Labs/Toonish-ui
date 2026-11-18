@@ -19,6 +19,7 @@ ${masthead({ title: 'toonish-ui', eyebrow: 'Fixture', lede: 'Every component onc
 <button class="toon-btn" type="button">Blue</button> <button class="toon-btn toon-btn-red" type="button">Red</button>
 <button class="toon-btn toon-btn-yellow" type="button">Yellow</button> <button class="toon-btn toon-btn-paper toon-wiggle" type="button">Paper</button></section>
 <section id="cards"><div class="toon-card"><span class="toon-badge">Badge</span><p>A card.</p><a class="toon-link" href="#cards">A link</a></div>
+<div class="toon-card toon-pop" id="hover-card" style="animation-delay:120ms"><p>A card that pops in, as a case-study card does.</p></div>
 <div class="toon-card">${figure('214', 'blue', 52, 200)}</div></section>
 <section id="comic"><div style="position:relative">${speedLines('toon-speed-hero')}<div class="toon-frame"><span class="toon-caption">Caption</span><p>A panel.</p></div></div><div style="position:relative;width:160px;height:160px">${burst('red', 'toon-burst-spin')}</div>
 <div class="toon-bubble">A bubble.</div><div class="toon-callout">A callout.</div></section>

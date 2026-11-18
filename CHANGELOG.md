@@ -7,6 +7,7 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- A `toon-card` that also has `toon-pop` or `toon-reveal` no longer vanishes when you hover it. The hover hop replaced the entrance animation, and leaving the card replayed that animation from opacity 0. Those cards now lift by transition only. `test/browser.ts` samples the card's opacity through a hover and a leave.
 - A row with an icon inside `toon-list-stack` keeps its three-column layout from 640 px up. The stack rule had given it two columns, so the icon column took the space and the text centred. `test/fixture.ts` has the case and `test/browser.ts` asserts the layout.
 
 ## [0.7.0] - 2026-11-18
