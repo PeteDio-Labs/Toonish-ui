@@ -566,6 +566,18 @@ export interface ReadoutOptions {
  * readable: full-strength text at 15 px under a mono label, never a dimmed or shrunken line.
  */
 export declare const readout: (text: string, o?: ReadoutOptions) => string;
+export interface BuildBadgeOptions {
+    /** The build environment, such as `staging`. Empty, missing, `production` or `prod` draws nothing, so a production build carries no badge. */
+    env?: string;
+    /** The commit hash. Hex, 7 to 40 characters. The helper shows the first 7. A malformed hash throws, so a build never ships a badge with a wrong name. */
+    sha?: string;
+}
+/**
+ * A quiet line that names the build: the environment and the short commit hash. It draws only when `env` names a
+ * non-production environment, so a page passes `process.env.BUILD_ENV` and `process.env.BUILD_SHA` at build time and
+ * production ships nothing. Put it last in the body. It is in the flow, so it never covers a control.
+ */
+export declare const buildBadge: (o?: BuildBadgeOptions) => string;
 /** The key for `bars()`: one entry per tone, in words. A `hatch` entry draws the same hatch as its segment. */
 export declare const barsKey: (items: {
     label: string;

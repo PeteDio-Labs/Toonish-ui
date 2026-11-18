@@ -7,6 +7,7 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `buildBadge({ env, sha })` and `toon-build`: a quiet line that names the environment and the short commit hash on a non-production build, and draws nothing for production. A page passes build-time variables, so a local run can set them too.
 - `disclosure({ sub })` and `toon-disclosure-sub`: a muted description line under the title, so a closed row reads as label, title, description and fact, the same scale as `row()`.
 
 ### Changed

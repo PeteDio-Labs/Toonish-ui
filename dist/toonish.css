@@ -3144,6 +3144,26 @@
     font-size: var(--text-subhead);
     line-height: 1.55;
   }
+  .toon-build {
+    width: fit-content;
+    max-width: calc(100% - 2 * var(--spacing-s4));
+    margin: var(--spacing-s4) auto var(--spacing-s6);
+    padding: var(--spacing-s1) var(--spacing-s3);
+    border: 2px solid var(--color-toon-ink);
+    border-radius: var(--radius-toon);
+    background: var(--color-toon-paper);
+    color: var(--color-toon-ink);
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-caption1);
+    line-height: 1.4;
+    letter-spacing: .04em;
+    overflow-wrap: anywhere;
+  }
+  .toon-build code {
+    font: inherit;
+    font-weight: 700;
+  }
   .toon-readout-label {
     font-family: var(--font-mono);
     font-size: var(--text-caption1);

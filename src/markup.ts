@@ -1141,6 +1141,28 @@ export const readout = (text: string, o: ReadoutOptions = {}): string => {
   return `<p class="toon-readout${o.onPaper ? ' toon-readout-paper' : ''}${o.cls ? ' ' + esc(o.cls) : ''}"><span class="toon-readout-label">${esc(o.label?.trim() || 'What was read')}</span> <span class="toon-readout-text">${esc(text.trim())}</span></p>`;
 };
 
+export interface BuildBadgeOptions {
+  /** The build environment, such as `staging`. Empty, missing, `production` or `prod` draws nothing, so a production build carries no badge. */
+  env?: string;
+  /** The commit hash. Hex, 7 to 40 characters. The helper shows the first 7. A malformed hash throws, so a build never ships a badge with a wrong name. */
+  sha?: string;
+}
+
+/**
+ * A quiet line that names the build: the environment and the short commit hash. It draws only when `env` names a
+ * non-production environment, so a page passes `process.env.BUILD_ENV` and `process.env.BUILD_SHA` at build time and
+ * production ships nothing. Put it last in the body. It is in the flow, so it never covers a control.
+ */
+export const buildBadge = (o: BuildBadgeOptions = {}): string => {
+  const env = o.env?.trim().toLowerCase() ?? '';
+  if (!env || env === 'production' || env === 'prod') return '';
+  if (!/^[a-z][a-z0-9-]{0,23}$/.test(env)) throw new Error(`buildBadge: env "${o.env}" must be a short lowercase word`);
+  const sha = o.sha?.trim() ?? '';
+  if (sha && !/^[0-9a-f]{7,40}$/i.test(sha)) throw new Error('buildBadge: sha must be 7 to 40 hex characters');
+  const text = sha ? `${esc(env)} build <code>${esc(sha.slice(0, 7).toLowerCase())}</code>` : `${esc(env)} build, commit not named`;
+  return `<p class="toon-build" data-toon-build="${esc(env)}">${text}</p>`;
+};
+
 /** The key for `bars()`: one entry per tone, in words. A `hatch` entry draws the same hatch as its segment. */
 export const barsKey = (items: { label: string; tone: Tone | 'hatch' }[], o: { label?: string } = {}): string => {
   if (!items.length) throw new Error('barsKey: at least one entry is required');

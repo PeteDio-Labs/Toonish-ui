@@ -39,6 +39,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-disclosure` | `role="listitem"` with a `<button aria-expanded aria-controls>` and a panel with `hidden`; or `<details>` with `<summary>` | The row's text, which includes the lead, title, value and delta | `Enter`, `Space` | The row is 44 px tall. A chevron shows the state as well as the tint. `ownerLabel` says the owner aloud. |
 | `toon-spark` | `<svg role="img" aria-label>` | Your label, then "Trend from 73 to 82 over 8 readings" | None | Drawn for paper. Put the figure beside it as text. |
 | `toon-verdict` | A `<div>` of paragraphs, or a heading for the title when you pass `heading` | The state word, then the answer | None | The state is a glyph and a word. The fill backs it up. `unknown` is dashed and never reads as ok. |
+| `toon-build` | `<p>` | The environment and the short hash, as one line | None | One mono line at the end of the page, in the flow. Drawn only for a non-production build. |
 | `toon-readout` | `<p>` | Its label, then its text | None | Paper text at 15 px on the ground. Do not dim it or shrink it. |
 | `toon-toggle` | `<button role="switch" aria-checked aria-label>` | Required label that says what "on" means | `Enter`, `Space` | 44 px tall. The side words are `aria-hidden`, because the label and the checked state say them. Disabled is `aria-disabled` with a visible reason, so it keeps focus. |
 | `toon-switch-card` | `role="group"` named by the service, with two `<button aria-pressed>` | The side, its state and "Serving" | `Enter`, `Space` | Each button is 72 px tall. A refused side is `aria-disabled` and points to the visible reason. Text is ink on every fill. |
@@ -333,6 +334,15 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 - It sits on the navy ground: paper text at 15 px with a 1.55 line height and a 62-character measure, under a yellow mono label. The label defaults to "What was read".
 - `onPaper` adds `toon-readout-paper` for a paper surface, where the label and the rule are ink.
 - It is the last line of a section. Position and size rank it below the answer. Do not lower its opacity or shrink it below 15 px: a line that is hard to read is not quiet, it is unread.
+
+### Build badge
+
+`toon-build` names the build on a staging page. Helper: `buildBadge({ env, sha })`. The helper returns an empty string when `env` is empty, `production` or `prod`, so a page passes its build-time variables and production ships nothing.
+
+- Pass `process.env.BUILD_ENV` and the commit hash at build time. A staging build sets `BUILD_ENV=staging`, and a local run sets it by hand. Do not detect staging from the URL.
+- The hash is hex, 7 to 40 characters, and the line shows the first 7. A malformed hash throws.
+- The line sits in the page flow after the last content, so it never covers a control. `data-toon-build` carries the environment for a test.
+- Components: `toon-build` holds the line, and its `<code>` holds the hash.
 
 ### Toggle
 

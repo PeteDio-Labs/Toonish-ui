@@ -641,6 +641,18 @@ var readout = (text, o = {}) => {
     throw new Error("readout: text is required");
   return `<p class="toon-readout${o.onPaper ? " toon-readout-paper" : ""}${o.cls ? " " + esc(o.cls) : ""}"><span class="toon-readout-label">${esc(o.label?.trim() || "What was read")}</span> <span class="toon-readout-text">${esc(text.trim())}</span></p>`;
 };
+var buildBadge = (o = {}) => {
+  const env = o.env?.trim().toLowerCase() ?? "";
+  if (!env || env === "production" || env === "prod")
+    return "";
+  if (!/^[a-z][a-z0-9-]{0,23}$/.test(env))
+    throw new Error(`buildBadge: env "${o.env}" must be a short lowercase word`);
+  const sha = o.sha?.trim() ?? "";
+  if (sha && !/^[0-9a-f]{7,40}$/i.test(sha))
+    throw new Error("buildBadge: sha must be 7 to 40 hex characters");
+  const text = sha ? `${esc(env)} build <code>${esc(sha.slice(0, 7).toLowerCase())}</code>` : `${esc(env)} build, commit not named`;
+  return `<p class="toon-build" data-toon-build="${esc(env)}">${text}</p>`;
+};
 var barsKey = (items, o = {}) => {
   if (!items.length)
     throw new Error("barsKey: at least one entry is required");
@@ -732,6 +744,7 @@ export {
   badge,
   bars,
   barsKey,
+  buildBadge,
   burst,
   button,
   chartTable,

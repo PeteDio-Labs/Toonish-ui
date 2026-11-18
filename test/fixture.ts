@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation is docs/components.md. The portfolio's kit page was removed on 2026-11-14.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, button, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, settingsMenu } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, button, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, settingsMenu, buildBadge } from '../src/markup.ts';
 
 const icon = (d: string) => `<svg viewBox="0 0 20 20" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -100,6 +100,7 @@ ${readout('Read 3 alerts, 4 services and 1 item that needs you, 30 hours ago. So
 <div class="toon-card" id="answers-card" style="margin-top:16px">${bars({ label: 'Alerts per day', columns: [{ label: '11-15', segments: [{ value: 2, tone: 'red', label: 'needs you' }, { value: 3, tone: 'hatch', label: 'unreadable' }] }, { label: '11-16', segments: [{ value: 1, tone: 'mist', label: 'no action' }] }] })}
 ${barsKey([{ label: 'Needs you', tone: 'red' }, { label: 'No action', tone: 'mist' }, { label: 'Unreadable', tone: 'hatch' }])}
 ${chartTable({ caption: 'alerts per day', head: ['Day', 'Needs you', 'No action', 'Unreadable'], rows: [['2026-11-15', '2', '0', '3'], ['2026-11-16', '0', '1', '0']] })}
+${buildBadge({ env: 'staging', sha: '5c23748ff6c4007f2150b01676f1c94331b61ccd' })}
 ${readout('Read 2 days and 6 alerts.', { onPaper: true, label: 'Source' })}
 ${meter({ label: 'Probes healthy', value: 6, max: 8, tone: 'green', valueText: '6 of 8', id: 'm-green' })}
 <p style="margin-top:12px">${toggle({ label: 'Motion: on', checked: true, off: 'Off', on: 'On', id: 'tg-free' })}</p></div>
