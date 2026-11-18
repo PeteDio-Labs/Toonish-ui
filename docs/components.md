@@ -242,9 +242,9 @@ Slots in the panel, all optional, in this order:
 1. A status chip: `toon-chip`, which takes a paper fill and a violet shadow here.
 2. Body text.
 3. `toon-meters`.
-4. `toon-kv`: a `<dl>` with `dt` in uppercase mono 11 px `muted` and `dd` in body text. Put `toon-kv-warn` on a `dt` for `red-text`.
+4. `toon-kv`: a `<dl>` with `dt` in uppercase mono 12 px `muted` and `dd` in body text. Put `toon-kv-warn` on a `dt` for `red-text`.
 5. `toon-note`: a dated update log in a pale yellow box with a 2 px ink border and a 3 px yellow shadow. The fill is `yellow` at 20% over white, so the kit adds no new colour.
-6. `toon-meta`: an uppercase mono 11 px line such as "Last revised 16 Nov".
+6. `toon-meta`: an uppercase mono 12 px line such as "Last revised 16 Nov".
 
 ### Spark
 
@@ -275,7 +275,7 @@ Four parts for a status dashboard: an uptime strip, a line chart, a status tile 
 
 ### Line chart
 
-`toon-line` is a line chart of one to four series. Parts: `toon-chart`, `toon-chart-title`, `toon-chart-unit`, `toon-chart-cap`, `toon-line-svg`, `toon-chart-key`, `toon-chart-swatch`, `toon-chart-name`, `toon-chart-end`, `toon-chart-at`, `toon-chart-table`. Helper: `line({ label, series, yUnit, target, min, max, tableLabel })`, where a series is `{ name, points }` and a point is `{ x, y }`.
+`toon-line` is a line chart of one to four series. Its axis labels are 14 units in a 320-unit view box, so they draw at 12 px or more while the chart is at least 275 px wide. Parts: `toon-chart`, `toon-chart-title`, `toon-chart-unit`, `toon-chart-cap`, `toon-line-svg`, `toon-chart-key`, `toon-chart-swatch`, `toon-chart-name`, `toon-chart-end`, `toon-chart-at`, `toon-chart-table`. Helper: `line({ label, series, yUnit, target, min, max, tableLabel })`, where a series is `{ name, points }` and a point is `{ x, y }`.
 
 - Each series has its own colour, dash pattern and marker shape (circle, square, triangle, diamond). The key repeats all three.
 - The key prints each series' latest value and its time, so the chart needs no hover.

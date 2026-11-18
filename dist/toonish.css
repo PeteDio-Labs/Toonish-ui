@@ -1968,7 +1968,7 @@
     height: 14px;
     margin: 0 10px;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--text-caption1);
     line-height: 14px;
     color: var(--color-toon-muted);
   }
@@ -2074,7 +2074,7 @@
     justify-content: space-between;
     gap: 0 var(--spacing-s3);
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--text-caption1);
     color: var(--color-toon-muted);
   }
   @media (min-width: 640px) {
@@ -2120,7 +2120,7 @@
     background: transparent;
     color: var(--color-toon-mist);
     font-family: var(--font-body);
-    font-size: 11px;
+    font-size: var(--text-caption1);
     font-weight: 700;
     line-height: 1.1;
     text-align: center;
@@ -2390,7 +2390,7 @@
   .toon-kv > dt {
     margin: 0;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--text-caption1);
     font-weight: 600;
     letter-spacing: .06em;
     text-transform: uppercase;
@@ -2416,7 +2416,7 @@
   }
   .toon-meta {
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--text-caption1);
     letter-spacing: .06em;
     text-transform: uppercase;
     color: var(--color-toon-muted);

@@ -5,6 +5,12 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-18
+
+### Changed
+
+- No visible text is under 12 px at 390 px. Tab labels, `toon-kv` labels, `toon-meta`, the scale axis and the meter scale move from 11 px to the caption size. The line chart's axis labels move from 10 to 14 chart units, which draw at 12 px or more while the chart is at least 275 px wide. The browser check reads every visible text element and chart label in the fixture.
+
 ## [0.5.0] - 2026-11-18
 
 ### Added
