@@ -570,9 +570,17 @@ try {
         n++;
         if (parseFloat(getComputedStyle(el).fontSize) < 12) out.add(`${el.className || el.tagName} ${getComputedStyle(el).fontSize}`);
       }
-      return { n, out: [...out].join(', ') };
+      let charts = 0;
+      for (const t of document.querySelectorAll<SVGTextElement>('svg text')) {
+        const svg = t.ownerSVGElement!;
+        if (!svg.getClientRects().length || !svg.viewBox.baseVal.width) continue;
+        charts++;
+        const drawn = parseFloat(getComputedStyle(t).fontSize) * (svg.getBoundingClientRect().width / svg.viewBox.baseVal.width);
+        if (drawn < 12) out.add(`svg text ${drawn.toFixed(1)}px`);
+      }
+      return { n, charts, out: [...out].join(', ') };
     });
-    eq(`${small.n > 100}|${small.out}`, 'true|', `${name}: no visible text is under 12 px (read ${small.n} elements)`);
+    eq(`${small.n > 100 && small.charts > 0}|${small.out}`, 'true|', `${name}: no visible text is under 12 px as drawn (read ${small.n} elements and ${small.charts} chart labels)`);
     await p.setViewportSize({ width: 320, height: 700 });
     eq(await q(() => [...document.querySelectorAll('#answers *, .toon-masthead *')].filter((e) => !e.closest('.toon-table-wrap, .toon-masthead-sr')).filter((e) => e.getBoundingClientRect().right > innerWidth + 1).map((e) => e.className).join(',')), '', `${name}: the answer-first components and the masthead fit at 320 px`);
     eq(await q(() => document.documentElement.scrollWidth - innerWidth <= 0 && [...document.querySelectorAll('#desk *')].every((e) => e.getBoundingClientRect().right <= innerWidth + 1)), true, `${name}: the desk components fit at 320 px`);

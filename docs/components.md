@@ -275,7 +275,7 @@ Four parts for a status dashboard: an uptime strip, a line chart, a status tile 
 
 ### Line chart
 
-`toon-line` is a line chart of one to four series. Parts: `toon-chart`, `toon-chart-title`, `toon-chart-unit`, `toon-chart-cap`, `toon-line-svg`, `toon-chart-key`, `toon-chart-swatch`, `toon-chart-name`, `toon-chart-end`, `toon-chart-at`, `toon-chart-table`. Helper: `line({ label, series, yUnit, target, min, max, tableLabel })`, where a series is `{ name, points }` and a point is `{ x, y }`.
+`toon-line` is a line chart of one to four series. Its axis labels are 14 units in a 320-unit view box, so they draw at 12 px or more while the chart is at least 275 px wide. Parts: `toon-chart`, `toon-chart-title`, `toon-chart-unit`, `toon-chart-cap`, `toon-line-svg`, `toon-chart-key`, `toon-chart-swatch`, `toon-chart-name`, `toon-chart-end`, `toon-chart-at`, `toon-chart-table`. Helper: `line({ label, series, yUnit, target, min, max, tableLabel })`, where a series is `{ name, points }` and a point is `{ x, y }`.
 
 - Each series has its own colour, dash pattern and marker shape (circle, square, triangle, diamond). The key repeats all three.
 - The key prints each series' latest value and its time, so the chart needs no hover.

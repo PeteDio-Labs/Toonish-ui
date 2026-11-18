@@ -835,14 +835,14 @@ export const line = (o: LineOptions): string => {
   const max = o.max ?? niceMax(top);
   if (!Number.isFinite(max) || !(max > min)) throw new Error(`line: max must be above min, got ${min} and ${max}`);
   if (top > max) throw new Error(`line: a value ${top} is above max ${max}`);
-  const W = 320, H = 168, L = 38, R = 10, T = 10, B = 24;
+  const W = 320, H = 172, L = 46, R = 10, T = 10, B = 28; // axis text is 14 units, so it stays at 12 px while the chart is at least 275 px wide
   const px = (i: number) => L + (i / (xs.length - 1)) * (W - L - R);
   const py = (v: number) => T + (1 - (v - min) / (max - min)) * (H - T - B);
   const sameDay = allIso && xs.every((x) => x.length > 10 && new Date(ms(x)).toISOString().slice(0, 10) === new Date(ms(xs[0]!)).toISOString().slice(0, 10));
   const axis = (x: string) => fmtAt(x, sameDay ? 'time' : 'day');
-  const grid = [0, 1, 2, 3, 4].map((k) => { const v = min + ((max - min) * k) / 4; const y = py(v).toFixed(1); return `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="#c9cde0" stroke-width="1"/><text x="${L - 5}" y="${(py(v) + 3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="${INK}">${num(v)}</text>`; }).join('');
+  const grid = [0, 1, 2, 3, 4].map((k) => { const v = min + ((max - min) * k) / 4; const y = py(v).toFixed(1); return `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="#c9cde0" stroke-width="1"/><text x="${L - 5}" y="${(py(v) + 4.5).toFixed(1)}" text-anchor="end" font-size="14" fill="${INK}">${num(v)}</text>`; }).join('');
   const ticks = [...new Set([0, Math.floor((xs.length - 1) / 2), xs.length - 1])];
-  const xlabels = ticks.map((i) => `<text x="${px(i).toFixed(1)}" y="${H - 7}" text-anchor="${i === 0 ? 'start' : i === xs.length - 1 ? 'end' : 'middle'}" font-size="10" fill="${INK}">${esc(axis(xs[i]!))}</text>`).join('');
+  const xlabels = ticks.map((i) => `<text x="${px(i).toFixed(1)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === xs.length - 1 ? 'end' : 'middle'}" font-size="14" fill="${INK}">${esc(axis(xs[i]!))}</text>`).join('');
   const tgt = o.target === undefined ? '' : `<line x1="${L}" x2="${W - R}" y1="${py(o.target).toFixed(1)}" y2="${py(o.target).toFixed(1)}" stroke="${INK}" stroke-width="1.5" stroke-dasharray="1 4" stroke-linecap="round"/>`;
   const unit = o.yUnit?.trim() ? ` ${o.yUnit.trim()}` : '';
   const drawn = data.map((s, si) => {
