@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation is docs/components.md. The portfolio's kit page was removed on 2026-11-14.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, settingsMenu } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, button, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, settingsMenu } from '../src/markup.ts';
 
 const icon = (d: string) => `<svg viewBox="0 0 20 20" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -13,7 +13,7 @@ export const fixture = (): string => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc('toonish-ui fixture')}</title>
 <link rel="icon" href="data:,"><link rel="stylesheet" href="/dist/toonish.css"></head>
-<body>${skipLink('main')}<div class="toon-page" style="padding-bottom:var(--toon-tabbar-h)"><main id="main">
+<body class="toon-dots">${skipLink('main')}<div class="toon-page" style="padding-bottom:var(--toon-tabbar-h)"><main id="main">
 ${masthead({ title: 'toonish-ui', eyebrow: 'Fixture', lede: 'Every component once, for the browser test.' })}
 <section id="buttons"><h2 class="toon-heading">Buttons</h2>
 <button class="toon-btn" type="button">Blue</button> <button class="toon-btn toon-btn-red" type="button">Red</button>
@@ -27,6 +27,8 @@ ${masthead({ title: 'toonish-ui', eyebrow: 'Fixture', lede: 'Every component onc
 <p>${badge('Open', 'blue', 12)} ${badge('Done', 'mist', 3)} ${badge('Hold', 'paper')} ${chip('Remote')}</p>
 ${list([row({ lead: 'Nov 12', title: 'Acme', sub: 'Analyst', aside: 'Email', dot: 'blue' }), row({ lead: 'Nov 11', title: 'Globex', aside: 'Site', dot: 'red' })], { label: 'Applications' })}
 ${list([row({ lead: 'Compute', title: 'Proxmox', sub: 'three nodes' })], { label: 'Hosts', cls: 'toon-list-stack' }).replace('<div class="toon-list', '<div id="list-stack" class="toon-list')}
+${list([row({ lead: 'Secrets', title: 'Vault', sub: 'short-lived credentials for CI and agents', aside: 'No stored CI secrets', icon: "<svg viewBox='0 0 48 48' focusable='false'><rect x='6' y='6' width='36' height='36' rx='6' fill='#f2c94c' stroke='#0a0a1f' stroke-width='2.5'/></svg>" }), row({ title: 'No lead, no aside', icon: "<svg viewBox='0 0 48 48' focusable='false'><circle cx='24' cy='24' r='16' fill='#5f8dff' stroke='#0a0a1f' stroke-width='2.5'/></svg>" })], { label: 'Services with icons' }).replace('<div class="toon-list', '<div id="list-icons" class="toon-list')}
+<p id="btn-demo" class="flex flex-wrap gap-s4">${button({ label: 'Back to dashboard', href: '#top', kind: 'accent', direction: 'back' })}${button({ label: 'Next step', kind: 'primary', direction: 'next' })}${button({ label: 'Add service', kind: 'secondary', icon: 'plus' })}${button({ label: 'Delete', kind: 'danger', icon: 'check', attrs: { 'aria-disabled': 'true' } })}</p>
 <div class="toon-empty">Nothing yet.</div>
 <div class="toon-table-wrap"><table class="toon-table toon-table-text"><thead><tr><th>Name</th><th>What it does</th></tr></thead><tbody><tr><td>Alpha</td><td>A longer sentence of words that is allowed to wrap onto a second line on a narrow screen without scrolling.</td></tr></tbody></table></div>
 <div class="toon-card" id="dividers">${bars({ label: 'Divider cases', columns: [

@@ -5,6 +5,20 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-18
+
+### Added
+
+- `row({ icon })` and `toon-row-icon`: an optional 48 px inline `<svg>` at the start of a row, hidden from a screen reader. The helper throws when the markup is not one clean `<svg>`. A row with an icon puts its aside under the body on a phone and at the end of the row from `sm`.
+- `button({ label, href, kind, icon, iconPosition, direction, type, full, cls, attrs })`: a `toon-btn` as a link or a button, with `primary`, `secondary`, `accent` and `danger` looks, a built-in or custom icon, and `back` and `next` directions that put the arrow before or after the label. New classes: `toon-btn-icon`, `toon-btn-ico`, `toon-btn-back`, `toon-btn-next`, `toon-btn-full`.
+
+### Changed
+
+- `toon-dots` on `<body>` draws a halftone ground: faint dots on a fixed layer that fade out down the screen. Before, it was an empty hook and no site drew the dots, so the comic ground was missing.
+- Raised surfaces cast a soft blurred shadow (`filter: drop-shadow`) so the near-black outline and hard shadow lift off the navy ground. `toon-flat` turns the blur off for one element.
+- A button has an inner lower edge, so a paper button no longer reads as a card of the same colour.
+- A button that can act hops now and then, and a back or next button nudges its arrow, so a touch screen with no hover still shows what you can press. A disabled or `aria-disabled` button stays still. Reduced motion and the motion switch stop all of it.
+
 ## [0.6.0] - 2026-11-18
 
 ### Added

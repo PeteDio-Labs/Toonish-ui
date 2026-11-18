@@ -516,9 +516,58 @@ var toneOf = (tone) => {
 var badge = (text, tone = "red", count) => `<span class="${["toon-badge", TONE_CLASS[toneOf(tone)]].filter(Boolean).join(" ")}">${esc(text)}${count === undefined ? "" : `<span class="toon-badge-count"> ${Number(count)}</span>`}</span>`;
 var chip = (text) => `<span class="toon-chip">${esc(text)}</span>`;
 var stat = (label, value, detail = "") => `<div class="toon-stat"><span class="toon-stat-label">${esc(label)}</span><span class="toon-stat-value">${esc(value)}</span>${detail ? `<span class="toon-stat-detail">${esc(detail)}</span>` : ""}</div>`;
+var iconMarkup = (svg) => {
+  if (!/^<svg[\s>]/.test(svg) || !/<\/svg>\s*$/.test(svg))
+    throw new Error("row: icon must be one <svg> element");
+  if (/<script|<foreignObject|\son[a-z]+\s*=|javascript:/i.test(svg))
+    throw new Error("row: icon must not hold script, foreignObject or event attributes");
+  return svg;
+};
 var row = (o) => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : "";
-  return `<div class="toon-row" role="listitem">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
+  const icon = o.icon ? `<span class="toon-row-icon" aria-hidden="true">${iconMarkup(o.icon)}</span>` : "";
+  return `<div class="toon-row" role="listitem">${icon}${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
+};
+var BUTTON_KIND = { primary: "", secondary: " toon-btn-paper", accent: " toon-btn-yellow", danger: " toon-btn-red" };
+var BUTTON_ICON = {
+  "arrow-left": "M13 8H3m5-5L3 8l5 5",
+  "arrow-right": "M3 8h10M8 3l5 5-5 5",
+  plus: "M8 3v10M3 8h10",
+  check: "M3 8.5 6.5 12 13 4.5",
+  external: "M6 3H3v10h10v-3M9 3h4v4M13 3 7 9"
+};
+var button = (o) => {
+  if (!o.label?.trim())
+    throw new Error("button: label is required");
+  const kind = o.kind ?? "primary";
+  if (!Object.hasOwn(BUTTON_KIND, kind))
+    throw new Error(`button: unknown kind "${kind}"`);
+  let icon = o.icon;
+  let pos = o.iconPosition ?? "start";
+  if (o.direction) {
+    if (o.direction !== "back" && o.direction !== "next")
+      throw new Error("button: direction is back or next");
+    icon = icon ?? (o.direction === "back" ? "arrow-left" : "arrow-right");
+    pos = o.direction === "back" ? "start" : "end";
+  }
+  let svg = "";
+  if (icon) {
+    const path = Object.hasOwn(BUTTON_ICON, icon) ? BUTTON_ICON[icon] : "";
+    svg = `<span class="toon-btn-ico" aria-hidden="true">${path ? `<svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="${path}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : iconMarkup(icon)}</span>`;
+  }
+  const extra = Object.entries(o.attrs ?? {}).map(([k, v]) => {
+    if (!/^[a-z][a-z0-9-]*$/.test(k) || /^on/.test(k) || ["class", "href", "type", "style"].includes(k))
+      throw new Error(`button: attribute "${k}" is not allowed`);
+    return ` ${k}="${esc(String(v))}"`;
+  }).join("");
+  const cls = `toon-btn${BUTTON_KIND[kind]}${svg ? " toon-btn-icon" : ""}${o.direction ? ` toon-btn-${o.direction}` : ""}${o.full ? " toon-btn-full" : ""}${o.cls ? " " + esc(o.cls) : ""}`;
+  const inner = `${svg && pos === "start" ? svg : ""}<span class="toon-btn-label">${esc(o.label)}</span>${svg && pos === "end" ? svg : ""}`;
+  if (o.href !== undefined) {
+    if (!/^(\/|#|\?|https?:|mailto:)/i.test(o.href))
+      throw new Error("button: href must start with /, #, ?, https:, http: or mailto:");
+    return `<a class="${cls}" href="${esc(o.href)}"${extra}>${inner}</a>`;
+  }
+  return `<button type="${o.type ?? "button"}" class="${cls}"${extra}>${inner}</button>`;
 };
 var TONE_HEX = { ...HEX, paper: "#eceff3", mist: "#b9bde0" };
 var SEG_CLASS = { blue: "", red: "toon-bar-seg-red", yellow: "toon-bar-seg-yellow", violet: "toon-bar-seg-violet", paper: "toon-bar-seg-paper", mist: "toon-bar-seg-mist", hatch: "toon-bar-seg-hatch" };
@@ -1209,6 +1258,7 @@ export {
   badge,
   bars,
   burst,
+  button,
   chip,
   deck,
   delta,

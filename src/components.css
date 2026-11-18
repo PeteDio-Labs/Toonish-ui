@@ -50,6 +50,26 @@
   .toon-btn-red    { --toon-shadow: var(--color-toon-yellow); @apply bg-toon-red; }
   .toon-btn-yellow { --toon-shadow: var(--color-toon-blue); @apply bg-toon-yellow; }
   .toon-btn-paper  { --toon-shadow: var(--color-toon-blue); @apply bg-toon-paper; }
+  /* A key you can press: an inner lower edge gives the face depth, so a button never reads as a card of the same colour. */
+  .toon-btn { box-shadow: 4px 4px 0 var(--toon-shadow), inset 0 -3px 0 rgb(10 10 31 / .2); }
+  @media (hover: hover) { .toon-btn:hover { box-shadow: 6px 6px 0 var(--toon-shadow), inset 0 -3px 0 rgb(10 10 31 / .2); } }
+  .toon-btn:active { box-shadow: 1px 1px 0 var(--toon-shadow), inset 0 2px 0 rgb(10 10 31 / .2); }
+  /* A button with an icon: the icon sits beside the label and keeps its size. `back` and `next` buttons nudge their arrow. */
+  .toon-btn-icon { @apply inline-flex items-center justify-center gap-s2; }
+  .toon-btn-ico { @apply grid shrink-0 place-items-center; }
+  .toon-btn-ico > svg { @apply block h-[1.1em] w-[1.1em]; }
+  .toon-btn-full { @apply flex w-full; }
+  /* Motion that says "press me" on a touch screen, where there is no hover: every button that does something takes a small
+     hop now and then, and an arrow button nudges its arrow the way it points. The kit's motion rules stop all of it for
+     reduced motion and for the motion switch. A button that cannot act stays still. */
+  .toon-btn:where(:not([aria-disabled="true"], :disabled)) { animation: toon-btn-hop 4.8s ease-in-out 1.2s infinite; }
+  .toon-btn-back:where(:not([aria-disabled="true"], :disabled)) .toon-btn-ico { animation: toon-nudge-back 1.8s ease-in-out infinite; }
+  .toon-btn-next:where(:not([aria-disabled="true"], :disabled)) .toon-btn-ico { animation: toon-nudge-next 1.8s ease-in-out infinite; }
+  .toon-btn-back:hover .toon-btn-ico { animation-duration: .7s; }
+  .toon-btn-next:hover .toon-btn-ico { animation-duration: .7s; }
+  @keyframes toon-btn-hop { 0%, 84%, 100% { transform: translateY(0); } 90% { transform: translateY(-3px); } 95% { transform: translateY(0); } }
+  @keyframes toon-nudge-back { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
+  @keyframes toon-nudge-next { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
   /* A button that follows a paragraph needs room above it: base styles zero every margin, so it would touch the text. */
   p + .toon-btn { @apply mt-s6; }
   /* Squash and stretch on hover, the cartoon take on a press. */
@@ -186,6 +206,18 @@
     /* In a narrow column the lead keeps its own line at every width. */
     .toon-list-stack .toon-row:has(.toon-row-lead) { grid-template-columns: minmax(0, 1fr) auto; }
     .toon-list-stack .toon-row-lead { grid-column: 1 / -1; }
+  }
+  /* A row with an icon: the icon fills the first column, and the lead, body and aside stack beside it. The aside moves
+     under the body on a phone, where the text column is narrow. */
+  .toon-row:has(.toon-row-icon) { grid-template-columns: 3rem minmax(0, 1fr); align-items: center; column-gap: var(--spacing-s4); row-gap: 0; }
+  .toon-row-icon { @apply grid h-12 w-12 place-items-center; grid-column: 1; grid-row: 1 / span 3; }
+  .toon-row-icon > svg { @apply block h-full w-full; }
+  .toon-row:has(.toon-row-icon) > :not(.toon-row-icon) { grid-column: 2; }
+  .toon-row:has(.toon-row-icon) .toon-row-lead + .toon-row-body { @apply mt-s1; }
+  .toon-row:has(.toon-row-icon) .toon-row-aside { @apply mt-s2 whitespace-normal; }
+  @media (min-width: 640px) {
+    .toon-row:has(.toon-row-icon) { grid-template-columns: 3rem minmax(0, 1fr) auto; }
+    .toon-row:has(.toon-row-icon) .toon-row-aside { @apply mt-0 whitespace-nowrap; grid-column: 3; grid-row: 1 / span 3; align-self: center; }
   }
 
   /* 5e. Empty: what a list or a chart shows when there is nothing to show. Dashed, so it reads as a gap. */
@@ -922,8 +954,21 @@
   @keyframes toon-meter-grow { from { transform: scaleX(0); } }
   @keyframes toon-disclosure-in { from { opacity: 0; transform: translateY(-8px); } }
 
-  /* A hook for a site to draw a halftone ground on <body>. The kit sets no rule on it. */
-  .toon-dots { }
+  /* Halftone ground: put `toon-dots` on <body> and a field of faint dots fades from the top of the screen down. The dots are
+     decoration, drawn on a fixed layer behind the page, at 7% white so text keeps its contrast on the navy ground. */
+  .toon-dots::before {
+    content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: radial-gradient(circle, rgb(255 255 255 / .07) 1.6px, transparent 2px);
+    background-size: 14px 14px;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 75%);
+    mask-image: linear-gradient(to bottom, #000, transparent 75%);
+  }
+  /* Ambient depth: the ink outline and hard shadow are near-black on a navy ground, so a raised surface also casts a soft,
+     blurred shadow. It follows the shape, hard shadow included, and `toon-flat` turns it off for one element. */
+  .toon-card, .toon-panel, .toon-frame, .toon-list, .toon-strip, .toon-nav, .toon-btn, .toon-pager-link, .toon-stat, .toon-table-wrap, .toon-switch-card, .toon-bubble {
+    filter: drop-shadow(0 10px 14px rgb(0 0 0 / .42));
+  }
+  .toon-flat, .toon-list .toon-row, .toon-panel .toon-card, .toon-panel .toon-list, .toon-panel .toon-strip { filter: none; }
 
   /* Keyframes. Tailwind only writes a theme keyframe for an animate-* utility, so the kit owns them here. */
   /* The pop keeps the element's tilt in every frame, so a card never snaps when the animation ends. */

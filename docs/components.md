@@ -23,7 +23,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-deck` | `role="group" aria-roledescription="carousel"` of `role="group" aria-roledescription="slide"` cards, labelled `n of m` | Required label | `Tab` to the buttons, `ArrowLeft` and `ArrowRight` flip | Cards below the top are `inert`. The counter is a polite live region. A swipe is never the only way: the buttons flip. |
 | `toon-strip` | `<ul role="list" aria-label>` | Optional label | A linked cell is a link | The figure reads as text, with a space before its label. |
 | `toon-steps` | `<ol role="list" aria-label>` | Optional label | None | The number and arrow are `aria-hidden`; the list gives the order. |
-| `toon-list`, `toon-row` | `role="list"` and `role="listitem"` | Required label on the list | None | `list()` and `row()` write the roles. |
+| `toon-list`, `toon-row` | `role="list"` and `role="listitem"` | Required label on the list | None | `list()` and `row()` write the roles. An optional `toon-row-icon` is `aria-hidden`. |
 | `toon-stat`, `toon-stats` | Text in a tile | Label, value, detail in reading order | None | Do not use colour alone to rank a figure. |
 | `toon-bars` | `role="list"` of `role="listitem"` columns | Required label, and a label on each column that says its numbers | None | The shapes are not the only carrier of the numbers. |
 | `toon-table` | `<table>` with `<th scope>` | A caption or a label | `Tab` to the panel, then the arrow keys scroll it | The panel scrolls sideways at 320 px and is the one allowed scroll container. Give a `toon-table-wrap` that can scroll `tabindex="0"`, `role="region"` and an `aria-label`, or a keyboard cannot scroll it in every browser. |
@@ -67,7 +67,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 - `toon-page` wraps the page and clips sideways overflow, so a decoration that pokes out cannot widen the document.
 - `toon-reveal` marks a block that rises in when it scrolls into view. The script adds `toon-js` to `<html>`, then `toon-in` to the block. Without script, the block shows.
 - `toon-motion` and `toon-motion-label` make the motion toggle button. The label hides on a phone and shows from `sm`.
-- `toon-pop`, `toon-wiggle`, `toon-blink` and `toon-boing` are animation classes. `toon-dots` is a hook class for a halftone ground on `<body>`. The kit sets no rule on it, so the site draws the dots. Every animation stops under `prefers-reduced-motion` and `data-motion="off"`.
+- `toon-pop`, `toon-wiggle`, `toon-blink` and `toon-boing` are animation classes. `toon-dots` on `<body>` draws a halftone ground: faint white dots on a fixed layer behind the page, fading out down the screen. The dots are decoration and sit at 7% white, so text keeps its contrast. Raised surfaces (`toon-card`, `toon-panel`, `toon-frame`, `toon-list`, `toon-strip`, `toon-nav`, `toon-btn`, `toon-pager-link`, `toon-stat`, `toon-table-wrap`, `toon-switch-card`, `toon-bubble`) also cast a soft blurred shadow, because the near-black outline and hard shadow barely show on the navy ground. Add `toon-flat` to one element to turn the blur off. Every animation stops under `prefers-reduced-motion` and `data-motion="off"`.
 
 ### Type
 
@@ -138,7 +138,11 @@ None of these holds data. You pass your own.
 
 ### List and row
 
-`toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helpers: `list(rows, { label, cls })` writes the container with `role="list"` and a label, and `row({ lead, title, sub, aside, dot })` writes each `role="listitem"`. Use them instead of a bullet list.
+`toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helpers: `list(rows, { label, cls })` writes the container with `role="list"` and a label, and `row({ lead, title, sub, aside, dot, icon })` writes each `role="listitem"`. Use them instead of a bullet list.
+
+`icon` is one inline `<svg>` about 48 px square, drawn by the caller. The helper puts it in `toon-row-icon`, hides it from a screen reader (`aria-hidden`), and throws when the markup is not a single `<svg>` or holds a script, `foreignObject`, event attribute or `javascript:` link. The icon is decoration, so the row's text must say everything the icon does. Give the row an aside that tells a reader one fact, such as a number or a state: on a phone it sits under the body, and from `sm` it sits at the end of the row. Animate an icon with CSS that you scope to `prefers-reduced-motion: no-preference`; the kit also stops animation when the motion switch is off.
+
+`button({ label, href, kind, icon, iconPosition, direction, type, full, cls, attrs })` writes a `toon-btn` as an `<a>` (with `href`) or a `<button>`. `kind` is `primary` (blue), `secondary` (paper), `accent` (yellow) or `danger` (red). `icon` is a built-in name (`arrow-left`, `arrow-right`, `plus`, `check`, `external`) or your own inline `<svg>`, and `iconPosition` puts it at the `start` or the `end`. `direction: 'back'` puts a left arrow before the label, and `direction: 'next'` puts a right arrow after it. The icon is `aria-hidden`, so the label must say what the button does. `attrs` carries `data-*` and `aria-*` attributes; `class`, `href`, `type`, `style` and event handlers are refused. The helper adds `toon-btn-icon` (the flex row), `toon-btn-ico` (the icon's box), `toon-btn-back` or `toon-btn-next` (the nudging arrow) and `toon-btn-full` (the full-width button). A button has an inner lower edge so it does not read as a card of the same colour. Every button that can act hops now and then, and a back or next button nudges its arrow. A button with `aria-disabled="true"` or `disabled` stays still, and reduced motion or the motion switch stops all of it.
 
 ### Bars
 
