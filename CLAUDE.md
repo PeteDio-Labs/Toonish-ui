@@ -7,6 +7,7 @@ The Toonish UI kit as a package. `README.md` covers install and usage. `docs/` h
 - **Tokens have one home:** `tokens/toonish.tokens.json`. The preset, `tokens.css` and `theme.css` all build from it. Do not hand-edit `dist/`.
 - **Components use Tailwind v4 syntax:** `@apply` with the `@theme` names, and `var(--color-toon-*)` in place of `theme()`. The build compiles `src/dist.css` with `@tailwindcss/cli`. Tailwind v3 ended in this kit on 2026-11-15 (Pedro's call).
 - **Every helper that returns HTML escapes its input** with `esc()`.
+- **Design philosophy:** read `.claude/skills/design-philosophy/SKILL.md` before you design or review a screen. It holds the reasoning behind these rules.
 - **Mobile first.** Write the phone layout as the base rule and add wider layouts in `min-width` queries. Check a component at 390 px before 1280 px. Decoration shows on a phone. `docs/principles.md` has the rules.
 - **Accessibility is a hard rule.** Semantic HTML first, ARIA roles where HTML has no word for it, and WCAG 2.2 AA. Every component ships accessible, with its roles, labels and states written by the helper. Nothing ships that fails the accessibility checks in `test/browser.ts`: do not skip, relax or quarantine one to merge. A new component joins `test/fixture.ts` and the contract table in `docs/components.md`. `docs/principles.md` has the rule.
 - **A check that reports success must say what it examined.** The build and browser check print counts; keep that.

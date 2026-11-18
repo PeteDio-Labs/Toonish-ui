@@ -5,6 +5,10 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- A `design-philosophy` agent skill in `.claude/skills/`, linked from `CLAUDE.md` and `docs/principles.md`. Its Apple lessons section waits for the owner's words.
+
 ## [0.4.0] - 2026-11-16
 
 ### Added

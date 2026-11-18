@@ -2,6 +2,8 @@
 
 Toonish looks like a comic page that happens to be a website: thin ink outlines, short hard shadows, four bright accents on deep navy, and panels the colour of printed paper. Every rule below serves that look or keeps it usable.
 
+The reasoning behind these rules is in the [design philosophy skill](../.claude/skills/design-philosophy/SKILL.md).
+
 ## The look
 
 - **Ink outlines.** Every filled shape has a `2px` ink border (`--toon-border-toon`). Ink is also the text colour on every fill, so contrast never depends on which accent you choose.
