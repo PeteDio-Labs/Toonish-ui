@@ -95,6 +95,17 @@ try {
     eq(await page.$eval('#btn-demo [aria-disabled="true"]', (a) => getComputedStyle(a).animationName), 'none', `${name}: a button that cannot act stays still`);
     eq(await page.$eval('#btn-demo .toon-btn-paper', (a) => getComputedStyle(a).boxShadow.includes('inset')), true, `${name}: a button has an inner lower edge, so it differs from a card`);
     eq(await page.$eval('#list-icons .toon-row', (e) => { const i = e.querySelector('.toon-row-icon')!.getBoundingClientRect(), b = e.querySelector('.toon-row-body')!.getBoundingClientRect(); return Math.round(i.width) === 48 && Math.round(i.height) === 48 && i.right <= b.left && Math.abs((i.top + i.height / 2) - (e.getBoundingClientRect().top + e.getBoundingClientRect().height / 2)) < 4; }), true, `${name}: .toon-row-icon is 48 px, sits before the body and centres on the row`);
+    eq(await page.$eval('#list-icons-stack .toon-row', (e) => { const i = e.querySelector('.toon-row-icon')!.getBoundingClientRect(), b = e.querySelector('.toon-row-body')!.getBoundingClientRect(), r = e.getBoundingClientRect(); return i.right <= b.left && i.left - r.left < 40 && b.left - i.right < 40 && b.width > r.width / 2; }), true, `${name}: an icon row inside .toon-list-stack keeps a narrow icon column and a wide text column`);
+    {
+      // A card with an entrance animation must stay visible while the pointer enters, rests on and leaves it.
+      await page.waitForTimeout(1200);
+      const box = (await (await page.$('#hover-card'))!.boundingBox())!;
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      const sample = () => page.evaluate(() => new Promise<number>((res) => { const el = document.getElementById('hover-card')!; let min = 1; const t0 = performance.now(); const tick = () => { min = Math.min(min, Number(getComputedStyle(el).opacity)); if (performance.now() - t0 < 1200) requestAnimationFrame(tick); else res(min); }; tick(); }));
+      eq(await sample(), 1, `${name}: a .toon-pop card stays fully visible while hovered`);
+      await page.mouse.move(2, 2);
+      eq(await sample(), 1, `${name}: a .toon-pop card stays fully visible after the pointer leaves`);
+    }
     eq(await page.$eval('#list-icons .toon-row', (e) => { const a = e.querySelector('.toon-row-aside')!.getBoundingClientRect(), b = e.querySelector('.toon-row-body')!.getBoundingClientRect(), r = e.getBoundingClientRect(); return a.right <= r.right + 1 && (a.top >= b.bottom - 1 || a.left >= b.right - 1); }), true, `${name}: a row with an icon keeps its aside inside the row, under the body on a phone and beside it from sm`);
     eq(await style('.toon-table td', 'border-bottom-style'), 'solid', `${name}: .toon-table draws its rules`);
     eq(await style('.toon-badge-mist', 'background-color'), 'rgb(185, 189, 224)', `${name}: .toon-badge-mist fill is mist`);
