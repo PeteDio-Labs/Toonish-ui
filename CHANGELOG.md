@@ -5,6 +5,8 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-18
+
 ### Added
 
 - `appbar()`, `brief()`, `statusRow()`, `cells()` and `cycle()`, with `toon-appbar`, `toon-brief`, `toon-srow`, `toon-cells` and `toon-cycle`: the top of a status view. A paper bar with a logo tile, title and state pill; a slim verdict strip in the ink, paper, violet or blue palette; a status row with a state rail, a button, a small picture and one fact; a run of cells; and a cycle bar that says on pace or behind. `docs/components.md` has the section "Top of a view".
