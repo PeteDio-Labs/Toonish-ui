@@ -300,7 +300,7 @@ Four parts for a status dashboard: an uptime strip, a line chart, a status tile 
 
 - The serving side has a solid border and the word "Serving". The other side is dashed. Each side shows a glyph and "Up", "Down" or "Unknown", and the age of its reading.
 - The button carries `data-toon-switch` (the name) and `data-toon-switch-to` (`lab` or `cloud`). The kit attaches no handler: you listen for a click on `[data-toon-switch-to]`.
-- `control: 'toggle'` draws a [toggle](#toggle) in place of the button, checked when the cloud serves. It carries the same `data-toon-switch` attributes. `labels` renames the sides, such as `{ lab: 'On-prem' }`.
+- `control: 'toggle'` draws a [toggle](#toggle) in place of the button, checked when the cloud serves. It carries the same `data-toon-switch` attributes. `labels` renames the sides, such as `{ lab: 'Lab' }`.
 - `reason` shows under the row whenever you pass it, and the control points to it with `aria-describedby`. Use it while a switch is allowed to say what it waits for.
 - When `canSwitch` is false, `reason` is required. The button gets `aria-disabled="true"` and `aria-describedby` pointing at the visible reason. It stays focusable, and the kit script drops its click before your handler sees it.
 - `action` is markup you trust, in place of the default button. You then own its disabled state: give it `aria-disabled="true"`, `data-toon-switch-to` and `aria-describedby="<id>-reason"` when `canSwitch` is false. `dataClass` is a chip and `pinned` adds a "Pinned" badge.
