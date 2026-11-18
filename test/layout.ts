@@ -13,7 +13,7 @@ import { audit, diffPngs, type Finding } from './layout-audit.ts';
 const SNAPSHOTS = 'test/snapshots';
 const OUT = 'test/out/layout';
 const TOLERANCE = 10; // per channel, out of 255: absorbs text antialiasing between browser builds
-const MAX_DIFF = 0.002; // share of pixels allowed to differ beyond the tolerance
+const MAX_PIXELS = 24; // pixels allowed to differ beyond the tolerance: one stray glyph is about 60
 const update = process.env.UPDATE_SNAPSHOTS === '1';
 
 const server = Bun.serve({
@@ -57,10 +57,10 @@ try {
     if (!(await base.exists())) { fail.push(`${what}: no baseline ${SNAPSHOTS}/${file}. Run UPDATE_SNAPSHOTS=1 bun run test:layout and commit it.`); return; }
     const png = (b: Uint8Array | Buffer) => `data:image/png;base64,${Buffer.from(b).toString('base64')}`;
     const r = await diffPage.evaluate(diffPngs, { a: png(Buffer.from(await base.arrayBuffer())), b: png(actual), tolerance: TOLERANCE });
-    if (r.sizeMismatch || r.ratio > MAX_DIFF) {
+    if (r.sizeMismatch || r.ratio * r.w * r.h > MAX_PIXELS) {
       await Bun.write(`${OUT}/${file}.actual.png`, actual);
       await Bun.write(`${OUT}/${file}.diff.png`, Buffer.from(r.diff.split(',')[1]!, 'base64'));
-      fail.push(`${what}: ${r.sizeMismatch ? 'the size changed' : `${(r.ratio * 100).toFixed(2)}% of pixels differ (limit ${MAX_DIFF * 100}%)`}. See ${OUT}/${file}.diff.png`);
+      fail.push(`${what}: ${r.sizeMismatch ? 'the size changed' : `${Math.round(r.ratio * r.w * r.h)} pixels differ (limit ${MAX_PIXELS})`}. See ${OUT}/${file}.diff.png`);
     }
   };
 
