@@ -5,6 +5,10 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `bun run test:layout`: finds clipped svg drawings, cut text and overlapping text at 1280 and 390 px, at rest and under hover, and compares each fixture section with a committed baseline. CI runs it and uploads diffs only on failure.
+
 ## [0.7.0] - 2026-11-18
 
 ### Added

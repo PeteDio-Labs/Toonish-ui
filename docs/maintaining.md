@@ -8,10 +8,19 @@ The `ci` workflow runs on every pull request and every push to `main`. The `chec
 2. `bun run build`, then a check that `dist/` matches the commit. A stale `dist/` fails the job and names the changed files.
 3. `bun test`
 4. A Chromium check at 1280 and 390 px (`bun run test:browser`).
+5. A layout and snapshot check at 1280 and 390 px (`bun run test:layout`).
 
 The build and the browser check each print what they examined: the class count and font files in `dist/toonish.css`, and the number of checks run.
 A build that matches no classes fails instead of passing on an empty file.
-Screenshots from the browser check upload as the `screenshots` artifact on every run.
+The layout check (`test/layout.ts`) finds the defects a reader sees by eye. It reads geometry, so it costs no tokens:
+
+- `svg-clipped`: a drawing reaches past its svg viewport, as a clipped icon does.
+- `text-cut`: an ancestor with `overflow: hidden` cuts a line of text.
+- `text-overlap`: two lines of text from unrelated elements share pixels, as a badge on a heading does.
+
+It runs at rest, with every disclosure open and under hover on desktop. A known-bad canary page must trip all three rules, so a run that cannot see fails. Add `data-layout="ok"` to an element that overlaps or bleeds on purpose, with a reason beside it.
+The check also compares each fixture section with its baseline in `test/snapshots/`. A pixel share above 0.2% fails, and so does a missing baseline. To accept a deliberate change, run `bun run test:layout:update`, read the changed images, and commit them.
+Baselines live in the repository. On a failure, the `screenshots` artifact holds the actual and diff images for one day. A passing run uploads nothing, which keeps Actions storage small.
 
 Every action is pinned to a full commit SHA. Dependabot proposes weekly bumps for the actions and the Bun packages.
 A bump that changes the build output fails the `dist/` check until you run `bun run build` and commit `dist/`.
