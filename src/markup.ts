@@ -682,6 +682,8 @@ export interface DisclosureOptions {
   /** A mono id for the row, such as "P-01". Required. */
   lead: string;
   title: string;
+  /** A line of plain words under the title: what the row means, in muted type. It wraps, and a screen reader reads it with the row. */
+  sub?: string;
   /** A badge after the title. Text, or text with a tone (default yellow). */
   badge?: string | { text: string; tone?: Tone };
   /** A large figure at the end of the line. */
@@ -718,6 +720,7 @@ export const disclosure = (o: DisclosureOptions): string => {
   const d = o.delta === undefined ? '' : typeof o.delta === 'number' ? delta(o.delta) : delta(o.delta.value, o.delta);
   const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ''}${esc(o.lead)}</span>` +
     `<span class="toon-disclosure-title">${esc(o.title)}${b ? ' ' + badge(b.text, b.tone) : ''}</span>` +
+    `${o.sub?.trim() ? `<span class="toon-disclosure-sub">${esc(o.sub.trim())}</span>` : ''}` +
     `${o.value === undefined ? '' : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${o.note?.trim() ? `<span class="toon-disclosure-value toon-disclosure-note">${esc(o.note.trim())}</span>` : ''}${d}` +
     `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ''}`;
   const panel = `<div class="toon-disclosure-panel" id="${o.id}"${o.native || o.open ? '' : ' hidden'}>${o.panel}</div>`;

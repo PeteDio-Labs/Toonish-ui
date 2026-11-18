@@ -231,8 +231,9 @@ Six parts for pages that track values over time: a board of calls, a likelihood 
 
 ### Disclosure
 
-`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, badge, value, note, delta, below, panel, open, owner, ownerLabel, native, heading })`.
+`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-sub`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, sub, badge, value, note, delta, below, panel, open, owner, ownerLabel, native, heading })`.
 
+- `sub` is a line of plain words under the title that says what the row means. It is muted subhead type, wraps, and sits between the title and `below`. Use it so a closed row is informative without opening it.
 - `note` is a short text at the end of the line, such as "15 hours ago" (`toon-disclosure-note`). It is small mono type. `value` is sized for a figure, so do not pass words to it. Pass one or the other.
 - `id` names the panel, and the button takes `<id>-btn`. `lead` is a mono id such as "P-01" in the owner colour. `lead` and `title` are required.
 - `badge` is text or `{ text, tone }`, and `delta` is a number or `{ value, unit, invert }`. `below` and `panel` are markup you trust and are not escaped. Escape any text you put in them.

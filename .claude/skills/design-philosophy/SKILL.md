@@ -98,6 +98,16 @@ To apply them: test the change with scripts off and in Safari, and check that th
 
 Pedro may add more lessons here. Keep each one short and dated.
 
+## 8. Very legible, and locked into the kit
+
+Pedro, 2026-11-18: "We should strive to have very legible components. When I lock in on a design, I want it hard-coded, so when I tell an agent to pull the skill and build with it, the result is cohesive across the board."
+
+- **Strive for very legible components.** A row, tile or table reads at a glance on a phone. Use one type scale for every list row: a small mono label, a bold title, a muted description, then a bold fact. Do not size a row's text on a page.
+- **A closed row is informative.** Put the meaning in the description line and the number or state in the fact, so a reader does not have to open the row to learn what it is.
+- **Lock a settled design into the kit.** When Pedro approves a look, move it into a `toon-*` component or helper option, with its page in `docs/` and a case in `test/fixture.ts`. A page then gets the look by calling the helper, and an agent that pulls this skill builds the same screen the same way.
+- **Do not restyle in a page.** A page that overrides a kit component's type, spacing or colour is a missing kit option. Add the option to the kit, and take the override out of the page.
+- **Check legibility with the browser check.** Text stays at 12 px or larger at 390 px, and meets 4.5:1.
+
 ## Checklist before a pull request
 
 1. Did you check it at 390 px, then 1280 px?
@@ -105,3 +115,4 @@ Pedro may add more lessons here. Keep each one short and dated.
 3. Does the page answer one named question first, and is the key result easy to find?
 4. Is every state shown honestly, including unknown, empty and error?
 5. Is the copy plain, and does `docs/` change with the code?
+6. Is every row and tile very legible, and does a settled look live in the kit, not in the page?

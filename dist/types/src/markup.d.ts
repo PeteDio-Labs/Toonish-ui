@@ -347,6 +347,8 @@ export interface DisclosureOptions {
     /** A mono id for the row, such as "P-01". Required. */
     lead: string;
     title: string;
+    /** A line of plain words under the title: what the row means, in muted type. It wraps, and a screen reader reads it with the row. */
+    sub?: string;
     /** A badge after the title. Text, or text with a tone (default yellow). */
     badge?: string | {
         text: string;

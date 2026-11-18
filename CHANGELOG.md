@@ -5,6 +5,14 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `disclosure({ sub })` and `toon-disclosure-sub`: a muted description line under the title, so a closed row reads as label, title, description and fact, the same scale as `row()`.
+
+### Changed
+
+- The `design-philosophy` skill gains two rules: make components very legible, and hard-code a locked design into the kit.
+
 ## [0.7.0] - 2026-11-18
 
 ### Added

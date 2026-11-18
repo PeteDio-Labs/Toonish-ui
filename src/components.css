@@ -736,7 +736,9 @@
   /* A note is words, not a figure: mono and small. It wraps at 10rem, so a long note cannot crush the title on a phone. */
   .toon-disclosure-note { max-width: 10rem; min-width: 0; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: var(--text-footnote); font-weight: 600; line-height: 1.3; text-align: right; }
   .toon-disclosure-btn > .toon-delta { grid-row: 2; grid-column: 3; margin-left: var(--spacing-s2); }
-  .toon-disclosure-below { grid-row: 3; grid-column: 1 / -1; display: block; }
+  /* A sub line is the row's description: its own line under the title, in the same muted subhead as a row's sub. */
+  .toon-disclosure-sub { grid-row: 3; grid-column: 1 / -1; margin-top: var(--spacing-s1); font-size: var(--text-subhead); line-height: 1.35; color: var(--color-toon-muted); overflow-wrap: anywhere; }
+  .toon-disclosure-below { grid-row: 4; grid-column: 1 / -1; display: block; }
   .toon-disclosure-panel { display: grid; gap: var(--spacing-s3); padding: 0 var(--spacing-s4) var(--spacing-s4); animation: toon-disclosure-in var(--toon-duration-normal) ease-out; }
   .toon-disclosure-panel > * { margin: 0; }
   .toon-disclosure-panel .toon-chip { justify-self: start; background: var(--color-toon-paper); box-shadow: 2px 2px 0 var(--color-toon-violet); }
@@ -745,6 +747,7 @@
     .toon-disclosure-btn { grid-template-columns: var(--toon-disclosure-lead) minmax(0, 1fr) auto auto auto; }
     .toon-disclosure-lead { grid-row: 2; grid-column: 1; }
     .toon-disclosure-title { grid-column: 2; }
+    .toon-disclosure-sub { grid-column: 2; }
     .toon-disclosure-value { grid-column: 3; }
     .toon-disclosure-btn > .toon-delta { grid-column: 4; }
     .toon-disclosure-btn::after { grid-column: 5; }

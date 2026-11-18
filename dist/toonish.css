@@ -2450,8 +2450,17 @@
     grid-column: 3;
     margin-left: var(--spacing-s2);
   }
-  .toon-disclosure-below {
+  .toon-disclosure-sub {
     grid-row: 3;
+    grid-column: 1 / -1;
+    margin-top: var(--spacing-s1);
+    font-size: var(--text-subhead);
+    line-height: 1.35;
+    color: var(--color-toon-muted);
+    overflow-wrap: anywhere;
+  }
+  .toon-disclosure-below {
+    grid-row: 4;
     grid-column: 1 / -1;
     display: block;
   }
@@ -2481,6 +2490,9 @@
       grid-column: 1;
     }
     .toon-disclosure-title {
+      grid-column: 2;
+    }
+    .toon-disclosure-sub {
       grid-column: 2;
     }
     .toon-disclosure-value {
