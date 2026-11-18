@@ -608,7 +608,7 @@
   .toon-scale-mark.toon-owner-b { background: var(--color-toon-violet); }
   .toon-scale-empty { border-style: dashed; background: transparent; }
   /* The axis row: 0 to 100 labels in mono. The first sits at the left edge and the last at the right edge. */
-  .toon-scale-axis { position: relative; display: block; height: 14px; margin: 0 10px; font-family: var(--font-mono); font-size: 11px; line-height: 14px; color: var(--color-toon-muted); }
+  .toon-scale-axis { position: relative; display: block; height: 14px; margin: 0 10px; font-family: var(--font-mono); font-size: var(--text-caption1); line-height: 14px; color: var(--color-toon-muted); }
   .toon-scale-axis > span { position: absolute; top: 0; left: calc(var(--at) * 1%); transform: translateX(-50%); }
   .toon-scale-axis > span:first-child { transform: none; }
   .toon-scale-axis > span:last-child { left: auto; right: 0; transform: none; }
@@ -633,7 +633,7 @@
   .toon-meter-fill-green { background: var(--color-toon-green); }
   .toon-meter-value { text-align: right; font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
   .toon-meter-lg .toon-meter-value { font-size: var(--text-title3); }
-  .toon-meter-scale { grid-column: 1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--spacing-s3); font-family: var(--font-mono); font-size: 11px; color: var(--color-toon-muted); }
+  .toon-meter-scale { grid-column: 1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--spacing-s3); font-family: var(--font-mono); font-size: var(--text-caption1); color: var(--color-toon-muted); }
   @media (min-width: 640px) {
     .toon-meter { grid-template-columns: 120px minmax(0, 1fr) minmax(3ch, auto); }
     .toon-meter-name { grid-column: 1; }
@@ -651,7 +651,7 @@
   .toon-tab {
     display: grid; flex: 1 1 0; min-width: 44px; min-height: 48px; box-sizing: border-box; align-content: center; justify-items: center; gap: 2px; padding: 4px 2px;
     border: var(--toon-border-toon) solid transparent; border-radius: var(--radius-toon); background: transparent; color: var(--color-toon-mist);
-    font-family: var(--font-body); font-size: 11px; font-weight: 700; line-height: 1.1; text-align: center; text-decoration: none; cursor: pointer;
+    font-family: var(--font-body); font-size: var(--text-caption1); font-weight: 700; line-height: 1.1; text-align: center; text-decoration: none; cursor: pointer;
     transition: background-color var(--toon-duration-fast) var(--ease-bounce);
   }
   .toon-tab[aria-selected="true"] { border-color: var(--color-toon-ink); background: var(--color-toon-yellow); color: var(--color-toon-ink); box-shadow: 2px 2px 0 var(--color-toon-blue); }
@@ -720,14 +720,14 @@
   }
   /* Panel slots. A key-value list, a dated update log and a meta line. */
   .toon-kv { display: grid; gap: var(--spacing-s1) var(--spacing-s4); margin: 0; }
-  .toon-kv > dt { margin: 0; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-toon-muted); }
+  .toon-kv > dt { margin: 0; font-family: var(--font-mono); font-size: var(--text-caption1); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-toon-muted); }
   .toon-kv > dd { margin: 0 0 var(--spacing-s2); font-size: var(--text-subhead); }
   .toon-kv > dt.toon-kv-warn { color: var(--color-toon-red-text); }
   .toon-note {
     padding: var(--spacing-s3) var(--spacing-s4); border: var(--toon-border-toon) solid var(--color-toon-ink); border-radius: var(--radius-toon); font-size: var(--text-subhead);
     background: color-mix(in srgb, var(--color-toon-yellow) 20%, white); box-shadow: 3px 3px 0 var(--color-toon-yellow);
   }
-  .toon-meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--color-toon-muted); }
+  .toon-meta { font-family: var(--font-mono); font-size: var(--text-caption1); letter-spacing: .06em; text-transform: uppercase; color: var(--color-toon-muted); }
   @media (min-width: 640px) {
     .toon-kv { grid-template-columns: 9rem minmax(0, 1fr); }
     .toon-kv > dd { margin-bottom: 0; }

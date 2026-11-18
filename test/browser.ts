@@ -562,6 +562,17 @@ try {
     });
     eq(ro.text.size >= 15 && ro.text.ratio >= 7 && ro.text.op === 1 && ro.label.size >= 12 && ro.label.ratio >= 7 && ro.label.op === 1, true, `${name}: the readout on the ground is at least 15 px, 7:1 and never dimmed (${JSON.stringify(ro)})`);
     eq(await q(() => document.documentElement.scrollWidth - innerWidth <= 0 && [...document.querySelectorAll('#answers *, .toon-masthead *')].filter((e) => !e.closest('.toon-table-wrap, .toon-masthead-sr')).every((e) => e.getBoundingClientRect().right <= innerWidth + 1)), true, `${name}: the answer-first components and the masthead fit the page`);
+    const small = await q(() => {
+      let n = 0; const out = new Set<string>();
+      for (const el of document.querySelectorAll<HTMLElement>('body *')) {
+        if (el.closest('svg, [aria-hidden="true"], [hidden]') || ![...el.childNodes].some((t) => t.nodeType === 3 && t.textContent!.trim())) continue;
+        if (!el.getClientRects().length) continue;
+        n++;
+        if (parseFloat(getComputedStyle(el).fontSize) < 12) out.add(`${el.className || el.tagName} ${getComputedStyle(el).fontSize}`);
+      }
+      return { n, out: [...out].join(', ') };
+    });
+    eq(`${small.n > 100}|${small.out}`, 'true|', `${name}: no visible text is under 12 px (read ${small.n} elements)`);
     await p.setViewportSize({ width: 320, height: 700 });
     eq(await q(() => [...document.querySelectorAll('#answers *, .toon-masthead *')].filter((e) => !e.closest('.toon-table-wrap, .toon-masthead-sr')).filter((e) => e.getBoundingClientRect().right > innerWidth + 1).map((e) => e.className).join(',')), '', `${name}: the answer-first components and the masthead fit at 320 px`);
     eq(await q(() => document.documentElement.scrollWidth - innerWidth <= 0 && [...document.querySelectorAll('#desk *')].every((e) => e.getBoundingClientRect().right <= innerWidth + 1)), true, `${name}: the desk components fit at 320 px`);
