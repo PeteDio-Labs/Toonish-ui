@@ -1,0 +1,60 @@
+name: update-snapshots
+
+# The layout check compares pixels with baselines in test/snapshots/. Pixels depend on the browser build and its fonts,
+# so the baselines come from this runner, the same one ci uses, and never from a laptop.
+# It rebuilds the baselines, commits the changed images to the branch and stops. It refuses to run on main.
+# Two ways to start it on a pull request branch:
+# - Push a change to test/update-snapshots.request. A push runs the copy of this file on the branch, so it works
+#   before this file reaches main.
+# - Run it by hand (Actions > update-snapshots > Run workflow), once this file is on main.
+# A push by this workflow does not start ci. Push any follow-up commit, such as deleting the request file, to run ci.
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [main]
+    paths: [test/update-snapshots.request]
+
+permissions:
+  contents: write # push the regenerated baselines to the branch
+
+concurrency:
+  group: update-snapshots-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false # build and test run branch code, so they get no write token
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - name: Install the browser
+        run: bunx playwright-core install --with-deps chromium
+      - name: Rebuild the baselines
+        run: bun run test:layout:update
+      - name: Commit the changed baselines
+        env:
+          TOKEN: ${{ github.token }} # only this step holds the token
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -eu
+          n=$(git ls-files test/snapshots | wc -l)
+          git add test/snapshots
+          if git diff --cached --quiet; then
+            echo "No baseline changed. $n baselines tracked."
+            exit 0
+          fi
+          git diff --cached --stat | tail -3
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update layout baselines from the CI runner"
+          git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" "HEAD:refs/heads/${BRANCH}"

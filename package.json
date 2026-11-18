@@ -68,7 +68,9 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "test:browser": "bun run test/browser.ts",
-    "check": "bun run typecheck && bun run build && bun test && bun run test:browser"
+    "test:layout": "bun run test/layout.ts",
+    "test:layout:update": "UPDATE_SNAPSHOTS=1 bun run test/layout.ts",
+    "check": "bun run typecheck && bun run build && bun test && bun run test:browser && bun run test:layout"
   },
   "engines": {
     "bun": ">=1.4.4 <1.5.0"

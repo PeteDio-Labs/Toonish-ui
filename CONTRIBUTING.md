@@ -6,7 +6,7 @@ Toonish is a small kit with a strong look. A change fits when it follows the [pr
 
 ```sh
 bun install
-bun run check   # typecheck, build, unit tests, browser check
+bun run check   # typecheck, build, unit tests, browser check, layout check
 ```
 
 Use Bun, never npm, yarn or pnpm. Use native `fetch`.
