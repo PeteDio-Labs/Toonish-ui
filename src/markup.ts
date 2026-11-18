@@ -141,10 +141,13 @@ export interface RowOptions {
   icon?: string;
 }
 
-/** An icon is markup the caller drew, so it must be one `<svg>` with no script and no event attribute. */
+/** An icon is markup the caller drew, so it must be one `<svg>` made only of drawing elements: no script, no link, no HTML, no event attribute, no character reference. */
+const ICON_TAGS = new Set(['svg', 'g', 'path', 'circle', 'ellipse', 'rect', 'line', 'polyline', 'polygon', 'defs', 'lineargradient', 'radialgradient', 'stop', 'title']);
 const iconMarkup = (svg: string): string => {
-  if (!/^<svg[\s>]/.test(svg) || !/<\/svg>\s*$/.test(svg)) throw new Error('row: icon must be one <svg> element');
-  if (/<script|<foreignObject|\son[a-z]+\s*=|javascript:/i.test(svg)) throw new Error('row: icon must not hold script, foreignObject or event attributes');
+  if (!/^<svg[\s>]/.test(svg) || !/<\/svg>\s*$/.test(svg)) throw new Error('icon must be one <svg> element');
+  for (const m of svg.matchAll(/<\/?([a-zA-Z][a-zA-Z0-9-]*)/g)) if (!ICON_TAGS.has(m[1]!.toLowerCase())) throw new Error(`icon must hold only drawing elements, not <${m[1]}>`);
+  if (svg.indexOf('<svg', 1) !== -1 && (svg.match(/<svg[\s>]/gi) ?? []).length !== 1) throw new Error('icon must be one <svg> element');
+  if (/&#|javascript:|[\s/"']on[a-z]+\s*=|\s(?:href|xlink:href|style)\s*=/i.test(svg)) throw new Error('icon must not hold event attributes, links, styles or character references');
   return svg;
 };
 
@@ -220,13 +223,13 @@ export const button = (o: ButtonOptions): string => {
     svg = `<span class="toon-btn-ico" aria-hidden="true">${path ? `<svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="${path}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : iconMarkup(icon)}</span>`;
   }
   const extra = Object.entries(o.attrs ?? {}).map(([k, v]) => {
-    if (!/^[a-z][a-z0-9-]*$/.test(k) || /^on/.test(k) || ['class', 'href', 'type', 'style'].includes(k)) throw new Error(`button: attribute "${k}" is not allowed`);
+    if (!/^(?:data|aria)-[a-z0-9-]+$/.test(k)) throw new Error(`button: attribute "${k}" is not allowed`);
     return ` ${k}="${esc(String(v))}"`;
   }).join('');
   const cls = `toon-btn${BUTTON_KIND[kind]}${svg ? ' toon-btn-icon' : ''}${o.direction ? ` toon-btn-${o.direction}` : ''}${o.full ? ' toon-btn-full' : ''}${o.cls ? ' ' + esc(o.cls) : ''}`;
   const inner = `${svg && pos === 'start' ? svg : ''}<span class="toon-btn-label">${esc(o.label)}</span>${svg && pos === 'end' ? svg : ''}`;
   if (o.href !== undefined) {
-    if (!/^(\/|#|\?|https?:|mailto:)/i.test(o.href)) throw new Error('button: href must start with /, #, ?, https:, http: or mailto:');
+    if (!/^(\/(?!\/)|#|\?|https?:|mailto:)/i.test(o.href)) throw new Error('button: href must start with /, #, ?, https:, http: or mailto:');
     return `<a class="${cls}" href="${esc(o.href)}"${extra}>${inner}</a>`;
   }
   return `<button type="${o.type ?? 'button'}" class="${cls}"${extra}>${inner}</button>`;

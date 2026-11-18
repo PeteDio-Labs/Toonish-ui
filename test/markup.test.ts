@@ -747,3 +747,11 @@ test('gears turn only when asked to, and reject an unknown spin', () => {
   expect(() => gears({ spin: 'sometimes' as never })).toThrow('unknown spin');
   expect(gears()).not.toContain('NaN');
 });
+
+test('icons and button attributes refuse the markup an attacker would use', () => {
+  for (const bad of ['<svg><img/src=x/onerror=alert(1)></svg>', '<svg><animate/onbegin=alert(1)/></svg>', '<svg><a href="jav&#x61;script:x"></a></svg>', '<svg></svg><iframe srcdoc="x"></iframe><svg></svg>', '<svg><path onclick="x"/></svg>']) expect(() => row({ title: 'a', icon: bad })).toThrow('icon');
+  expect(() => button({ label: 'Go', attrs: { formaction: 'javascript:alert(1)' } })).toThrow('not allowed');
+  expect(() => button({ label: 'Go', attrs: { role: 'x' } })).toThrow('not allowed');
+  expect(() => button({ label: 'Go', href: '//evil.example' })).toThrow('href');
+  expect(button({ label: 'Go', attrs: { 'data-x': '1', 'aria-pressed': 'false' } })).toContain('data-x="1"');
+});
