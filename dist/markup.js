@@ -662,8 +662,8 @@ var settingsMenu = (o) => {
   const items = o.items.map((it) => {
     if (!it.label?.trim() || !it.href?.trim())
       throw new Error("settingsMenu: each item needs a label and an href");
-    if (/^\s*javascript:/i.test(it.href))
-      throw new Error("settingsMenu: an href cannot be a javascript: URL");
+    if (!/^(#|\/|\?|\.\.?\/|https?:|mailto:|tel:)/i.test(it.href.replace(/[\u0000-\u0020]/g, "")))
+      throw new Error("settingsMenu: an href must be a hash, a path, a query, or an http(s), mailto or tel link");
     return `<li><a class="toon-settings-item" href="${esc(it.href.trim())}"${it.current ? ' aria-current="page"' : ""}>${esc(it.label.trim())}</a></li>`;
   }).join("");
   return `<details class="toon-settings${o.cls ? ` ${esc(o.cls)}` : ""}" id="${o.id}"><summary class="toon-settings-btn" aria-label="${label}">${gears({ spin: o.spin })}</summary>` + `<nav class="toon-settings-panel" aria-label="${label}"><ul>${items}</ul></nav></details>`;

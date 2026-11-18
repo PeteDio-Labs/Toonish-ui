@@ -701,7 +701,10 @@ test('settingsMenu draws a details with two gears and escapes its items', () => 
   expect(h).toContain('aria-hidden="true"');
   expect(() => settingsMenu({ id: 'st', items: [] })).toThrow('at least one');
   expect(() => settingsMenu({ id: '1x', items: [{ label: 'a', href: '#a' }] })).toThrow('valid id');
-  expect(() => settingsMenu({ id: 'st', items: [{ label: 'a', href: 'javascript:alert(1)' }] })).toThrow('javascript');
+  for (const bad of ['javascript:alert(1)', 'java\tscript:alert(1)', '\u0001javascript:alert(1)', ' JaVaScRiPt:1', 'data:text/html,x', 'vbscript:x']) {
+    expect(() => settingsMenu({ id: 'st', items: [{ label: 'a', href: bad }] })).toThrow('href must be');
+  }
+  for (const good of ['#secrets', '/x', '?a=1', './x', '../x', 'https://a.example', 'mailto:a@b.c']) expect(settingsMenu({ id: 'st', items: [{ label: 'a', href: good }] })).toContain('toon-settings-item');
   expect(() => settingsMenu({ id: 'st', items: [{ label: '', href: '#a' }] })).toThrow('label and an href');
 });
 

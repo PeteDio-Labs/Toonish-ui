@@ -343,7 +343,7 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 `toon-settings` is the settings control: a button of two meshing gears that opens a short list of links. Parts: `toon-settings-btn`, `toon-settings-panel`, `toon-settings-item`, `toon-gears`, `toon-gears-always`, `toon-gear`, `toon-gear-big`, `toon-gear-small`. Helpers: `settingsMenu({ label, items, id, spin, cls })` and `gears({ spin, cls })`.
 
 - `settingsMenu()` returns a `<details>`, so it opens and closes without script. The script closes it on `Escape`, on a tap outside it and when you choose an item.
-- `items` is `{ label, href, current? }[]`. Use a `#hash` href to stay on the page. A `javascript:` href throws.
+- `items` is `{ label, href, current? }[]`. Use a `#hash` href to stay on the page. An href that is not a hash, a path, a query or an http(s), mailto or tel link throws, after tabs, newlines and control characters are removed as a browser removes them.
 - `gears()` draws the icon alone: a large gear and a small one that turn in opposite directions. It is `aria-hidden`, so name the control that holds it.
 - `spin` is `active` (the default: the gears turn while the control is hovered, focused or open) or `always`.
 - The gears use the kit's motion rules. The system's reduced-motion setting stops them unless the visitor chose motion on.
