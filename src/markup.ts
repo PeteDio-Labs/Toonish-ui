@@ -1149,7 +1149,7 @@ export interface BuildBadgeOptions {
 }
 
 /**
- * A quiet line that names the build: the environment and the short commit hash. It draws only when `env` names a
+ * A quiet footer line that names the build: the environment and the short commit hash. It draws only when `env` names a
  * non-production environment, so a page passes `process.env.BUILD_ENV` and `process.env.BUILD_SHA` at build time and
  * production ships nothing. Put it last in the body. It is in the flow, so it never covers a control.
  */
@@ -1160,7 +1160,7 @@ export const buildBadge = (o: BuildBadgeOptions = {}): string => {
   const sha = o.sha?.trim() ?? '';
   if (sha && !/^[0-9a-f]{7,40}$/i.test(sha)) throw new Error('buildBadge: sha must be 7 to 40 hex characters');
   const text = sha ? `${esc(env)} build <code>${esc(sha.slice(0, 7).toLowerCase())}</code>` : `${esc(env)} build, commit not named`;
-  return `<p class="toon-build" data-toon-build="${esc(env)}">${text}</p>`;
+  return `<footer class="toon-build" data-toon-build="${esc(env)}">${text}</footer>`;
 };
 
 /** The key for `bars()`: one entry per tone, in words. A `hatch` entry draws the same hatch as its segment. */

@@ -651,7 +651,7 @@ var buildBadge = (o = {}) => {
   if (sha && !/^[0-9a-f]{7,40}$/i.test(sha))
     throw new Error("buildBadge: sha must be 7 to 40 hex characters");
   const text = sha ? `${esc(env)} build <code>${esc(sha.slice(0, 7).toLowerCase())}</code>` : `${esc(env)} build, commit not named`;
-  return `<p class="toon-build" data-toon-build="${esc(env)}">${text}</p>`;
+  return `<footer class="toon-build" data-toon-build="${esc(env)}">${text}</footer>`;
 };
 var barsKey = (items, o = {}) => {
   if (!items.length)
