@@ -35,10 +35,11 @@ const server = Bun.serve({
 // found by eye on staging: an icon cut by its svg, a badge on top of a heading and a heading cut by a clipping box.
 const canary = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>canary</title></head>
 <body style="margin:0;font:20px sans-serif"><div style="width:120px"><svg id="icon" viewBox="0 0 20 20" width="40" height="40"><path d="M2 10h22" stroke="black" stroke-width="3" fill="none"/></svg></div>
-<div style="position:relative;width:200px;margin-top:20px"><h2 id="h" style="margin:0">Heading text</h2><span id="b" style="position:absolute;left:30px;top:6px;background:#ff0">FIXED!</span></div>
+<div style="position:relative;width:200px;margin-top:20px"><h2 id="h" style="margin:0">Heading text<span id="b" style="position:absolute;left:30px;top:6px;background:#ff0">FIXED!</span></h2></div>
 <div style="width:100px;height:20px;overflow:hidden;margin-top:20px"><p id="p" style="margin:0 0 0 60px;width:200px">Cut off text here</p></div></body></html>`;
 
 const fail: string[] = [];
+const seenFiles: string[] = [];
 let checks = 0, textBoxes = 0, svgs = 0, shots = 0, hovers = 0;
 
 const key = (f: Finding) => `${f.rule}|${f.what}|${f.detail}`;
@@ -53,6 +54,7 @@ try {
   const diffPage = await (await browser.newContext()).newPage();
   const compare = async (actual: Buffer, file: string, what: string) => {
     checks++;
+    seenFiles.push(file);
     const base = Bun.file(`${SNAPSHOTS}/${file}`);
     if (update) { await Bun.write(`${SNAPSHOTS}/${file}`, actual); return; }
     if (!(await base.exists())) { fail.push(`${what}: no baseline ${SNAPSHOTS}/${file}. Run the update-snapshots workflow on this branch.`); return; }
@@ -90,7 +92,7 @@ try {
     checks++;
     const rest = await run(page, `${name}`, known);
     if (rest.textBoxes < 100 || rest.svgs < 5) fail.push(`${name}: the audit read only ${rest.textBoxes} text boxes and ${rest.svgs} svgs, so it did not examine the fixture`);
-    await page.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.open = true; }));
+    await page.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.dataset.wasOpen = String(d.open); d.open = true; }));
     await run(page, `${name} (details open)`, known);
 
     // 2. Hover pass (desktop only: a phone has no hover). Each target is hovered, then the audit runs again.
@@ -100,7 +102,7 @@ try {
         const out: string[] = [];
         const done = new Set<Element>(); // one probe per element: a card and its link would otherwise overwrite each other
         sel.forEach((s, i) => document.querySelectorAll(s).forEach((e, j) => {
-          if (j >= 3 || done.has(e) || !e.getClientRects().length) return;
+          if (j >= 3 || done.has(e) || !e.getClientRects().length || e.closest('.toon-skip')) return; // the skip link sits off screen until focused
           done.add(e);
           e.setAttribute('data-hover-probe', `${i}-${j}`);
           out.push(`[data-hover-probe="${i}-${j}"]`);
@@ -110,18 +112,19 @@ try {
       for (const t of targets) {
         const el = page.locator(t);
         await el.scrollIntoViewIfNeeded({ timeout: 2000 }).catch(() => undefined);
-        await el.hover({ timeout: 2000, trial: false }).catch(() => undefined);
+        const hovered = await el.hover({ timeout: 2000 }).then(() => true, () => false);
         await page.waitForTimeout(60);
+        if (!hovered) { fail.push(`${name}: hover on ${t} did not land`); continue; }
         hovers++; checks++;
         await run(page, `${name} hover ${t}`, known);
       }
       await page.mouse.move(0, 0);
       await page.evaluate(() => document.querySelectorAll('[data-hover-probe]').forEach((e) => e.removeAttribute('data-hover-probe')));
-      await page.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.open = d.hasAttribute('open'); }));
+      await page.evaluate(() => document.querySelectorAll('details').forEach((d) => { d.open = d.dataset.wasOpen === 'true'; }));
     }
 
     // 3. Snapshots: one image per fixture section.
-    const ids = await page.evaluate(() => [...document.querySelectorAll('main > section[id], main > header, main > .toon-masthead')].map((e, i) => e.id || `top${i}`));
+    const ids = await page.evaluate(() => [...document.querySelectorAll('main > section[id], main > header, main > .toon-masthead')].map((e, i) => { if (!e.id) e.id = `top${i}`; return e.id; }));
     for (const id of ids) {
       const loc = page.locator(`#${id}`).first();
       if (!(await loc.count())) continue;
@@ -141,5 +144,11 @@ if (fail.length) {
   console.error(`layout check FAILED, ${fail.length} problems in ${checks} checks:\n- ${fail.join('\n- ')}`);
   process.exit(1);
 }
+if (!update) {
+  const seen = new Set(seenFiles);
+  const orphans = [...new Bun.Glob('*.png').scanSync(SNAPSHOTS)].filter((f) => !seen.has(f));
+  if (orphans.length) { console.error(`layout check FAILED: ${orphans.length} baselines match no section: ${orphans.join(', ')}. Delete them.`); process.exit(1); }
+}
+if (hovers < 10) { console.error(`layout check ran only ${hovers} hover states, so the hover pass did not examine the fixture`); process.exit(1); }
 if (shots < 20) { console.error(`layout check read only ${shots} snapshots; the fixture sections were not found`); process.exit(1); }
 console.log(`layout check passed: ${checks} checks, ${textBoxes} text boxes and ${svgs} svgs read for clipping and overlap, ${hovers} hover states, ${shots} section snapshots ${update ? 'WRITTEN' : 'compared'} at 1280 px and 390 px`);

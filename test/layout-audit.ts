@@ -76,7 +76,7 @@ export const audit = (): AuditResult => {
   }
 
   // 2 and 3. Collect every line box of visible text, in page coordinates.
-  type Box = { el: Element; l: number; t: number; r: number; b: number };
+  type Box = { el: Element; l: number; t: number; r: number; b: number; fixed: boolean };
   const boxes: Box[] = [];
   const clippers = new Set<Element>();
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -87,21 +87,20 @@ export const audit = (): AuditResult => {
     // A deck stacks its cards on purpose; only the front card is read.
     const pos = el?.closest('.toon-deck-card');
     if (pos && el?.closest('.toon-deck[data-toon-deck-on]') && pos.getAttribute('data-pos') !== '0') continue;
-    if (!el || !(n.textContent ?? '').trim() || el.closest('svg, script, style, noscript, template, .sr-only, .toon-masthead-sr, .toon-sr') || !shown(el) || hiddenInk(el) || pinned(el) || allowed(el)) continue;
+    if (!el || !(n.textContent ?? '').trim() || el.closest('svg, script, style, noscript, template, .sr-only, .toon-masthead-sr, .toon-sr') || !shown(el) || hiddenInk(el) || allowed(el)) continue;
+    const fixed = pinned(el);
     const range = document.createRange();
     range.selectNodeContents(n);
     for (const q of range.getClientRects()) {
       if (q.width < 1 || q.height < 1) continue;
       // Lettering is rotated and raised, so its line box is taller than its ink. Count the middle 70% of its height.
       const trim = el.matches('.toon-type, .toon-sfx') ? q.height * 0.15 : 0;
-      const box = { el, l: q.left + scrollX, t: q.top + scrollY + trim, r: q.right + scrollX, b: q.bottom + scrollY - trim };
+      const box = { el, l: q.left + scrollX, t: q.top + scrollY + trim, r: q.right + scrollX, b: q.bottom + scrollY - trim, fixed };
       boxes.push(box);
       // text-cut: walk up to the first ancestors that clip, and compare the line box with their padding box.
       for (let a: Element | null = el; a && a !== document.documentElement; a = a.parentElement) {
         const cs = getComputedStyle(a);
-        // Content inside a scroller is reachable by scrolling, so a box beyond its edge is not cut.
-        if (/auto|scroll/.test(cs.overflowX + cs.overflowY)) break;
-        if (!clipsX(cs) && !clipsY(cs)) continue;
+        if (!clipsX(cs) && !clipsY(cs) && !/auto|scroll/.test(cs.overflowX + cs.overflowY)) continue;
         // A native scroll container with text-overflow is cut on purpose.
         if (cs.textOverflow === 'ellipsis' || cs.getPropertyValue('-webkit-line-clamp') !== 'none') continue;
         // Lettering is rotated and raised on purpose, so its line boxes reach past the ink.
@@ -109,9 +108,14 @@ export const audit = (): AuditResult => {
         const c = a.getBoundingClientRect();
         const bw = (s: string) => parseFloat(s) || 0;
         const left = c.left + bw(cs.borderLeftWidth), right = c.right - bw(cs.borderRightWidth), top = c.top + bw(cs.borderTopWidth), bottom = c.bottom - bw(cs.borderBottomWidth);
-        // The kit's page wrapper clips the horizontal axis at the viewport on purpose; the overflow check covers that case.
-        const cutX = clipsX(cs) && (q.right > right + 1 || q.left < left - 1);
-        const cutY = clipsY(cs) && (q.bottom > bottom + 1 || q.top < top - 1);
+                const beyondX = q.right > right + 1 || q.left < left - 1;
+        const beyondY = q.bottom > bottom + 1 || q.top < top - 1;
+        // Content beyond the edge of a scroller is reachable by scrolling, so it is not cut. Scrolling one axis
+        // makes the other compute to auto, so each axis is judged on its own.
+        const scrollsX = /auto|scroll/.test(cs.overflowX), scrollsY = /auto|scroll/.test(cs.overflowY);
+        if ((scrollsX && beyondX && !clipsX(cs)) || (scrollsY && beyondY && !clipsY(cs))) break;
+        const cutX = clipsX(cs) && beyondX;
+        const cutY = clipsY(cs) && beyondY;
         if (cutX || cutY) {
           clippers.add(a);
           if (!allowed(a)) findings.push({ rule: 'text-cut', what: name(el), detail: `cut by ${name(a)} on the ${cutX ? 'x' : 'y'} axis` });
@@ -126,7 +130,12 @@ export const audit = (): AuditResult => {
   for (let i = 0; i < boxes.length; i++) {
     for (let j = i + 1; j < boxes.length; j++) {
       const a = boxes[i]!, b = boxes[j]!;
-      if (a.el === b.el || a.el.contains(b.el) || b.el.contains(a.el)) continue;
+      // Fixed and sticky bars sit over whatever scrolls beneath them, so they are compared only with each other.
+            if (a.el === b.el || a.fixed !== b.fixed) continue;
+      // An in-flow child cannot cover its parent's text, so a nested pair counts only when the inner element is
+      // positioned or transformed: a badge placed over a heading it sits inside.
+      const [outer, inner] = a.el.contains(b.el) ? [a.el, b.el] : b.el.contains(a.el) ? [b.el, a.el] : [null, null];
+      if (outer) { const ic = getComputedStyle(inner!); if (ic.position === 'static' && ic.transform === 'none' && ic.float === 'none') continue; }
       const w = Math.min(a.r, b.r) - Math.max(a.l, b.l), h = Math.min(a.b, b.b) - Math.max(a.t, b.t);
       // 3 px of slack: line boxes of tight type touch by a pixel or two without overlapping the glyphs.
       if (w <= 3 || h <= 3) continue;

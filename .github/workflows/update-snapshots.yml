@@ -29,6 +29,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false # build and test run branch code, so they get no write token
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: 1.4.4
@@ -39,6 +41,10 @@ jobs:
       - name: Rebuild the baselines
         run: bun run test:layout:update
       - name: Commit the changed baselines
+        env:
+          TOKEN: ${{ github.token }} # only this step holds the token
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
         run: |
           set -eu
           n=$(git ls-files test/snapshots | wc -l)
@@ -51,4 +57,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Update layout baselines from the CI runner"
-          git push
+          git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" "HEAD:refs/heads/${BRANCH}"
