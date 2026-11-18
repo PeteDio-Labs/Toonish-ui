@@ -44,6 +44,11 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-toggle` | `<button role="switch" aria-checked aria-label>` | Required label that says what "on" means | `Enter`, `Space` | 44 px tall. The side words are `aria-hidden`, because the label and the checked state say them. Disabled is `aria-disabled` with a visible reason, so it keeps focus. |
 | `toon-switch-card` | `role="group"` named by the service, with two `<button aria-pressed>` | The side, its state and "Serving" | `Enter`, `Space` | Each button is 72 px tall. A refused side is `aria-disabled` and points to the visible reason. Text is ink on every fill. |
 | `toon-settings` | `<details>` with a `<summary aria-label>` and a `<nav aria-label>` of links; the gears are `aria-hidden` | The control's label, "Settings" by default | `Enter` or `Space` opens it, `Escape` closes it and returns focus to the button | The button is 48 px and each item 44 px tall. It opens without script. The gears turn while it is hovered, focused or open, and reduced motion stops them. |
+| `toon-appbar` | `<header>` with the page's `h1` (or a lower heading), a decorative mark, one mono line and a state pill | The title, then the sub line, then the pill's words | None | The mark and the pill's glyph are `aria-hidden`, and the pill says the state in words. It is not a control. |
+| `toon-brief` | A `<div>` of paragraphs | The state word, then the answer | None | The state is a glyph and a word, and the palette backs it up. The count is `aria-hidden`: the title says the number. `unknown` is dashed. |
+| `toon-srow` | `role="listitem"` in a `list()`, as one link or as a block with a button | The lead and state word, the finding, the reason, then the button | A link row takes `Enter`. A block row has its own button. | The rail, the icon and the picture are decoration: the state word and the fact say what they show. The row is a link or has a button, never both. |
+| `toon-cells` | `<span role="img" aria-label>` | The label, then "2 of 4 ok, 1 down, 1 unknown" | None | A down cell is hatched and an unknown cell is short and dashed, so no state is colour alone. |
+| `toon-cycle` | `role="meter"` with `aria-label`, `aria-valuenow`, `aria-valuemax` and `aria-valuetext` | "14 of 23 done, day 3 of 7, on pace" | None | The marker for today is not the only cue: the spoken value says on pace or behind. The dates are decoration, so put them in the row's text if a reader needs them. |
 | `toon-masthead` | `<header>` with the page's `<h1>` | The title | None | The lettering is `aria-hidden` and an `sr-only` span carries the title. |
 | `toon-motion` | `<button aria-pressed>` | Its text, or an `aria-label` | `Enter`, `Space` | It lets a visitor stop motion. |
 
@@ -419,3 +424,51 @@ All decoration is `aria-hidden`.
   - `toon-sfx-ghost` is outline only, for sitting behind content.
   - Use Latin letters. Do not use katakana or a specific manga's glyphs.
   - The drift stops under reduced motion and `data-motion="off"`. The letters keep their turn.
+
+## Top of a view
+
+Five parts for the first screen of a status view: a bar, a slim verdict, a row per system, a small run of cells and a cycle bar. Put the bar first, then the brief, then a `list()` of status rows, and end with a `readout()`. They answer one question, such as "Do I need to do anything?", before any detail.
+
+### App bar
+
+`toon-appbar` is a paper bar with a logo tile, the title, one mono line and a state pill. Parts: `toon-appbar-mark`, `toon-appbar-text`, `toon-appbar-title`, `toon-appbar-sub`, `toon-appbar-state`. State modifiers: `toon-appbar-state-down`, `toon-appbar-state-warn`, `toon-appbar-state-ok`, `toon-appbar-state-unknown`. Helper: `appbar({ title, sub, mark, state, heading, cls })`.
+
+- `title` is required and is the page's `h1`. Pass `heading: 2` or `3` when the page already has an `h1`.
+- `mark` is one to three letters or digits on the logo tile. The default is "PD". The tile is decoration.
+- `state` is `{ text, tone }`, where `tone` is `ok`, `warn`, `down` or `unknown`. The pill is ink with a paper word. Its glyph takes the state colour and is `aria-hidden`.
+
+### Brief
+
+`toon-brief` is a slim verdict in one of four palettes. Parts: `toon-brief-state`, `toon-brief-title`, `toon-brief-body`, `toon-brief-count`. Palettes: `toon-brief-ink`, `toon-brief-paper`, `toon-brief-violet`, `toon-brief-blue`. States: `toon-brief-ok`, `toon-brief-warn`, `toon-brief-down`, `toon-brief-unknown`. Helper: `brief({ state, title, body, stateText, count, palette, id, cls })`.
+
+- It answers the same question as `verdict()` in less height. Use `verdict()` where the answer needs room, and `brief()` at the top of a view.
+- `palette` defaults to `ink`. The colours are the `palette` tokens in [Tokens](tokens.md#palettes), and each text pair meets 4.5:1.
+- The state word follows the palette. Ink and paper show red, green, yellow or a quiet colour for down, ok, warn and unknown. Violet and blue show ink, because red fails on them.
+- `count` is one to four characters in comic lettering, such as "4!". It is `aria-hidden`, so the title must say the number.
+- `unknown` is dashed and never reads as ok.
+
+### Status row
+
+`toon-srow` is a row for `list()` that reports one system. Parts: `toon-srow-inner`, `toon-srow-link`, `toon-srow-icon`, `toon-srow-lead`, `toon-srow-state`, `toon-srow-title`, `toon-srow-sub`, `toon-srow-go`, `toon-srow-visual`, `toon-srow-fact`. Without an `icon` the row takes `toon-srow-plain` and uses the full width. Icon tones: `toon-srow-icon-red`, `toon-srow-icon-yellow`, `toon-srow-icon-violet`, `toon-srow-icon-paper`, `toon-srow-icon-mist`. States: `toon-srow-down`, `toon-srow-warn`, `toon-srow-ok`, `toon-srow-unknown`. Helper: `statusRow({ state, lead, stateText, title, sub, icon, iconTone, action, visual, fact, href })`.
+
+- A rail on the left edge shows the state: solid red, yellow or green, and hatched for unknown. The state word beside the lead says the same, so colour is never the only cue.
+- `action` is a `button()`. Use one button style for every row, `primary`, so the list reads as one set. A row with `action` is not a link, and the helper throws if you pass `href` as well.
+- `href` makes the whole row one link. Use it for a row with nothing to do on the spot.
+- `icon` is one inline `<svg>` about 28 px, checked as for `row()`. `iconTone` colours the tile behind it and defaults to `blue`.
+- `visual` is markup you trust, such as `cells()` or `cycle()`. `fact` is one short figure at the end of the row.
+- On a phone every part stacks in the text column. From 640 px the visual and the fact sit at the end of the row.
+
+### Cells
+
+`toon-cells` is a small run of cells, one per reading, for the end of a status row. Parts: `toon-cells-ok`, `toon-cells-down`, `toon-cells-unknown`. Helper: `cells({ label, cells })`, where `cells` lists `ok`, `down` or `unknown`, oldest first.
+
+- It is `role="img"` and says the counts, such as "Backups: 4 of 5 ok, 1 down". The helper throws on more than 60 cells.
+- A down cell is hatched and an unknown cell is short and dashed. For a strip with times and a summary line, use `uptime()`.
+
+### Cycle
+
+`toon-cycle` shows a cycle's progress: a bar of done over total, a dashed marker for today and the dates at each end. Parts: `toon-cycle-bar`, `toon-cycle-fill`, `toon-cycle-today`, `toon-cycle-ends`. Helper: `cycle({ label, done, total, day, days, from, to })`.
+
+- The spoken value reads "14 of 23 done, day 3 of 7, on pace". It says "on pace" when the share done is at or above the share of the days gone, and "behind" when it is not.
+- The helper throws when `done` is above `total`, when `day` is outside 1 to `days`, and on a non-number.
+- Draw it on paper. The dates at the ends are decoration and are `aria-hidden`.

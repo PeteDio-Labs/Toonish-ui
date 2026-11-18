@@ -22,6 +22,7 @@ A test (`test/docs.test.ts`) fails when `dist/toonish.css` defines a `toon-*` cl
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-11-18 | The top of a status view is an app bar, a slim ink verdict strip and one list of status rows, each with one button style. | Pedro picked the app bar and the ink strip from three header options, and the one-list hybrid over a queue. Mixed button styles in one list read as a mistake. |
 | 2026-11-18 | Four strip palettes, ink, paper, violet and blue, are tokens. Ink is the verdict strip's choice. | Pedro liked all four and picked ink because it draws the eye. A role name lets a page switch with one line. |
 | 2026-11-03 | Comic-book look: blue, red, yellow and violet on navy, with Bangers lettering. | The first cyan-and-orange set was rejected. The cream, red and yellow set looked like a default theme. |
 | 2026-11-03 | Display text is Bangers with an ink outline and hard shadow. The hand-drawn SVG lettering engine was removed. | The drawn letters read as unfinished. A font is sharper and costs less. |

@@ -675,4 +675,106 @@ export interface SettingsMenuOptions {
  * without script. The script adds closing on `Escape`, on a tap outside and on choosing an item. Put it in a header.
  */
 export declare const settingsMenu: (o: SettingsMenuOptions) => string;
+/** The four strip palettes. Each reads the `--toon-palette-<name>-*` tokens. */
+export type Palette = 'ink' | 'paper' | 'violet' | 'blue';
+export interface AppbarOptions {
+    /** The page title. It is the page's `h1`. Required. */
+    title: string;
+    /** One mono line under the title, such as "Read 60 s ago". */
+    sub?: string;
+    /** One to three letters on the logo tile. Default "PD". It is decoration. */
+    mark?: string;
+    /** A pill at the end of the bar that says the state in words, such as "4 need you". */
+    state?: {
+        text: string;
+        tone: TileState;
+    };
+    /** The level of the title. Default 1, because the bar leads the page. Pass 2 when the page already has an `h1`. */
+    heading?: 1 | 2 | 3;
+    cls?: string;
+}
+/**
+ * The top bar of an app view: a logo tile, the title, one quiet line and a state pill. It is a `<header>`, and the title is the
+ * page's `h1`. The pill's glyph is decoration and its words say the state.
+ */
+export declare const appbar: (o: AppbarOptions) => string;
+export interface BriefOptions {
+    state: TileState;
+    /** The answer, in one short sentence. Required. */
+    title: string;
+    /** One line under the answer. */
+    body?: string;
+    /** Words for the state line in place of "Ok", "Warning", "Down" or "Unknown", such as "Needs you". */
+    stateText?: string;
+    /** A short figure in comic lettering at the end of the strip, such as "4!". It is decoration: the title says the number. */
+    count?: string;
+    /** Default `ink`. */
+    palette?: Palette;
+    id?: string;
+    cls?: string;
+}
+/**
+ * A slim verdict: a state line, the answer in one sentence, a line under it, and an optional comic count. It answers the same
+ * question as `verdict()` in less height, and takes a palette. `unknown` is dashed and never reads as ok.
+ */
+export declare const brief: (o: BriefOptions) => string;
+export interface StatusRowOptions {
+    state: TileState;
+    /** The system, such as "Backups". Required. */
+    lead: string;
+    /** Words for the state in place of "Ok", "Warning", "Down" or "Unknown", such as "1 failed". */
+    stateText?: string;
+    /** The finding in one line. Required. */
+    title: string;
+    /** Why, or what to do. */
+    sub?: string;
+    /** An inline `<svg>` for the icon tile, about 28 px. Decoration. */
+    icon?: string;
+    /** The tile colour behind the icon. Default `blue`. */
+    iconTone?: Tone;
+    /** A button from `button()`. The row then is not a link. */
+    action?: string;
+    /** Markup you trust for a small picture at the end of the row, such as `cells()` or `cycle()`. */
+    visual?: string;
+    /** One fact at the end of the row, such as "4 of 5 good". */
+    fact?: string;
+    /** Makes the whole row one link. Not with `action`. */
+    href?: string;
+}
+/**
+ * A row for `list()` that reports one system: a state rail on the left edge, an icon tile, a lead and state word, the finding,
+ * an optional button, a small picture and one fact. The rail repeats the state the word already says, so colour is never the only cue.
+ */
+export declare const statusRow: (o: StatusRowOptions) => string;
+export interface CellsOptions {
+    /** Names the picture for a screen reader, such as "Backups". Required. */
+    label: string;
+    /** One cell each, oldest first. */
+    cells: UptimeState[];
+}
+/**
+ * A small run of cells, one per reading, for the end of a `statusRow()`. It is `role="img"` and says the counts. A down cell is hatched and an unknown
+ * cell is short and dashed, so no state rests on colour alone. For a full strip with times, use `uptime()`.
+ */
+export declare const cells: (o: CellsOptions) => string;
+export interface CycleOptions {
+    /** Names the bar, such as "Cycle 12". Required. */
+    label: string;
+    /** Work items done. */
+    done: number;
+    /** Work items in the cycle. */
+    total: number;
+    /** The day of the cycle, counted from 1. */
+    day: number;
+    /** The length of the cycle in days. */
+    days: number;
+    /** The start and end dates as printed, such as "Nov 16" and "Nov 22". */
+    from: string;
+    to: string;
+}
+/**
+ * A cycle's progress: a bar of done over total, a dashed marker for today, and the dates at each end. It says "on pace" when done is at or above
+ * the share of the cycle already gone, and "behind" when it is not. The words are in the meter's spoken value, so the marker is not the only cue.
+ */
+export declare const cycle: (o: CycleOptions) => string;
 export {};

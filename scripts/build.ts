@@ -41,6 +41,13 @@ emit('shadow-toon', group('shadow'));
 emit('ease', group('ease'));
 // Tailwind v4 has no theme namespace for border width or duration, so the component CSS reads these through arbitrary values.
 emit('toon-border', group('border'));
+// The palette tokens are aliases of colour tokens. The component CSS reads them as --toon-palette-<name>-<role>, so resolve each alias to its hex here.
+const colours = group('color');
+emit('toon-palette', Object.fromEntries(Object.entries(group('palette')).map(([k, v]) => {
+  const hex = colours[v.replace(/^\{color\.|\}$/g, '')];
+  if (!hex) throw new Error(`palette token ${k} aliases ${v}, which is not a colour token`);
+  return [k, hex];
+})));
 emit('toon-duration', group('duration'));
 await Bun.write(`${dist}/theme.css`, `/* Generated from tokens/toonish.tokens.json. For Tailwind v4: @import "tailwindcss"; @import "toonish-ui/theme.css"; */\n@theme {\n${theme.join('\n')}\n}\n`);
 

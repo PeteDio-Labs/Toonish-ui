@@ -1336,3 +1336,178 @@ export const settingsMenu = (o: SettingsMenuOptions): string => {
   return `<details class="toon-settings${o.cls ? ` ${esc(o.cls)}` : ''}" id="${o.id}"><summary class="toon-settings-btn" aria-label="${label}">${gears({ spin: o.spin })}</summary>` +
     `<nav class="toon-settings-panel" aria-label="${label}"><ul>${items}</ul></nav></details>`;
 };
+
+/** The four strip palettes. Each reads the `--toon-palette-<name>-*` tokens. */
+export type Palette = 'ink' | 'paper' | 'violet' | 'blue';
+const PALETTES: readonly Palette[] = ['ink', 'paper', 'violet', 'blue'];
+
+export interface AppbarOptions {
+  /** The page title. It is the page's `h1`. Required. */
+  title: string;
+  /** One mono line under the title, such as "Read 60 s ago". */
+  sub?: string;
+  /** One to three letters on the logo tile. Default "PD". It is decoration. */
+  mark?: string;
+  /** A pill at the end of the bar that says the state in words, such as "4 need you". */
+  state?: { text: string; tone: TileState };
+  /** The level of the title. Default 1, because the bar leads the page. Pass 2 when the page already has an `h1`. */
+  heading?: 1 | 2 | 3;
+  cls?: string;
+}
+
+/**
+ * The top bar of an app view: a logo tile, the title, one quiet line and a state pill. It is a `<header>`, and the title is the
+ * page's `h1`. The pill's glyph is decoration and its words say the state.
+ */
+export const appbar = (o: AppbarOptions): string => {
+  if (!o.title?.trim()) throw new Error('appbar: title is required');
+  const mark = (o.mark ?? 'PD').trim();
+  if (!/^[A-Za-z0-9]{1,3}$/.test(mark)) throw new Error('appbar: mark is one to three letters or digits');
+  const level = o.heading ?? 1;
+  if (![1, 2, 3].includes(level)) throw new Error('appbar: heading is a level from 1 to 3');
+  if (o.state !== undefined) {
+    if (!Object.hasOwn(TILE_WORD, o.state.tone)) throw new Error(`appbar: unknown state tone "${String(o.state.tone)}": use ok, warn, down or unknown`);
+    if (!o.state.text?.trim()) throw new Error('appbar: state text is required');
+  }
+  const state = o.state ? `<p class="toon-appbar-state toon-appbar-state-${o.state.tone}"><span aria-hidden="true">${TILE_GLYPH[o.state.tone]}</span> ${esc(o.state.text.trim())}</p>` : '';
+  return `<header class="toon-appbar${o.cls ? ' ' + esc(o.cls) : ''}"><span class="toon-appbar-mark" aria-hidden="true">${esc(mark)}</span>` +
+    `<div class="toon-appbar-text"><h${level} class="toon-appbar-title">${esc(o.title.trim())}</h${level}>${o.sub?.trim() ? `<p class="toon-appbar-sub">${esc(o.sub.trim())}</p>` : ''}</div>${state}</header>`;
+};
+
+export interface BriefOptions {
+  state: TileState;
+  /** The answer, in one short sentence. Required. */
+  title: string;
+  /** One line under the answer. */
+  body?: string;
+  /** Words for the state line in place of "Ok", "Warning", "Down" or "Unknown", such as "Needs you". */
+  stateText?: string;
+  /** A short figure in comic lettering at the end of the strip, such as "4!". It is decoration: the title says the number. */
+  count?: string;
+  /** Default `ink`. */
+  palette?: Palette;
+  id?: string;
+  cls?: string;
+}
+
+/**
+ * A slim verdict: a state line, the answer in one sentence, a line under it, and an optional comic count. It answers the same
+ * question as `verdict()` in less height, and takes a palette. `unknown` is dashed and never reads as ok.
+ */
+export const brief = (o: BriefOptions): string => {
+  if (!Object.hasOwn(TILE_WORD, o.state)) throw new Error(`brief: unknown state "${String(o.state)}": use ok, warn, down or unknown`);
+  if (!o.title?.trim()) throw new Error('brief: title is required');
+  const palette = o.palette ?? 'ink';
+  if (!PALETTES.includes(palette)) throw new Error(`brief: unknown palette "${String(palette)}": use ${PALETTES.join(', ')}`);
+  if (o.id !== undefined && !ID_RE.test(o.id)) throw new Error(`brief: id "${o.id}" is not a valid id`);
+  if (o.count !== undefined && !/^.{1,4}$/u.test(o.count.trim())) throw new Error('brief: count is one to four characters');
+  const count = o.count?.trim() ? `<span class="toon-brief-count" aria-hidden="true">${esc(o.count.trim())}</span>` : '';
+  return `<div class="toon-brief toon-brief-${palette} toon-brief-${o.state}${o.cls ? ' ' + esc(o.cls) : ''}"${o.id ? ` id="${o.id}"` : ''}>` +
+    `<p class="toon-brief-state"><span aria-hidden="true">${TILE_GLYPH[o.state]}</span> ${esc(o.stateText?.trim() || TILE_WORD[o.state])}</p>` +
+    `<p class="toon-brief-title">${esc(o.title.trim())}</p>${o.body?.trim() ? `<p class="toon-brief-body">${esc(o.body.trim())}</p>` : ''}${count}</div>`;
+};
+
+export interface StatusRowOptions {
+  state: TileState;
+  /** The system, such as "Backups". Required. */
+  lead: string;
+  /** Words for the state in place of "Ok", "Warning", "Down" or "Unknown", such as "1 failed". */
+  stateText?: string;
+  /** The finding in one line. Required. */
+  title: string;
+  /** Why, or what to do. */
+  sub?: string;
+  /** An inline `<svg>` for the icon tile, about 28 px. Decoration. */
+  icon?: string;
+  /** The tile colour behind the icon. Default `blue`. */
+  iconTone?: Tone;
+  /** A button from `button()`. The row then is not a link. */
+  action?: string;
+  /** Markup you trust for a small picture at the end of the row, such as `cells()` or `cycle()`. */
+  visual?: string;
+  /** One fact at the end of the row, such as "4 of 5 good". */
+  fact?: string;
+  /** Makes the whole row one link. Not with `action`. */
+  href?: string;
+}
+
+/**
+ * A row for `list()` that reports one system: a state rail on the left edge, an icon tile, a lead and state word, the finding,
+ * an optional button, a small picture and one fact. The rail repeats the state the word already says, so colour is never the only cue.
+ */
+export const statusRow = (o: StatusRowOptions): string => {
+  if (!Object.hasOwn(TILE_WORD, o.state)) throw new Error(`statusRow: unknown state "${String(o.state)}": use ok, warn, down or unknown`);
+  if (!o.lead?.trim()) throw new Error('statusRow: lead is required');
+  if (!o.title?.trim()) throw new Error('statusRow: title is required');
+  if (o.href && o.action) throw new Error('statusRow: a row with an action is not a link: pass href or action, not both');
+  if (o.href !== undefined && (!o.href.trim() || o.href.trim().startsWith('//') || /^\s*javascript:/i.test(o.href))) throw new Error('statusRow: href must be a path or a link on this site');
+  const tone = o.iconTone ?? 'blue';
+  const icon = o.icon ? `<span class="toon-srow-icon toon-srow-icon-${toneOf(tone)}" aria-hidden="true">${iconMarkup(o.icon)}</span>` : '';
+  const state = `<span class="toon-srow-state"><span aria-hidden="true">${TILE_GLYPH[o.state]}</span> ${esc(o.stateText?.trim() || TILE_WORD[o.state])}</span>`;
+  const body = `<span class="toon-srow-lead">${esc(o.lead.trim())} ${state}</span><b class="toon-srow-title">${esc(o.title.trim())}</b>` +
+    `${o.sub?.trim() ? `<small class="toon-srow-sub">${esc(o.sub.trim())}</small>` : ''}${o.action ? `<span class="toon-srow-go">${o.action}</span>` : ''}` +
+    `${o.visual ? `<span class="toon-srow-visual">${o.visual}</span>` : ''}${o.fact?.trim() ? `<span class="toon-srow-fact">${esc(o.fact.trim())}</span>` : ''}`;
+  const inner = `${icon}${body}`;
+  const cls = `toon-srow toon-srow-${o.state}${o.icon ? '' : ' toon-srow-plain'}`;
+  return o.href ? `<div class="${cls}" role="listitem"><a class="toon-srow-link" href="${esc(o.href.trim())}">${inner}</a></div>` : `<div class="${cls}" role="listitem"><div class="toon-srow-inner">${inner}</div></div>`;
+};
+
+export interface CellsOptions {
+  /** Names the picture for a screen reader, such as "Backups". Required. */
+  label: string;
+  /** One cell each, oldest first. */
+  cells: UptimeState[];
+}
+
+/**
+ * A small run of cells, one per reading, for the end of a `statusRow()`. It is `role="img"` and says the counts. A down cell is hatched and an unknown
+ * cell is short and dashed, so no state rests on colour alone. For a full strip with times, use `uptime()`.
+ */
+export const cells = (o: CellsOptions): string => {
+  if (!o.label?.trim()) throw new Error('cells: label is required');
+  if (!o.cells.length) throw new Error('cells: at least one cell is required');
+  if (o.cells.length > 60) throw new Error('cells: at most 60 cells: group the readings into longer intervals');
+  const n: Record<UptimeState, number> = { ok: 0, down: 0, unknown: 0 };
+  for (const c of o.cells) {
+    if (!Object.hasOwn(n, c)) throw new Error(`cells: unknown state "${String(c)}": use ok, down or unknown`);
+    n[c]++;
+  }
+  const said = [`${n.ok} of ${o.cells.length} ok`, n.down ? `${n.down} down` : '', n.unknown ? `${n.unknown} unknown` : ''].filter(Boolean).join(', ');
+  return `<span class="toon-cells" role="img" aria-label="${esc(`${o.label.trim()}: ${said}`)}">${o.cells.map((c) => `<i class="toon-cells-${c}"></i>`).join('')}</span>`;
+};
+
+export interface CycleOptions {
+  /** Names the bar, such as "Cycle 12". Required. */
+  label: string;
+  /** Work items done. */
+  done: number;
+  /** Work items in the cycle. */
+  total: number;
+  /** The day of the cycle, counted from 1. */
+  day: number;
+  /** The length of the cycle in days. */
+  days: number;
+  /** The start and end dates as printed, such as "Nov 16" and "Nov 22". */
+  from: string;
+  to: string;
+}
+
+/**
+ * A cycle's progress: a bar of done over total, a dashed marker for today, and the dates at each end. It says "on pace" when done is at or above
+ * the share of the cycle already gone, and "behind" when it is not. The words are in the meter's spoken value, so the marker is not the only cue.
+ */
+export const cycle = (o: CycleOptions): string => {
+  if (!o.label?.trim()) throw new Error('cycle: label is required');
+  for (const [k, v] of [['done', o.done], ['total', o.total], ['day', o.day], ['days', o.days]] as const) {
+    if (typeof v !== 'number' || !Number.isFinite(v) || v < 0) throw new Error(`cycle: ${k} must be a number of 0 or more, got ${String(v)}`);
+  }
+  if (o.total <= 0 || o.days <= 0) throw new Error('cycle: total and days must be above 0');
+  if (o.done > o.total) throw new Error(`cycle: done (${o.done}) is above total (${o.total})`);
+  if (o.day < 1 || o.day > o.days) throw new Error(`cycle: day must be from 1 to ${o.days}, got ${o.day}`);
+  if (!o.from?.trim() || !o.to?.trim()) throw new Error('cycle: from and to dates are required');
+  const pace = o.done / o.total >= o.day / o.days ? 'on pace' : 'behind';
+  const text = `${o.done} of ${o.total} done, day ${o.day} of ${o.days}, ${pace}`;
+  return `<span class="toon-cycle"><span class="toon-cycle-bar" role="meter" aria-label="${esc(o.label.trim())}" aria-valuemin="0" aria-valuenow="${o.done}" aria-valuemax="${o.total}" aria-valuetext="${esc(text)}">` +
+    `<span class="toon-cycle-fill" style="--w:${num((o.done / o.total) * 100)}"></span><span class="toon-cycle-today" style="--at:${num((o.day / o.days) * 100)}"></span></span>` +
+    `<span class="toon-cycle-ends" aria-hidden="true"><span>${esc(o.from.trim())}</span><span>${esc(o.to.trim())}</span></span></span>`;
+};

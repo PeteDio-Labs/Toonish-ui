@@ -736,19 +736,111 @@ var settingsMenu = (o) => {
   }).join("");
   return `<details class="toon-settings${o.cls ? ` ${esc(o.cls)}` : ""}" id="${o.id}"><summary class="toon-settings-btn" aria-label="${label}">${gears({ spin: o.spin })}</summary>` + `<nav class="toon-settings-panel" aria-label="${label}"><ul>${items}</ul></nav></details>`;
 };
+var PALETTES = ["ink", "paper", "violet", "blue"];
+var appbar = (o) => {
+  if (!o.title?.trim())
+    throw new Error("appbar: title is required");
+  const mark = (o.mark ?? "PD").trim();
+  if (!/^[A-Za-z0-9]{1,3}$/.test(mark))
+    throw new Error("appbar: mark is one to three letters or digits");
+  const level = o.heading ?? 1;
+  if (![1, 2, 3].includes(level))
+    throw new Error("appbar: heading is a level from 1 to 3");
+  if (o.state !== undefined) {
+    if (!Object.hasOwn(TILE_WORD, o.state.tone))
+      throw new Error(`appbar: unknown state tone "${String(o.state.tone)}": use ok, warn, down or unknown`);
+    if (!o.state.text?.trim())
+      throw new Error("appbar: state text is required");
+  }
+  const state = o.state ? `<p class="toon-appbar-state toon-appbar-state-${o.state.tone}"><span aria-hidden="true">${TILE_GLYPH[o.state.tone]}</span> ${esc(o.state.text.trim())}</p>` : "";
+  return `<header class="toon-appbar${o.cls ? " " + esc(o.cls) : ""}"><span class="toon-appbar-mark" aria-hidden="true">${esc(mark)}</span>` + `<div class="toon-appbar-text"><h${level} class="toon-appbar-title">${esc(o.title.trim())}</h${level}>${o.sub?.trim() ? `<p class="toon-appbar-sub">${esc(o.sub.trim())}</p>` : ""}</div>${state}</header>`;
+};
+var brief = (o) => {
+  if (!Object.hasOwn(TILE_WORD, o.state))
+    throw new Error(`brief: unknown state "${String(o.state)}": use ok, warn, down or unknown`);
+  if (!o.title?.trim())
+    throw new Error("brief: title is required");
+  const palette = o.palette ?? "ink";
+  if (!PALETTES.includes(palette))
+    throw new Error(`brief: unknown palette "${String(palette)}": use ${PALETTES.join(", ")}`);
+  if (o.id !== undefined && !ID_RE.test(o.id))
+    throw new Error(`brief: id "${o.id}" is not a valid id`);
+  if (o.count !== undefined && !/^.{1,4}$/u.test(o.count.trim()))
+    throw new Error("brief: count is one to four characters");
+  const count = o.count?.trim() ? `<span class="toon-brief-count" aria-hidden="true">${esc(o.count.trim())}</span>` : "";
+  return `<div class="toon-brief toon-brief-${palette} toon-brief-${o.state}${o.cls ? " " + esc(o.cls) : ""}"${o.id ? ` id="${o.id}"` : ""}>` + `<p class="toon-brief-state"><span aria-hidden="true">${TILE_GLYPH[o.state]}</span> ${esc(o.stateText?.trim() || TILE_WORD[o.state])}</p>` + `<p class="toon-brief-title">${esc(o.title.trim())}</p>${o.body?.trim() ? `<p class="toon-brief-body">${esc(o.body.trim())}</p>` : ""}${count}</div>`;
+};
+var statusRow = (o) => {
+  if (!Object.hasOwn(TILE_WORD, o.state))
+    throw new Error(`statusRow: unknown state "${String(o.state)}": use ok, warn, down or unknown`);
+  if (!o.lead?.trim())
+    throw new Error("statusRow: lead is required");
+  if (!o.title?.trim())
+    throw new Error("statusRow: title is required");
+  if (o.href && o.action)
+    throw new Error("statusRow: a row with an action is not a link: pass href or action, not both");
+  if (o.href !== undefined && (!o.href.trim() || o.href.trim().startsWith("//") || /^\s*javascript:/i.test(o.href)))
+    throw new Error("statusRow: href must be a path or a link on this site");
+  const tone = o.iconTone ?? "blue";
+  const icon = o.icon ? `<span class="toon-srow-icon toon-srow-icon-${toneOf(tone)}" aria-hidden="true">${iconMarkup(o.icon)}</span>` : "";
+  const state = `<span class="toon-srow-state"><span aria-hidden="true">${TILE_GLYPH[o.state]}</span> ${esc(o.stateText?.trim() || TILE_WORD[o.state])}</span>`;
+  const body = `<span class="toon-srow-lead">${esc(o.lead.trim())} ${state}</span><b class="toon-srow-title">${esc(o.title.trim())}</b>` + `${o.sub?.trim() ? `<small class="toon-srow-sub">${esc(o.sub.trim())}</small>` : ""}${o.action ? `<span class="toon-srow-go">${o.action}</span>` : ""}` + `${o.visual ? `<span class="toon-srow-visual">${o.visual}</span>` : ""}${o.fact?.trim() ? `<span class="toon-srow-fact">${esc(o.fact.trim())}</span>` : ""}`;
+  const inner = `${icon}${body}`;
+  const cls = `toon-srow toon-srow-${o.state}${o.icon ? "" : " toon-srow-plain"}`;
+  return o.href ? `<div class="${cls}" role="listitem"><a class="toon-srow-link" href="${esc(o.href.trim())}">${inner}</a></div>` : `<div class="${cls}" role="listitem"><div class="toon-srow-inner">${inner}</div></div>`;
+};
+var cells = (o) => {
+  if (!o.label?.trim())
+    throw new Error("cells: label is required");
+  if (!o.cells.length)
+    throw new Error("cells: at least one cell is required");
+  if (o.cells.length > 60)
+    throw new Error("cells: at most 60 cells: group the readings into longer intervals");
+  const n = { ok: 0, down: 0, unknown: 0 };
+  for (const c of o.cells) {
+    if (!Object.hasOwn(n, c))
+      throw new Error(`cells: unknown state "${String(c)}": use ok, down or unknown`);
+    n[c]++;
+  }
+  const said = [`${n.ok} of ${o.cells.length} ok`, n.down ? `${n.down} down` : "", n.unknown ? `${n.unknown} unknown` : ""].filter(Boolean).join(", ");
+  return `<span class="toon-cells" role="img" aria-label="${esc(`${o.label.trim()}: ${said}`)}">${o.cells.map((c) => `<i class="toon-cells-${c}"></i>`).join("")}</span>`;
+};
+var cycle = (o) => {
+  if (!o.label?.trim())
+    throw new Error("cycle: label is required");
+  for (const [k, v] of [["done", o.done], ["total", o.total], ["day", o.day], ["days", o.days]]) {
+    if (typeof v !== "number" || !Number.isFinite(v) || v < 0)
+      throw new Error(`cycle: ${k} must be a number of 0 or more, got ${String(v)}`);
+  }
+  if (o.total <= 0 || o.days <= 0)
+    throw new Error("cycle: total and days must be above 0");
+  if (o.done > o.total)
+    throw new Error(`cycle: done (${o.done}) is above total (${o.total})`);
+  if (o.day < 1 || o.day > o.days)
+    throw new Error(`cycle: day must be from 1 to ${o.days}, got ${o.day}`);
+  if (!o.from?.trim() || !o.to?.trim())
+    throw new Error("cycle: from and to dates are required");
+  const pace = o.done / o.total >= o.day / o.days ? "on pace" : "behind";
+  const text = `${o.done} of ${o.total} done, day ${o.day} of ${o.days}, ${pace}`;
+  return `<span class="toon-cycle"><span class="toon-cycle-bar" role="meter" aria-label="${esc(o.label.trim())}" aria-valuemin="0" aria-valuenow="${o.done}" aria-valuemax="${o.total}" aria-valuetext="${esc(text)}">` + `<span class="toon-cycle-fill" style="--w:${num(o.done / o.total * 100)}"></span><span class="toon-cycle-today" style="--at:${num(o.day / o.days * 100)}"></span></span>` + `<span class="toon-cycle-ends" aria-hidden="true"><span>${esc(o.from.trim())}</span><span>${esc(o.to.trim())}</span></span></span>`;
+};
 export {
   BADGE,
   HEX,
   HEX_TEXT,
   PAIR,
+  appbar,
   badge,
   bars,
   barsKey,
+  brief,
   buildBadge,
   burst,
   button,
+  cells,
   chartTable,
   chip,
+  cycle,
   deck,
   delta,
   disclosure,
@@ -776,6 +868,7 @@ export {
   spark,
   speedLines,
   stat,
+  statusRow,
   statusTile,
   steps,
   strip,

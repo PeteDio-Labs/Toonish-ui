@@ -7,7 +7,9 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- `palette` tokens: four ways to dress a strip of the page (ink, paper, violet, blue), each with `fill`, `text`, `state`, `edge`, `shadow` and `accent` roles, written as `--toon-palette-<name>-<role>`. `test/tokens.test.ts` asserts every text pair at 4.5:1 and every strip edge at 3:1. No component uses them yet. Ink is the choice for the verdict strip.
+- `appbar()`, `brief()`, `statusRow()`, `cells()` and `cycle()`, with `toon-appbar`, `toon-brief`, `toon-srow`, `toon-cells` and `toon-cycle`: the top of a status view. A paper bar with a logo tile, title and state pill; a slim verdict strip in the ink, paper, violet or blue palette; a status row with a state rail, a button, a small picture and one fact; a run of cells; and a cycle bar that says on pace or behind. `docs/components.md` has the section "Top of a view".
+- `theme.css` carries the `palette` tokens as resolved hex values, so the component CSS reads `--toon-palette-<name>-<role>`.
+- `palette` tokens: four ways to dress a strip of the page (ink, paper, violet, blue), each with `fill`, `text`, `state`, `edge`, `shadow` and `accent` roles, written as `--toon-palette-<name>-<role>`. `test/tokens.test.ts` asserts every text pair at 4.5:1 and every strip edge at 3:1. Ink is the choice for the verdict strip. `brief()` reads them.
 
 ## [0.7.3] - 2026-11-18
 
