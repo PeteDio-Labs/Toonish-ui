@@ -608,10 +608,10 @@ test('readout labels what was read and has a paper form', () => {
 });
 
 test('toggle is a labelled switch whose disabled form stays focusable', () => {
-  const t = toggle({ label: 'Auth: run on cloud', checked: false, off: 'On-prem', on: 'Cloud', disabled: true, describedBy: 'why', id: 't', attrs: { 'data-x': 'a"b' } });
+  const t = toggle({ label: 'Auth: run on cloud', checked: false, off: 'Lab', on: 'Cloud', disabled: true, describedBy: 'why', id: 't', attrs: { 'data-x': 'a"b' } });
   expect(t).toContain('role="switch" class="toon-toggle" id="t" aria-checked="false" aria-label="Auth: run on cloud" aria-disabled="true" aria-describedby="why" data-x="a&quot;b"');
   expect(t).not.toContain(' disabled');
-  expect(t).toContain('<span class="toon-toggle-side toon-toggle-side-on" aria-hidden="true">On-prem</span>');
+  expect(t).toContain('<span class="toon-toggle-side toon-toggle-side-on" aria-hidden="true">Lab</span>');
   expect(toggle({ label: 'x', checked: true, off: 'a', on: 'b' })).toContain('<span class="toon-toggle-side toon-toggle-side-on" aria-hidden="true">b</span>');
   expect(() => toggle({ label: '', checked: true, off: 'a', on: 'b' })).toThrow('required');
   expect(() => toggle({ label: 'x', checked: true, off: 'a', on: 'b', attrs: { onclick: 'x' } })).toThrow('not a data-* attribute');
@@ -620,15 +620,15 @@ test('toggle is a labelled switch whose disabled form stays focusable', () => {
 });
 
 test('switchRow can draw a toggle, name its sides and show a reason while a switch is allowed', () => {
-  const s = switchRow({ name: 'Auth', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, reason: 'Waits for your tap.', control: 'toggle', labels: { lab: 'On-prem' }, id: 'a' });
+  const s = switchRow({ name: 'Auth', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, reason: 'Waits for your tap.', control: 'toggle', labels: { lab: 'Lab' }, id: 'a' });
   expect(s).toContain('role="switch" class="toon-toggle" id="a-toggle" aria-checked="false" aria-label="Auth: run on cloud" aria-describedby="a-reason" data-toon-switch="Auth" data-toon-switch-to="cloud"');
-  expect(s).toContain('<span class="toon-switch-where">On-prem</span>');
+  expect(s).toContain('<span class="toon-switch-where">Lab</span>');
   expect(s).toContain('<p class="toon-switch-reason" id="a-reason">Waits for your tap.</p>');
   const off = switchRow({ name: 'Auth', active: 'cloud', labState: 'unknown', cloudState: 'ok', canSwitch: false, reason: 'Lab is unknown.', control: 'toggle', id: 'b' });
   expect(off).toContain('aria-checked="true"');
   expect(off).toContain('aria-disabled="true" aria-describedby="b-reason"');
-  expect(switchRow({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, labels: { lab: 'On-prem' } })).toContain('>Switch to cloud<');
-  expect(switchRow({ name: 'x', active: 'cloud', labState: 'ok', cloudState: 'ok', canSwitch: true, labels: { lab: 'On-prem' } })).toContain('>Switch to on-prem<');
+  expect(switchRow({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, labels: { lab: 'Lab' } })).toContain('>Switch to cloud<');
+  expect(switchRow({ name: 'x', active: 'cloud', labState: 'ok', cloudState: 'ok', canSwitch: true, labels: { lab: 'Lab' } })).toContain('>Switch to lab<');
   expect(() => switchRow({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, control: 'dial' as never })).toThrow('unknown control');
 });
 
@@ -674,10 +674,10 @@ test('kicker can make its label a heading, and a disclosure can end in a note', 
 });
 
 test('switchCard is two buttons: the serving side is pressed and the other asks for the switch or says why not', () => {
-  const c = switchCard({ name: 'auth', active: 'lab', labState: 'ok', cloudState: 'unknown', canSwitch: false, reason: 'Cloud is unknown.', labels: { lab: 'On-prem' }, id: 'a' });
+  const c = switchCard({ name: 'auth', active: 'lab', labState: 'ok', cloudState: 'unknown', canSwitch: false, reason: 'Cloud is unknown.', labels: { lab: 'Lab' }, id: 'a' });
   expect(c).toContain('<button type="button" class="toon-switch-card-side toon-switch-card-ok" id="a-lab" aria-pressed="true" data-toon-switch="auth">');
   expect(c).toContain('id="a-cloud" aria-pressed="false" data-toon-switch="auth" data-toon-switch-to="cloud" aria-disabled="true" aria-describedby="a-reason">');
-  expect(c).toContain('<span class="toon-switch-card-where">On-prem</span><span class="toon-switch-card-state"><span aria-hidden="true">✓</span> Up</span><span class="toon-switch-card-serving">Serving</span>');
+  expect(c).toContain('<span class="toon-switch-card-where">Lab</span><span class="toon-switch-card-state"><span aria-hidden="true">✓</span> Up</span><span class="toon-switch-card-serving">Serving</span>');
   expect(c.match(/Serving/g)).toHaveLength(1);
   expect(c).toContain('<p class="toon-switch-card-reason" id="a-reason">Cloud is unknown.</p>');
   const go = switchCard({ name: 'auth', active: 'cloud', labState: 'ok', cloudState: 'down', canSwitch: true, pinned: true, dataClass: 'replicated', id: 'b' });
