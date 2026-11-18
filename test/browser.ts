@@ -432,7 +432,7 @@ try {
       const out: string[] = []; let n = 0;
       for (const el of [...document.querySelectorAll<HTMLElement>('a[href],button,summary')]) {
         if (!el.offsetParent && getComputedStyle(el).position !== 'fixed') continue;
-        if (el.closest('dialog:not([open]),[inert]')) continue;
+        if (el.closest('dialog:not([open]),[inert]') || (el.closest('details:not([open])') && el.tagName !== 'SUMMARY')) continue;
         el.focus({ focusVisible: true } as FocusOptions); n++;
         const cs = getComputedStyle(el);
         const ink = /rgb\(10, 10, 31\) 0px 0px 0px 2px/.test(cs.boxShadow) || cs.outlineColor === 'rgb(10, 10, 31)';
@@ -550,6 +550,15 @@ try {
     // Answer-first components: the toggle is 44 px and drops a click while aria-disabled, and the readout on the ground is full-strength text.
     const tg = await q(() => { let hits = 0; const ts = [...document.querySelectorAll<HTMLElement>('#toggles .toon-toggle')]; ts.forEach((b) => b.addEventListener('click', () => hits++)); ts[0]!.click(); const off = hits; ts[1]!.click(); return `${ts.length}|${off}|${hits}|${[...document.querySelectorAll('.toon-toggle')].every((b) => b.getBoundingClientRect().height >= 44)}|${ts[0]!.getAttribute('aria-checked')}${ts[1]!.getAttribute('aria-checked')}`; });
     eq(tg, '2|0|1|true|falsetrue', `${name}: a disabled toggle drops its click, an enabled one reaches its handler, and each is 44 px tall`);
+    // Settings: the button is 48 px and the items 44 px, a click opens it, the gears turn while it is open, Escape closes it and returns focus.
+    const st0 = await q(() => { const b = document.querySelector<HTMLElement>('#st-demo > summary')!; const r = b.getBoundingClientRect(); return `${Math.round(r.width)}x${Math.round(r.height)}|${(document.getElementById('st-demo') as HTMLDetailsElement).open}`; });
+    eq(st0, '48x48|false', `${name}: the settings button is 48 px and starts closed`);
+    await p.click('#st-demo > summary');
+    await p.waitForTimeout(150);
+    const st1 = await q(() => { const d = document.getElementById('st-demo') as HTMLDetailsElement; const it = d.querySelector<HTMLElement>('.toon-settings-item')!; const g = getComputedStyle(d.querySelector('.toon-gear-big')!).animationName; return `${d.open}|${Math.round(it.getBoundingClientRect().height) >= 44}|${g}|${it.getBoundingClientRect().right <= innerWidth}`; });
+    eq(st1, 'true|true|toon-spin|true', `${name}: a click opens the settings menu, its item is 44 px tall, the gears turn and the panel stays on screen`);
+    await p.keyboard.press('Escape');
+    eq(await q(() => `${(document.getElementById('st-demo') as HTMLDetailsElement).open}|${document.activeElement === document.querySelector('#st-demo > summary')}`), 'false|true', `${name}: Escape closes the settings menu and returns focus to its button`);
     const cards = await q(() => { let hits = 0; const bs = [...document.querySelectorAll<HTMLElement>('#switch-cards .toon-switch-card-side')]; bs.forEach((b) => b.addEventListener('click', () => hits++)); document.getElementById('sc-a-cloud')!.click(); const off = hits; document.getElementById('sc-b-lab')!.click(); return `${bs.length}|${off}|${hits}|${bs.every((b) => b.getBoundingClientRect().height >= 44)}|${document.querySelectorAll('#switch-cards [aria-pressed="true"]').length}`; });
     eq(cards, '6|0|1|true|3', `${name}: a refused switch card side drops its click, an allowed one reaches its handler, each side is 44 px tall and one side per card is pressed`);
     const ro = await q(() => {

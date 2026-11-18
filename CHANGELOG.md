@@ -5,6 +5,12 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-18
+
+### Added
+
+- `gears({ spin, cls })` and `settingsMenu({ label, items, id, spin, cls })` with `toon-settings`: a double-layered gear icon that turns, and the button that opens a list of links. The menu is a `<details>`, so it works without script, and the script adds `Escape`, outside-tap and choose-to-close. Reduced motion stops the turning.
+
 ## [0.5.1] - 2026-11-18
 
 ### Changed

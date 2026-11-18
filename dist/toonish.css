@@ -3029,6 +3029,99 @@
     font-size: var(--text-body);
     line-height: 1.45;
   }
+  .toon-settings {
+    position: relative;
+    display: inline-block;
+    align-self: flex-start;
+  }
+  .toon-settings-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    list-style: none;
+    cursor: pointer;
+    border: var(--toon-border-toon) solid var(--color-toon-ink);
+    border-radius: 50%;
+    background: var(--color-toon-paper);
+    color: var(--color-toon-ink);
+    box-shadow: 3px 3px 0 var(--color-toon-blue);
+  }
+  .toon-settings-btn::-webkit-details-marker {
+    display: none;
+  }
+  .toon-settings-btn::marker {
+    content: '';
+  }
+  .toon-settings[open] > .toon-settings-btn {
+    background: var(--color-toon-yellow);
+  }
+  .toon-gears {
+    width: 38px;
+    height: 38px;
+    overflow: visible;
+  }
+  .toon-gear {
+    stroke: var(--color-toon-ink);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .toon-gear-big {
+    fill: var(--color-toon-blue);
+  }
+  .toon-gear-small {
+    fill: var(--color-toon-violet);
+  }
+  .toon-settings:hover .toon-gear-big, .toon-settings:focus-within .toon-gear-big, .toon-settings[open] .toon-gear-big, .toon-gears-always .toon-gear-big {
+    animation: toon-spin 3s linear infinite;
+  }
+  .toon-settings:hover .toon-gear-small, .toon-settings:focus-within .toon-gear-small, .toon-settings[open] .toon-gear-small, .toon-gears-always .toon-gear-small {
+    animation: toon-spin 2.25s linear infinite reverse;
+  }
+  .toon-settings-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    z-index: 50;
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: calc(100vw - 32px);
+    padding: var(--spacing-s2);
+    border: var(--toon-border-toon) solid var(--color-toon-ink);
+    border-radius: 12px;
+    background: var(--color-toon-paper);
+    color: var(--color-toon-ink);
+    box-shadow: 4px 4px 0 var(--color-toon-blue);
+  }
+  .toon-settings-panel ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .toon-settings-item {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--spacing-s3);
+    border-radius: 8px;
+    color: var(--color-toon-ink);
+    font-size: var(--text-subhead);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .toon-settings-item:hover {
+    background: var(--color-toon-yellow);
+  }
+  .toon-settings-item[aria-current="page"] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
   @keyframes toon-scale-slide {
     from {
       left: calc(var(--p, var(--v)) * 1%);
@@ -3284,6 +3377,11 @@
   outline: 3px solid var(--color-toon-ink);
   outline-offset: 4px;
   box-shadow: 0 0 0 4px var(--color-toon-blue), 3px 3px 0 var(--color-toon-blue);
+}
+.toon-settings-btn:focus-visible, .toon-settings-item:focus-visible {
+  outline: 3px solid var(--color-toon-ink);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px var(--color-toon-blue);
 }
 .toon-switch-card-side:focus-visible {
   outline: 3px solid var(--color-toon-ink);
