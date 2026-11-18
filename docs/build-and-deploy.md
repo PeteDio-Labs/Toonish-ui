@@ -50,6 +50,7 @@ The deploy workflow's authentication is a known gap, tracked in the PeteDio trac
 | `bun run typecheck` | CI and local | The TypeScript in `src/`, `test/`, and `scripts/`. |
 | `bun run build` and the `dist/` diff | CI and local | That `dist/` matches a fresh build, with the file count. |
 | `bun test` | CI and local | Tokens and contrast, markup output, `dist/` contents and the docs coverage. |
+| `bun run test:layout` | CI and local | The fixture at 1280 and 390 px: clipped svgs, cut text, overlapping text, hover states and pixel diffs against `test/snapshots/`. |
 | `bun run test:browser` | CI and local | A fixture page at 1280 and 390 px in Chromium: fonts, computed colours, overflow, modal, toggle, reduced motion and console errors. |
 
 CI branch protection and releases are in [Maintaining](maintaining.md).
