@@ -2,11 +2,18 @@ name: update-snapshots
 
 # The layout check compares pixels with baselines in test/snapshots/. Pixels depend on the browser build and its fonts,
 # so the baselines come from this runner, the same one ci uses, and never from a laptop.
-# Run it by hand on a pull request branch (Actions > update-snapshots > Run workflow). It rebuilds the baselines,
-# commits the changed images to that branch and stops. It refuses to run on main.
+# It rebuilds the baselines, commits the changed images to the branch and stops. It refuses to run on main.
+# Two ways to start it on a pull request branch:
+# - Push a change to test/update-snapshots.request. A push runs the copy of this file on the branch, so it works
+#   before this file reaches main.
+# - Run it by hand (Actions > update-snapshots > Run workflow), once this file is on main.
+# A push by this workflow does not start ci. Push any follow-up commit, such as deleting the request file, to run ci.
 
 on:
   workflow_dispatch:
+  push:
+    branches-ignore: [main]
+    paths: [test/update-snapshots.request]
 
 permissions:
   contents: write # push the regenerated baselines to the branch

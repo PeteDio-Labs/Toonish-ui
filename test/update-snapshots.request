@@ -1,0 +1,1 @@
+Rebuild the layout baselines on the CI runner. Delete this file after the update-snapshots workflow commits them.
