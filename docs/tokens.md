@@ -38,7 +38,7 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 
 **Green is a state, not an accent.** It says ok, clear or serving, and nothing else: an ok `verdict()`, an ok tile, the serving side of a `switchCard()`. Do not use it for decoration, a button or a chart series, or it stops meaning ok. Ink on green is 9.6:1, and green never carries the state alone: a glyph and a word say it too. Pedro added it on 2026-11-18.
 
-**Pairing.** A shadow takes its fill's pair: blue and red use yellow, yellow uses blue, violet uses red.
+**Pairing.** A shadow takes its fill's pair: blue and red use yellow, yellow uses blue, violet uses red. Palette shadows are the exception: they avoid red against yellow, so they use blue, or violet under the blue palette.
 
 **History.** The first set was cyan with orange, which was rejected. The second was cream, red and yellow, which looked like a default theme. Paper moved from cream to a cool grey on 2026-11-13.
 
@@ -59,7 +59,7 @@ A palette dresses one strip of the page, such as a verdict banner. Four exist: i
 - `accent` fills large lettering, such as a count in Bangers. It is decoration, so the sentence carries the meaning. Outline it in ink, or in paper on ink.
 - No palette puts red against yellow. The `shadow` is blue, or violet under the blue palette, so it differs from the fill.
 
-The tests assert each text pair at 4.5:1 and each strip edge at 3:1, and print how many pairs they read.
+The tests assert each text pair at 4.5:1, and that the edge or the fill of each strip is 3:1 against the ground. They print how many pairs they read.
 
 ## Type
 
