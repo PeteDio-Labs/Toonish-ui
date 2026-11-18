@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, button, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu, buildBadge } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, button, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu, buildBadge, appbar, brief, statusRow, cells as miniCells, cycle } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -771,4 +771,85 @@ test('buildBadge draws only for a non-production environment and names the short
 test('buildBadge refuses a malformed environment or hash', () => {
   expect(() => buildBadge({ env: 'stag ing<', sha: 'abcdef1' })).toThrow('env');
   expect(() => buildBadge({ env: 'staging', sha: 'not-a-hash' })).toThrow('sha');
+});
+
+test('appbar is a header with a mark, a title heading and a state pill that says the state in words', () => {
+  const a = appbar({ title: 'Lab dashboard', sub: 'Read 60 s ago', state: { text: '4 need you', tone: 'down' } });
+  expect(a).toContain('<header class="toon-appbar">');
+  expect(a).toContain('<span class="toon-appbar-mark" aria-hidden="true">PD</span>');
+  expect(a).toContain('<h1 class="toon-appbar-title">Lab dashboard</h1>');
+  expect(a).toContain('<p class="toon-appbar-state toon-appbar-state-down"><span aria-hidden="true">✕</span> 4 need you</p>');
+  expect(appbar({ title: 'x', heading: 2, mark: 'LAB' })).toContain('<h2 class="toon-appbar-title">x</h2>');
+  expect(appbar({ title: 'x' })).not.toContain('toon-appbar-state');
+  expect(() => appbar({ title: ' ' })).toThrow('title is required');
+  expect(() => appbar({ title: 'x', mark: 'LABS' })).toThrow('mark');
+  expect(() => appbar({ title: 'x', heading: 4 as never })).toThrow('heading');
+  expect(() => appbar({ title: 'x', state: { text: 'y', tone: 'fine' as never } })).toThrow('unknown state tone');
+  expect(() => appbar({ title: 'x', state: { text: ' ', tone: 'ok' } })).toThrow('state text');
+  expect(appbar({ title: EVIL, sub: EVIL, state: { text: EVIL, tone: 'ok' }, cls: EVIL }).includes('<img')).toBe(false);
+});
+
+test('brief says the state, the answer and a decorative count, in a palette, and unknown never reads as ok', () => {
+  const b = brief({ state: 'down', title: '4 things.', body: 'Start with the backup.', stateText: 'Needs you', count: '4!', id: 'b' });
+  expect(b).toContain('class="toon-brief toon-brief-ink toon-brief-down" id="b"');
+  expect(b).toContain('<p class="toon-brief-state"><span aria-hidden="true">✕</span> Needs you</p>');
+  expect(b).toContain('<span class="toon-brief-count" aria-hidden="true">4!</span>');
+  for (const p of ['ink', 'paper', 'violet', 'blue'] as const) expect(brief({ state: 'ok', title: 'x', palette: p })).toContain(`toon-brief-${p} toon-brief-ok`);
+  expect(brief({ state: 'unknown', title: 'x' })).toContain('<span aria-hidden="true">?</span> Unknown');
+  expect(brief({ state: 'ok', title: 'x' })).not.toContain('toon-brief-count');
+  expect(() => brief({ state: 'fine' as never, title: 'x' })).toThrow('unknown state');
+  expect(() => brief({ state: 'ok', title: ' ' })).toThrow('title is required');
+  expect(() => brief({ state: 'ok', title: 'x', palette: 'red' as never })).toThrow('unknown palette');
+  expect(() => brief({ state: 'ok', title: 'x', count: 'twelve' })).toThrow('count');
+  expect(() => brief({ state: 'ok', title: 'x', id: '1 bad' })).toThrow('not a valid id');
+  expect(brief({ state: 'ok', title: EVIL, body: EVIL, stateText: EVIL, count: '<b>', cls: EVIL }).includes('<img')).toBe(false);
+});
+
+test('statusRow carries a state word and a rail, and a row with an action is not a link', () => {
+  const r = statusRow({ state: 'down', lead: 'Backups', stateText: '1 failed', title: 'Plex failed', sub: 'why', action: '<a class="toon-btn" href="#x">Open</a>', visual: '<i></i>', fact: '4 of 5' });
+  expect(r).toContain('class="toon-srow toon-srow-down toon-srow-plain" role="listitem"');
+  expect(r).toContain('<span class="toon-srow-state"><span aria-hidden="true">✕</span> 1 failed</span>');
+  expect(r).toContain('<span class="toon-srow-go"><a class="toon-btn"');
+  expect(r).not.toContain('toon-srow-link');
+  const l = statusRow({ state: 'ok', lead: 'Alerts', title: 'Quiet', href: '#alerts', icon: "<svg viewBox='0 0 24 24'><path d='M1 1'/></svg>", iconTone: 'mist' });
+  expect(l).toContain('<a class="toon-srow-link" href="#alerts">');
+  expect(l).toContain('toon-srow-icon-mist" aria-hidden="true"');
+  expect(l).toContain('<span aria-hidden="true">✓</span> Ok');
+  expect(r).toContain('toon-srow-down toon-srow-plain');
+  expect(l).not.toContain('toon-srow-plain');
+  expect(() => statusRow({ state: 'ok', lead: 'a', title: 'b', href: '#x', action: 'y' })).toThrow('not a link');
+  expect(() => statusRow({ state: 'ok', lead: 'a', title: 'b', href: '//evil.example' })).toThrow('href');
+  for (const bad of ['javascript:alert(1)', 'java\tscript:alert(1)', 'java\nscript:alert(1)', '\x01javascript:alert(1)', ' JavaScript:x', 'data:text/html,x', 'vbscript:x', '//evil.example', '', '  ']) {
+    expect(() => statusRow({ state: 'ok', lead: 'a', title: 'b', href: bad })).toThrow('href');
+  }
+  for (const good of ['#alerts', '?tab=act', '/act', 'act.html', './act', 'https://pdlab.dev/x', 'http://localhost:3000/']) {
+    expect(statusRow({ state: 'ok', lead: 'a', title: 'b', href: good })).toContain('toon-srow-link');
+  }
+  expect(() => statusRow({ state: 'ok', lead: ' ', title: 'b' })).toThrow('lead is required');
+  expect(() => statusRow({ state: 'ok', lead: 'a', title: ' ' })).toThrow('title is required');
+  expect(() => statusRow({ state: 'bad' as never, lead: 'a', title: 'b' })).toThrow('unknown state');
+  expect(() => statusRow({ state: 'ok', lead: 'a', title: 'b', icon: '<img src=x>' })).toThrow('icon');
+  expect(statusRow({ state: 'ok', lead: EVIL, title: EVIL, sub: EVIL, fact: EVIL, stateText: EVIL }).includes('<img')).toBe(false);
+});
+
+test('cells says its counts aloud and cycle says whether it is on pace', () => {
+  const c = miniCells({ label: 'Backups', cells: ['ok', 'ok', 'down', 'unknown'] });
+  expect(c).toContain('role="img" aria-label="Backups: 2 of 4 ok, 1 down, 1 unknown"');
+  expect(c).toContain('<i class="toon-cells-down"></i>');
+  expect(miniCells({ label: 'x', cells: ['ok'] })).toContain('1 of 1 ok"');
+  expect(() => miniCells({ label: ' ', cells: ['ok'] })).toThrow('label is required');
+  expect(() => miniCells({ label: 'x', cells: [] })).toThrow('at least one');
+  expect(() => miniCells({ label: 'x', cells: Array(61).fill('ok') })).toThrow('at most 60');
+  expect(() => miniCells({ label: 'x', cells: ['fine' as never] })).toThrow('unknown state');
+  const y = cycle({ label: 'Cycle 12', done: 14, total: 23, day: 3, days: 7, from: 'Nov 16', to: 'Nov 22' });
+  expect(y).toContain('role="meter" aria-label="Cycle 12" aria-valuemin="0" aria-valuenow="14" aria-valuemax="23" aria-valuetext="14 of 23 done, day 3 of 7, on pace"');
+  expect(y).toContain('--w:60.87');
+  expect(y).toContain('--at:42.86');
+  expect(cycle({ label: 'x', done: 0, total: 20, day: 1, days: 7, from: 'a', to: 'b' })).not.toContain('toon-cycle-fill');
+  expect(cycle({ label: 'x', done: 2, total: 20, day: 5, days: 7, from: 'a', to: 'b' })).toContain('5 of 7, behind');
+  expect(() => cycle({ label: 'x', done: 24, total: 23, day: 3, days: 7, from: 'a', to: 'b' })).toThrow('above total');
+  expect(() => cycle({ label: 'x', done: 1, total: 0, day: 1, days: 7, from: 'a', to: 'b' })).toThrow('above 0');
+  expect(() => cycle({ label: 'x', done: 1, total: 2, day: 8, days: 7, from: 'a', to: 'b' })).toThrow('day must be');
+  expect(() => cycle({ label: 'x', done: NaN, total: 2, day: 1, days: 7, from: 'a', to: 'b' })).toThrow('done must be');
+  expect(() => cycle({ label: 'x', done: 1, total: 2, day: 1, days: 7, from: ' ', to: 'b' })).toThrow('dates are required');
 });

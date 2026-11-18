@@ -26,6 +26,15 @@ test('tokens.css and theme.css carry the colours', async () => {
   expect(await read('theme.css')).toContain('--color-toon-blue: #5f8dff;');
 });
 
+test('the component CSS defines every palette variable the brief reads, as a hex value', async () => {
+  const css = await read('toonish.css');
+  const theme = await read('theme.css');
+  const names = [...theme.matchAll(/--toon-palette-([a-z]+-[a-z]+):\s*(#[0-9a-f]{6});/g)].map((m) => m[1]!);
+  expect(names).toHaveLength(24);
+  for (const n of names) expect(css).toMatch(new RegExp(`--toon-palette-${n}:\\s*#[0-9a-f]{6}`));
+  console.log(`palette check: ${names.length} palette variables resolved in theme.css and present in toonish.css`);
+});
+
 test('every path in package.json exports exists', () => {
   const targets: string[] = [];
   const walk = (v: unknown) => (typeof v === 'string' ? targets.push(v) : v && typeof v === 'object' && Object.values(v).forEach(walk));
