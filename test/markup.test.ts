@@ -819,7 +819,12 @@ test('statusRow carries a state word and a rail, and a row with an action is not
   expect(l).not.toContain('toon-srow-plain');
   expect(() => statusRow({ state: 'ok', lead: 'a', title: 'b', href: '#x', action: 'y' })).toThrow('not a link');
   expect(() => statusRow({ state: 'ok', lead: 'a', title: 'b', href: '//evil.example' })).toThrow('href');
-  expect(() => statusRow({ state: 'ok', lead: 'a', title: 'b', href: 'javascript:alert(1)' })).toThrow('href');
+  for (const bad of ['javascript:alert(1)', 'java\tscript:alert(1)', 'java\nscript:alert(1)', '\x01javascript:alert(1)', ' JavaScript:x', 'data:text/html,x', 'vbscript:x', '//evil.example', '', '  ']) {
+    expect(() => statusRow({ state: 'ok', lead: 'a', title: 'b', href: bad })).toThrow('href');
+  }
+  for (const good of ['#alerts', '?tab=act', '/act', 'act.html', './act', 'https://pdlab.dev/x', 'http://localhost:3000/']) {
+    expect(statusRow({ state: 'ok', lead: 'a', title: 'b', href: good })).toContain('toon-srow-link');
+  }
   expect(() => statusRow({ state: 'ok', lead: ' ', title: 'b' })).toThrow('lead is required');
   expect(() => statusRow({ state: 'ok', lead: 'a', title: ' ' })).toThrow('title is required');
   expect(() => statusRow({ state: 'bad' as never, lead: 'a', title: 'b' })).toThrow('unknown state');
@@ -840,6 +845,7 @@ test('cells says its counts aloud and cycle says whether it is on pace', () => {
   expect(y).toContain('role="meter" aria-label="Cycle 12" aria-valuemin="0" aria-valuenow="14" aria-valuemax="23" aria-valuetext="14 of 23 done, day 3 of 7, on pace"');
   expect(y).toContain('--w:60.87');
   expect(y).toContain('--at:42.86');
+  expect(cycle({ label: 'x', done: 0, total: 20, day: 1, days: 7, from: 'a', to: 'b' })).not.toContain('toon-cycle-fill');
   expect(cycle({ label: 'x', done: 2, total: 20, day: 5, days: 7, from: 'a', to: 'b' })).toContain('5 of 7, behind');
   expect(() => cycle({ label: 'x', done: 24, total: 23, day: 3, days: 7, from: 'a', to: 'b' })).toThrow('above total');
   expect(() => cycle({ label: 'x', done: 1, total: 0, day: 1, days: 7, from: 'a', to: 'b' })).toThrow('above 0');

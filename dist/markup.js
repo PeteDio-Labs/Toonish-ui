@@ -779,8 +779,8 @@ var statusRow = (o) => {
     throw new Error("statusRow: title is required");
   if (o.href && o.action)
     throw new Error("statusRow: a row with an action is not a link: pass href or action, not both");
-  if (o.href !== undefined && (!o.href.trim() || o.href.trim().startsWith("//") || /^\s*javascript:/i.test(o.href)))
-    throw new Error("statusRow: href must be a path or a link on this site");
+  if (o.href !== undefined && !/^(?:#|\?|\/(?!\/)|https?:\/\/|[^:/?#]+(?:[/?#]|$))/i.test(o.href.replace(/[\u0000-\u0020]/g, "")))
+    throw new Error("statusRow: href must be a fragment, a path, a relative link or an http(s) link");
   const tone = o.iconTone ?? "blue";
   const icon = o.icon ? `<span class="toon-srow-icon toon-srow-icon-${toneOf(tone)}" aria-hidden="true">${iconMarkup(o.icon)}</span>` : "";
   const state = `<span class="toon-srow-state"><span aria-hidden="true">${TILE_GLYPH[o.state]}</span> ${esc(o.stateText?.trim() || TILE_WORD[o.state])}</span>`;
@@ -822,7 +822,7 @@ var cycle = (o) => {
     throw new Error("cycle: from and to dates are required");
   const pace = o.done / o.total >= o.day / o.days ? "on pace" : "behind";
   const text = `${o.done} of ${o.total} done, day ${o.day} of ${o.days}, ${pace}`;
-  return `<span class="toon-cycle"><span class="toon-cycle-bar" role="meter" aria-label="${esc(o.label.trim())}" aria-valuemin="0" aria-valuenow="${o.done}" aria-valuemax="${o.total}" aria-valuetext="${esc(text)}">` + `<span class="toon-cycle-fill" style="--w:${num(o.done / o.total * 100)}"></span><span class="toon-cycle-today" style="--at:${num(o.day / o.days * 100)}"></span></span>` + `<span class="toon-cycle-ends" aria-hidden="true"><span>${esc(o.from.trim())}</span><span>${esc(o.to.trim())}</span></span></span>`;
+  return `<span class="toon-cycle"><span class="toon-cycle-bar" role="meter" aria-label="${esc(o.label.trim())}" aria-valuemin="0" aria-valuenow="${o.done}" aria-valuemax="${o.total}" aria-valuetext="${esc(text)}">` + `${o.done > 0 ? `<span class="toon-cycle-fill" style="--w:${num(o.done / o.total * 100)}"></span>` : ""}<span class="toon-cycle-today" style="--at:${num(o.day / o.days * 100)}"></span></span>` + `<span class="toon-cycle-ends" aria-hidden="true"><span>${esc(o.from.trim())}</span><span>${esc(o.to.trim())}</span></span></span>`;
 };
 export {
   BADGE,
