@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -689,4 +689,28 @@ test('switchCard is two buttons: the serving side is pressed and the other asks 
   expect(() => switchCard({ name: 'x', active: 'moon' as never, labState: 'ok', cloudState: 'ok', canSwitch: true })).toThrow('unknown active');
   expect(() => switchCard({ name: 'x', active: 'lab', labState: 'fine' as never, cloudState: 'ok', canSwitch: true })).toThrow('unknown state');
   expect(switchCard({ name: EVIL, active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: false, reason: EVIL, dataClass: EVIL, labels: { lab: EVIL, cloud: EVIL } }).includes('<img')).toBe(false);
+});
+
+test('settingsMenu draws a details with two gears and escapes its items', () => {
+  const h = settingsMenu({ id: 'st', items: [{ label: 'Secrets <x>', href: '#secrets', current: true }] });
+  expect(h).toContain('<details class="toon-settings" id="st">');
+  expect(h).toContain('aria-label="Settings"');
+  expect(h).toContain('Secrets &lt;x&gt;');
+  expect(h).toContain('aria-current="page"');
+  expect((h.match(/class="toon-gear /g) ?? []).length).toBe(2);
+  expect(h).toContain('aria-hidden="true"');
+  expect(() => settingsMenu({ id: 'st', items: [] })).toThrow('at least one');
+  expect(() => settingsMenu({ id: '1x', items: [{ label: 'a', href: '#a' }] })).toThrow('valid id');
+  for (const bad of ['javascript:alert(1)', 'java\tscript:alert(1)', '\u0001javascript:alert(1)', ' JaVaScRiPt:1', 'data:text/html,x', 'vbscript:x']) {
+    expect(() => settingsMenu({ id: 'st', items: [{ label: 'a', href: bad }] })).toThrow('href must be');
+  }
+  for (const good of ['#secrets', '/x', '?a=1', './x', '../x', 'https://a.example', 'mailto:a@b.c']) expect(settingsMenu({ id: 'st', items: [{ label: 'a', href: good }] })).toContain('toon-settings-item');
+  expect(() => settingsMenu({ id: 'st', items: [{ label: '', href: '#a' }] })).toThrow('label and an href');
+});
+
+test('gears turn only when asked to, and reject an unknown spin', () => {
+  expect(gears()).not.toContain('toon-gears-always');
+  expect(gears({ spin: 'always' })).toContain('toon-gears-always');
+  expect(() => gears({ spin: 'sometimes' as never })).toThrow('unknown spin');
+  expect(gears()).not.toContain('NaN');
 });

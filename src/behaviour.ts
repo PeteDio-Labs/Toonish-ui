@@ -339,6 +339,22 @@ export function initToonish(root: Document = document): void {
     });
   });
 
+  // Settings menu: a <details> that opens without script. Escape, a tap outside and choosing an item close it.
+  root.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const d = (e.target as Element | null)?.closest?.<HTMLDetailsElement>('details.toon-settings[open]');
+    if (!d) return;
+    d.open = false;
+    d.querySelector<HTMLElement>('summary')?.focus();
+  });
+  root.addEventListener('click', (e) => {
+    const t = e.target as Element;
+    if (!t?.closest) return;
+    root.querySelectorAll<HTMLDetailsElement>('details.toon-settings[open]').forEach((d) => {
+      if (!d.contains(t) || t.closest('.toon-settings-item')) d.open = false;
+    });
+  });
+
   const lock = (on: boolean) => html.classList.toggle('toon-modal-open', on);
   const open = (d: HTMLDialogElement) => {
     d.showModal();

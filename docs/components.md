@@ -42,6 +42,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-readout` | `<p>` | Its label, then its text | None | Paper text at 15 px on the ground. Do not dim it or shrink it. |
 | `toon-toggle` | `<button role="switch" aria-checked aria-label>` | Required label that says what "on" means | `Enter`, `Space` | 44 px tall. The side words are `aria-hidden`, because the label and the checked state say them. Disabled is `aria-disabled` with a visible reason, so it keeps focus. |
 | `toon-switch-card` | `role="group"` named by the service, with two `<button aria-pressed>` | The side, its state and "Serving" | `Enter`, `Space` | Each button is 72 px tall. A refused side is `aria-disabled` and points to the visible reason. Text is ink on every fill. |
+| `toon-settings` | `<details>` with a `<summary aria-label>` and a `<nav aria-label>` of links; the gears are `aria-hidden` | The control's label, "Settings" by default | `Enter` or `Space` opens it, `Escape` closes it and returns focus to the button | The button is 48 px and each item 44 px tall. It opens without script. The gears turn while it is hovered, focused or open, and reduced motion stops them. |
 | `toon-masthead` | `<header>` with the page's `<h1>` | The title | None | The lettering is `aria-hidden` and an `sr-only` span carries the title. |
 | `toon-motion` | `<button aria-pressed>` | Its text, or an `aria-label` | `Enter`, `Space` | It lets a visitor stop motion. |
 
@@ -336,6 +337,17 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 - `disabled` sets `aria-disabled="true"`: the control turns dashed and hollow, keeps focus, and the kit script drops its click. Point `describedBy` at the id of the visible reason.
 - `attrs` adds `data-*` attributes for your handler. Any other attribute name throws.
 - It is drawn for paper.
+
+### Settings
+
+`toon-settings` is the settings control: a button of two meshing gears that opens a short list of links. Parts: `toon-settings-btn`, `toon-settings-panel`, `toon-settings-item`, `toon-gears`, `toon-gears-always`, `toon-gear`, `toon-gear-big`, `toon-gear-small`. Helpers: `settingsMenu({ label, items, id, spin, cls })` and `gears({ spin, cls })`.
+
+- `settingsMenu()` returns a `<details>`, so it opens and closes without script. The script closes it on `Escape`, on a tap outside it and when you choose an item.
+- `items` is `{ label, href, current? }[]`. Use a `#hash` href to stay on the page. An href that is not a hash, a path, a query or an http(s), mailto or tel link throws, after tabs, newlines and control characters are removed as a browser removes them.
+- `gears()` draws the icon alone: a large gear and a small one that turn in opposite directions. It is `aria-hidden`, so name the control that holds it.
+- `spin` is `active` (the default: the gears turn while the control is hovered, focused or open) or `always`.
+- The gears use the kit's motion rules. The system's reduced-motion setting stops them unless the visitor chose motion on.
+- Put it in a header. The panel hangs from the right edge of the button.
 
 ### Switch card
 

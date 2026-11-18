@@ -637,6 +637,37 @@ var switchCard = (o) => {
   const tags = `${o.dataClass?.trim() ? chip(o.dataClass.trim()) : ""}${o.pinned ? ' <span class="toon-badge toon-badge-violet">Pinned</span>' : ""}`;
   return `<div class="toon-switch-card" role="group" aria-labelledby="${id}-name"><div class="toon-switch-card-head"><b class="toon-switch-card-name" id="${id}-name">${esc(o.name)}</b>${tags ? `<span class="toon-switch-card-tags">${tags}</span>` : ""}</div>` + `<div class="toon-switch-card-sides">${side("lab", o.labState)}${side("cloud", o.cloudState)}</div>${o.reason?.trim() ? `<p class="toon-switch-card-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : ""}</div>`;
 };
+var gearPath = (cx, cy, rOut, rIn, teeth, hole) => {
+  const step = Math.PI * 2 / teeth;
+  const pt = (a, r) => `${(cx + Math.cos(a) * r).toFixed(2)} ${(cy + Math.sin(a) * r).toFixed(2)}`;
+  let d = "";
+  for (let i = 0;i < teeth; i++) {
+    const a = i * step;
+    d += `${i === 0 ? "M" : "L"}${pt(a - step * 0.28, rIn)}L${pt(a - step * 0.16, rOut)}L${pt(a + step * 0.16, rOut)}L${pt(a + step * 0.28, rIn)}`;
+  }
+  return `${d}ZM${(cx + hole).toFixed(2)} ${cy}a${hole} ${hole} 0 1 0 ${-hole * 2} 0a${hole} ${hole} 0 1 0 ${hole * 2} 0Z`;
+};
+var gears = (o = {}) => {
+  if (o.spin !== undefined && o.spin !== "active" && o.spin !== "always")
+    throw new Error(`gears: unknown spin "${String(o.spin)}": use active or always`);
+  const cls = `toon-gears${o.spin === "always" ? " toon-gears-always" : ""}${o.cls ? ` ${esc(o.cls)}` : ""}`;
+  return `<svg class="${cls}" viewBox="0 0 40 40" aria-hidden="true" focusable="false">` + `<path class="toon-gear toon-gear-big" fill-rule="evenodd" d="${gearPath(15, 25, 13, 10, 8, 4)}"/>` + `<path class="toon-gear toon-gear-small" fill-rule="evenodd" d="${gearPath(30, 11, 9, 6.8, 6, 2.8)}"/></svg>`;
+};
+var settingsMenu = (o) => {
+  if (!ID_RE.test(o.id))
+    throw new Error(`settingsMenu: id "${o.id}" is not a valid id`);
+  if (!Array.isArray(o.items) || o.items.length === 0)
+    throw new Error("settingsMenu: pass at least one item");
+  const label = esc((o.label ?? "Settings").trim() || "Settings");
+  const items = o.items.map((it) => {
+    if (!it.label?.trim() || !it.href?.trim())
+      throw new Error("settingsMenu: each item needs a label and an href");
+    if (!/^(#|\/|\?|\.\.?\/|https?:|mailto:|tel:)/i.test(it.href.replace(/[\u0000-\u0020]/g, "")))
+      throw new Error("settingsMenu: an href must be a hash, a path, a query, or an http(s), mailto or tel link");
+    return `<li><a class="toon-settings-item" href="${esc(it.href.trim())}"${it.current ? ' aria-current="page"' : ""}>${esc(it.label.trim())}</a></li>`;
+  }).join("");
+  return `<details class="toon-settings${o.cls ? ` ${esc(o.cls)}` : ""}" id="${o.id}"><summary class="toon-settings-btn" aria-label="${label}">${gears({ spin: o.spin })}</summary>` + `<nav class="toon-settings-panel" aria-label="${label}"><ul>${items}</ul></nav></details>`;
+};
 export {
   BADGE,
   HEX,
@@ -654,6 +685,7 @@ export {
   esc,
   figure,
   fitSize,
+  gears,
   kicker,
   letters,
   line,
@@ -667,6 +699,7 @@ export {
   row,
   scale,
   scaleAxis,
+  settingsMenu,
   sfx,
   shot,
   skipLink,

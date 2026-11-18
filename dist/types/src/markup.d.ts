@@ -593,3 +593,36 @@ export interface SwitchCardOptions {
  * for a click on `[data-toon-switch-to]`, and ignore the pressed one.
  */
 export declare const switchCard: (o: SwitchCardOptions) => string;
+export interface GearsOptions {
+    /** `active` (the default) turns the gears while an ancestor `.toon-settings` is hovered, focused or open. `always` turns them all the time. */
+    spin?: 'active' | 'always';
+    cls?: string;
+}
+/**
+ * A double-layered settings icon: a large gear and a small one that meshes with it, drawn in ink with a hard shadow. The
+ * gears turn in opposite directions. It is `aria-hidden`, so name the control that holds it. The system's reduced-motion
+ * preference stops the turning, as it stops every kit animation.
+ */
+export declare const gears: (o?: GearsOptions) => string;
+export interface SettingsItem {
+    label: string;
+    /** A link target. Use a `#hash` to stay on the page. */
+    href: string;
+    /** Marks the item for the current page. */
+    current?: boolean;
+}
+export interface SettingsMenuOptions {
+    /** The control's accessible name. Default "Settings". */
+    label?: string;
+    /** One link per setting area. At least one. */
+    items: SettingsItem[];
+    id: string;
+    /** Passed to `gears()`. */
+    spin?: 'active' | 'always';
+    cls?: string;
+}
+/**
+ * The settings control: a button of two gears that opens a short list of links. It is a `<details>`, so it opens and closes
+ * without script. The script adds closing on `Escape`, on a tap outside and on choosing an item. Put it in a header.
+ */
+export declare const settingsMenu: (o: SettingsMenuOptions) => string;

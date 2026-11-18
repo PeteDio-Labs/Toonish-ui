@@ -340,6 +340,24 @@
         b.classList.add("toon-boing");
       });
     });
+    root.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape")
+        return;
+      const d = e.target?.closest?.("details.toon-settings[open]");
+      if (!d)
+        return;
+      d.open = false;
+      d.querySelector("summary")?.focus();
+    });
+    root.addEventListener("click", (e) => {
+      const t = e.target;
+      if (!t?.closest)
+        return;
+      root.querySelectorAll("details.toon-settings[open]").forEach((d) => {
+        if (!d.contains(t) || t.closest(".toon-settings-item"))
+          d.open = false;
+      });
+    });
     const lock = (on) => html.classList.toggle("toon-modal-open", on);
     const open = (d) => {
       d.showModal();
