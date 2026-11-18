@@ -193,6 +193,79 @@
     --toon-shadow: var(--color-toon-blue);
     background-color: var(--color-toon-paper);
   }
+  .toon-btn {
+    box-shadow: 4px 4px 0 var(--toon-shadow), inset 0 -3px 0 rgb(10 10 31 / .2);
+  }
+  @media (hover: hover) {
+    .toon-btn:hover {
+      box-shadow: 6px 6px 0 var(--toon-shadow), inset 0 -3px 0 rgb(10 10 31 / .2);
+    }
+  }
+  .toon-btn:active {
+    box-shadow: 1px 1px 0 var(--toon-shadow), inset 0 2px 0 rgb(10 10 31 / .2);
+  }
+  .toon-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-s2);
+  }
+  .toon-btn-ico {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+  }
+  .toon-btn-ico > svg {
+    display: block;
+    height: 1.1em;
+    width: 1.1em;
+  }
+  .toon-btn-full {
+    display: flex;
+    width: 100%;
+  }
+  .toon-btn:where(:not([aria-disabled="true"], :disabled)) {
+    animation: toon-btn-hop 4.8s ease-in-out 1.2s infinite;
+  }
+  .toon-btn-back:where(:not([aria-disabled="true"], :disabled)) .toon-btn-ico {
+    animation: toon-nudge-back 1.8s ease-in-out infinite;
+  }
+  .toon-btn-next:where(:not([aria-disabled="true"], :disabled)) .toon-btn-ico {
+    animation: toon-nudge-next 1.8s ease-in-out infinite;
+  }
+  .toon-btn-back:hover .toon-btn-ico {
+    animation-duration: .7s;
+  }
+  .toon-btn-next:hover .toon-btn-ico {
+    animation-duration: .7s;
+  }
+  @keyframes toon-btn-hop {
+    0%, 84%, 100% {
+      transform: translateY(0);
+    }
+    90% {
+      transform: translateY(-3px);
+    }
+    95% {
+      transform: translateY(0);
+    }
+  }
+  @keyframes toon-nudge-back {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-4px);
+    }
+  }
+  @keyframes toon-nudge-next {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(4px);
+    }
+  }
   p + .toon-btn {
     margin-top: var(--spacing-s6);
   }
@@ -622,6 +695,47 @@
     }
     .toon-list-stack .toon-row-lead {
       grid-column: 1 / -1;
+    }
+  }
+  .toon-row:has(.toon-row-icon) {
+    grid-template-columns: 3rem minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--spacing-s4);
+    row-gap: 0;
+  }
+  .toon-row-icon {
+    display: grid;
+    height: calc(var(--spacing) * 12);
+    width: calc(var(--spacing) * 12);
+    place-items: center;
+    grid-column: 1;
+    grid-row: 1 / span 3;
+  }
+  .toon-row-icon > svg {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+  .toon-row:has(.toon-row-icon) > :not(.toon-row-icon) {
+    grid-column: 2;
+  }
+  .toon-row:has(.toon-row-icon) .toon-row-lead + .toon-row-body {
+    margin-top: var(--spacing-s1);
+  }
+  .toon-row:has(.toon-row-icon) .toon-row-aside {
+    margin-top: var(--spacing-s2);
+    white-space: normal;
+  }
+  @media (min-width: 640px) {
+    .toon-row:has(.toon-row-icon) {
+      grid-template-columns: 3rem minmax(0, 1fr) auto;
+    }
+    .toon-row:has(.toon-row-icon) .toon-row-aside {
+      margin-top: 0px;
+      white-space: nowrap;
+      grid-column: 3;
+      grid-row: 1 / span 3;
+      align-self: center;
     }
   }
   .toon-empty {
@@ -3142,6 +3256,23 @@
       opacity: 0;
       transform: translateY(-8px);
     }
+  }
+  .toon-dots::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgb(255 255 255 / .07) 1.6px, transparent 2px);
+    background-size: 14px 14px;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 75%);
+    mask-image: linear-gradient(to bottom, #000, transparent 75%);
+  }
+  .toon-card, .toon-panel, .toon-frame, .toon-list, .toon-strip, .toon-nav, .toon-btn, .toon-pager-link, .toon-stat, .toon-table-wrap, .toon-switch-card, .toon-bubble {
+    filter: drop-shadow(0 10px 14px rgb(0 0 0 / .42));
+  }
+  .toon-flat, .toon-list .toon-row, .toon-panel .toon-card, .toon-panel .toon-list, .toon-panel .toon-strip {
+    filter: none;
   }
   @keyframes toon-pop {
     0% {

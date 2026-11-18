@@ -137,12 +137,25 @@ export interface RowOptions {
   aside?: string;
   /** A colour dot before the aside. */
   dot?: Tone;
+  /** An inline `<svg>` drawn for the row, about 48 px square. It is decoration: the row's text says everything the icon does, so the helper hides it from a screen reader. */
+  icon?: string;
 }
+
+/** An icon is markup the caller drew, so it must be one `<svg>` made only of drawing elements: no script, no link, no HTML, no event attribute, no character reference. */
+const ICON_TAGS = new Set(['svg', 'g', 'path', 'circle', 'ellipse', 'rect', 'line', 'polyline', 'polygon', 'defs', 'lineargradient', 'radialgradient', 'stop', 'title']);
+const iconMarkup = (svg: string): string => {
+  if (!/^<svg[\s>]/.test(svg) || !/<\/svg>\s*$/.test(svg)) throw new Error('icon must be one <svg> element');
+  for (const m of svg.matchAll(/<\/?([a-zA-Z][a-zA-Z0-9-]*)/g)) if (!ICON_TAGS.has(m[1]!.toLowerCase())) throw new Error(`icon must hold only drawing elements, not <${m[1]}>`);
+  if (svg.indexOf('<svg', 1) !== -1 && (svg.match(/<svg[\s>]/gi) ?? []).length !== 1) throw new Error('icon must be one <svg> element');
+  if (/&#|javascript:|[\s/"']on[a-z]+\s*=|\s(?:href|xlink:href|style)\s*=/i.test(svg)) throw new Error('icon must not hold event attributes, links, styles or character references');
+  return svg;
+};
 
 /** A row for `list()`. It is a `listitem`, so the container must be `role="list"`. */
 export const row = (o: RowOptions): string => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : '';
-  return `<div class="toon-row" role="listitem">${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
+  const icon = o.icon ? `<span class="toon-row-icon" aria-hidden="true">${iconMarkup(o.icon)}</span>` : '';
+  return `<div class="toon-row" role="listitem">${icon}${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
 };
 export interface ListOptions {
   /** Names the list for a screen reader. Required. */
@@ -155,6 +168,71 @@ export const list = (rows: string[], o: ListOptions): string => {
   if (!o.label?.trim()) throw new Error('list: label is required');
   if (!rows.length) throw new Error('list: at least one row is required');
   return `<div class="toon-list${o.cls ? ' ' + esc(o.cls) : ''}" role="list" aria-label="${esc(o.label)}">${rows.join('')}</div>`;
+};
+
+export type ButtonKind = 'primary' | 'secondary' | 'accent' | 'danger';
+const BUTTON_KIND: Record<ButtonKind, string> = { primary: '', secondary: ' toon-btn-paper', accent: ' toon-btn-yellow', danger: ' toon-btn-red' };
+const BUTTON_ICON: Record<string, string> = {
+  'arrow-left': 'M13 8H3m5-5L3 8l5 5',
+  'arrow-right': 'M3 8h10M8 3l5 5-5 5',
+  plus: 'M8 3v10M3 8h10',
+  check: 'M3 8.5 6.5 12 13 4.5',
+  external: 'M6 3H3v10h10v-3M9 3h4v4M13 3 7 9',
+};
+export type ButtonIcon = keyof typeof BUTTON_ICON;
+export interface ButtonOptions {
+  /** The words on the button. Required, because the icon is decoration. */
+  label: string;
+  /** Makes the button a link (`<a>`). Without it the helper writes `<button>`. */
+  href?: string;
+  /** The look: `primary` blue, `secondary` paper, `accent` yellow, `danger` red. Default `primary`. */
+  kind?: ButtonKind;
+  /** A built-in icon name, or your own inline `<svg>` (the same rules as `row({ icon })`). */
+  icon?: ButtonIcon | (string & {});
+  /** Which side of the label the icon sits on. `back` and `next` choose the arrow and the side for you. */
+  iconPosition?: 'start' | 'end';
+  /** `back` puts a left arrow before the label and `next` puts a right arrow after it. The arrow nudges to say which way the button goes. */
+  direction?: 'back' | 'next';
+  /** `type` of a `<button>`. Default `button`. */
+  type?: 'button' | 'submit' | 'reset';
+  /** The button fills its row. */
+  full?: boolean;
+  cls?: string;
+  /** Extra attributes, such as `data-*` or `aria-*`. Keys are lower case names. `class`, `href`, `type` and event handlers are refused. */
+  attrs?: Record<string, string>;
+}
+
+/**
+ * A button or a link styled as one. The icon is decoration and the label says what it does, so the icon is `aria-hidden`.
+ * Use `direction: 'back'` for a way out of a page and `direction: 'next'` for a way on: the arrow nudges, so the button reads as something you press.
+ */
+export const button = (o: ButtonOptions): string => {
+  if (!o.label?.trim()) throw new Error('button: label is required');
+  const kind = o.kind ?? 'primary';
+  if (!Object.hasOwn(BUTTON_KIND, kind)) throw new Error(`button: unknown kind "${kind}"`);
+  let icon = o.icon;
+  let pos = o.iconPosition ?? 'start';
+  if (o.direction) {
+    if (o.direction !== 'back' && o.direction !== 'next') throw new Error('button: direction is back or next');
+    icon = icon ?? (o.direction === 'back' ? 'arrow-left' : 'arrow-right');
+    pos = o.direction === 'back' ? 'start' : 'end';
+  }
+  let svg = '';
+  if (icon) {
+    const path = Object.hasOwn(BUTTON_ICON, icon) ? BUTTON_ICON[icon]! : '';
+    svg = `<span class="toon-btn-ico" aria-hidden="true">${path ? `<svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="${path}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>` : iconMarkup(icon)}</span>`;
+  }
+  const extra = Object.entries(o.attrs ?? {}).map(([k, v]) => {
+    if (!/^(?:data|aria)-[a-z0-9-]+$/.test(k)) throw new Error(`button: attribute "${k}" is not allowed`);
+    return ` ${k}="${esc(String(v))}"`;
+  }).join('');
+  const cls = `toon-btn${BUTTON_KIND[kind]}${svg ? ' toon-btn-icon' : ''}${o.direction ? ` toon-btn-${o.direction}` : ''}${o.full ? ' toon-btn-full' : ''}${o.cls ? ' ' + esc(o.cls) : ''}`;
+  const inner = `${svg && pos === 'start' ? svg : ''}<span class="toon-btn-label">${esc(o.label)}</span>${svg && pos === 'end' ? svg : ''}`;
+  if (o.href !== undefined) {
+    if (!/^(\/(?!\/)|#|\?|https?:|mailto:)/i.test(o.href)) throw new Error('button: href must start with /, #, ?, https:, http: or mailto:');
+    return `<a class="${cls}" href="${esc(o.href)}"${extra}>${inner}</a>`;
+  }
+  return `<button type="${o.type ?? 'button'}" class="${cls}"${extra}>${inner}</button>`;
 };
 
 /** A skip link: the first focusable element on the page, hidden until it takes focus. Point it at the id of `<main>`. */

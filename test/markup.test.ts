@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, button, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -98,6 +98,39 @@ test('row renders its parts, omits the empty ones and escapes', () => {
   expect(html).toContain('&lt;x&gt;');
   expect(html).toContain('--toon-dot:#f2706a');
   expect(row({ title: 't' })).toBe('<div class="toon-row" role="listitem"><span class="toon-row-body"><b>t</b></span></div>');
+});
+
+test('button writes a link or a button, takes a kind, an icon and a direction, and refuses what is unsafe', () => {
+  const back = button({ label: 'Back to dashboard', href: '#now', kind: 'accent', direction: 'back' });
+  expect(back).toContain('<a class="toon-btn toon-btn-yellow toon-btn-icon toon-btn-back" href="#now">');
+  // The arrow comes before the label for back, after it for next, and is hidden from readers.
+  expect(back.indexOf('<span class="toon-btn-ico"')).toBeLessThan(back.indexOf('toon-btn-label'));
+  expect(back).toContain('<span class="toon-btn-ico" aria-hidden="true">');
+  const next = button({ label: 'Next', direction: 'next' });
+  expect(next.indexOf('toon-btn-label')).toBeLessThan(next.indexOf('<span class="toon-btn-ico"'));
+  expect(next).toContain('<button type="button" class="toon-btn toon-btn-icon toon-btn-next">');
+  expect(button({ label: 'Save', type: 'submit', kind: 'danger', full: true, attrs: { 'data-x': 'a"b' } })).toBe('<button type="submit" class="toon-btn toon-btn-red toon-btn-full" data-x="a&quot;b"><span class="toon-btn-label">Save</span></button>');
+  expect(button({ label: 'Add', icon: 'plus', iconPosition: 'end' })).toMatch(/toon-btn-label">Add<\/span><span class="toon-btn-ico"/);
+  expect(button({ label: 'x', icon: '<svg viewBox="0 0 8 8"></svg>' })).toContain('<svg viewBox="0 0 8 8"></svg>');
+  expect(() => button({ label: ' ' })).toThrow('label');
+  expect(() => button({ label: 'x', kind: 'nope' as never })).toThrow('kind');
+  expect(() => button({ label: 'x', direction: 'up' as never })).toThrow('direction');
+  expect(() => button({ label: 'x', href: 'javascript:alert(1)' })).toThrow('href');
+  expect(() => button({ label: 'x', attrs: { onclick: 'x()' } })).toThrow('not allowed');
+  expect(() => button({ label: 'x', attrs: { class: 'y' } })).toThrow('not allowed');
+  expect(() => button({ label: 'x', icon: '<svg onload="x()"></svg>' })).toThrow('icon');
+});
+
+test('row takes an optional icon, hides it from readers, and refuses markup that is not one clean svg', () => {
+  const svg = '<svg viewBox="0 0 48 48" focusable="false"><circle cx="24" cy="24" r="10"/></svg>';
+  const html = row({ lead: 'Secrets', title: 'Vault', aside: 'No stored CI secrets', icon: svg });
+  expect(html).toContain(`<span class="toon-row-icon" aria-hidden="true">${svg}</span>`);
+  // The icon comes first, before the lead, so it is the first grid item.
+  expect(html.indexOf('toon-row-icon')).toBeLessThan(html.indexOf('toon-row-lead'));
+  expect(row({ title: 't' })).not.toContain('toon-row-icon');
+  for (const bad of ['<img src=x>', 'x<svg></svg>', '<svg><script>1</script></svg>', '<svg onload="x()"></svg>', '<svg><foreignObject/></svg>', '<svg><a href="javascript:x"/></svg>', '<svg></svg><p>']) {
+    expect(() => row({ title: 't', icon: bad })).toThrow('icon');
+  }
 });
 
 test('bars scales heights to the largest stack or the target and names each column', () => {
@@ -713,4 +746,12 @@ test('gears turn only when asked to, and reject an unknown spin', () => {
   expect(gears({ spin: 'always' })).toContain('toon-gears-always');
   expect(() => gears({ spin: 'sometimes' as never })).toThrow('unknown spin');
   expect(gears()).not.toContain('NaN');
+});
+
+test('icons and button attributes refuse the markup an attacker would use', () => {
+  for (const bad of ['<svg><img/src=x/onerror=alert(1)></svg>', '<svg><animate/onbegin=alert(1)/></svg>', '<svg><a href="jav&#x61;script:x"></a></svg>', '<svg></svg><iframe srcdoc="x"></iframe><svg></svg>', '<svg><path onclick="x"/></svg>']) expect(() => row({ title: 'a', icon: bad })).toThrow('icon');
+  expect(() => button({ label: 'Go', attrs: { formaction: 'javascript:alert(1)' } })).toThrow('not allowed');
+  expect(() => button({ label: 'Go', attrs: { role: 'x' } })).toThrow('not allowed');
+  expect(() => button({ label: 'Go', href: '//evil.example' })).toThrow('href');
+  expect(button({ label: 'Go', attrs: { 'data-x': '1', 'aria-pressed': 'false' } })).toContain('data-x="1"');
 });

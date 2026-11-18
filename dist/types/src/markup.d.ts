@@ -76,6 +76,8 @@ export interface RowOptions {
     aside?: string;
     /** A colour dot before the aside. */
     dot?: Tone;
+    /** An inline `<svg>` drawn for the row, about 48 px square. It is decoration: the row's text says everything the icon does, so the helper hides it from a screen reader. */
+    icon?: string;
 }
 /** A row for `list()`. It is a `listitem`, so the container must be `role="list"`. */
 export declare const row: (o: RowOptions) => string;
@@ -86,6 +88,35 @@ export interface ListOptions {
 }
 /** A panel of rows. A `div` with grid layout loses its list semantics in some readers, so the helper sets `role="list"`. Pass rows from `row()`. */
 export declare const list: (rows: string[], o: ListOptions) => string;
+export type ButtonKind = 'primary' | 'secondary' | 'accent' | 'danger';
+declare const BUTTON_ICON: Record<string, string>;
+export type ButtonIcon = keyof typeof BUTTON_ICON;
+export interface ButtonOptions {
+    /** The words on the button. Required, because the icon is decoration. */
+    label: string;
+    /** Makes the button a link (`<a>`). Without it the helper writes `<button>`. */
+    href?: string;
+    /** The look: `primary` blue, `secondary` paper, `accent` yellow, `danger` red. Default `primary`. */
+    kind?: ButtonKind;
+    /** A built-in icon name, or your own inline `<svg>` (the same rules as `row({ icon })`). */
+    icon?: ButtonIcon | (string & {});
+    /** Which side of the label the icon sits on. `back` and `next` choose the arrow and the side for you. */
+    iconPosition?: 'start' | 'end';
+    /** `back` puts a left arrow before the label and `next` puts a right arrow after it. The arrow nudges to say which way the button goes. */
+    direction?: 'back' | 'next';
+    /** `type` of a `<button>`. Default `button`. */
+    type?: 'button' | 'submit' | 'reset';
+    /** The button fills its row. */
+    full?: boolean;
+    cls?: string;
+    /** Extra attributes, such as `data-*` or `aria-*`. Keys are lower case names. `class`, `href`, `type` and event handlers are refused. */
+    attrs?: Record<string, string>;
+}
+/**
+ * A button or a link styled as one. The icon is decoration and the label says what it does, so the icon is `aria-hidden`.
+ * Use `direction: 'back'` for a way out of a page and `direction: 'next'` for a way on: the arrow nudges, so the button reads as something you press.
+ */
+export declare const button: (o: ButtonOptions) => string;
 /** A skip link: the first focusable element on the page, hidden until it takes focus. Point it at the id of `<main>`. */
 export declare const skipLink: (target?: string, text?: string) => string;
 export interface BarSegment {
@@ -626,3 +657,4 @@ export interface SettingsMenuOptions {
  * without script. The script adds closing on `Escape`, on a tap outside and on choosing an item. Put it in a header.
  */
 export declare const settingsMenu: (o: SettingsMenuOptions) => string;
+export {};
