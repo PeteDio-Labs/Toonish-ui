@@ -268,7 +268,7 @@ Four parts for a status dashboard: an uptime strip, a line chart, a status tile 
 
 `toon-uptime` is one cell per interval, oldest first. Parts: `toon-uptime-cells`, `toon-uptime-cell`, `toon-uptime-ok`, `toon-uptime-down`, `toon-uptime-unknown`, `toon-uptime-ends`, `toon-uptime-summary`, `toon-uptime-keys`, `toon-uptime-key`, `toon-uptime-key-down`, `toon-uptime-key-unknown`. Helper: `uptime({ label, windowLabel, cells })`, where a cell is `{ at, state, detail }` and `state` is `ok`, `down` or `unknown`.
 
-- An ok cell is solid blue and full height. A down cell is red with an ink hatch. An unknown cell is short, empty and outlined.
+- An ok cell is solid green (`green-text`) and full height. A down cell is red with an ink hatch. An unknown cell is short, empty and outlined.
 - The list is `role="list"` and each cell is a `listitem` with a spoken label such as "Nov 16 02:00 UTC: down. timeout after 5 s".
 - The summary line reads "90 of 96 intervals ok, 1 down, 5 unknown". It leaves out a zero count.
 - The strip fills its container and the cells share it, so 96 cells fit at 320 px. The helper throws above 150 cells: group the readings into longer intervals.

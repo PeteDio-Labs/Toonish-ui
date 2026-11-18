@@ -215,13 +215,27 @@ function initTabs(nav) {
     else
       history.replaceState(null, "", hash);
   };
+  let touched = false;
+  const touch = () => {
+    touched = true;
+  };
+  window.addEventListener("keydown", touch, { once: true, capture: true });
+  window.addEventListener("pointerdown", touch, { once: true, capture: true });
+  for (const t of tabs) {
+    const p = panelOf(t);
+    if (!p)
+      continue;
+    p.addEventListener("focus", () => {
+      if (!touched)
+        p.blur();
+    });
+    if (document.activeElement === p)
+      p.blur();
+  }
   const home = tabs.find((t) => t.getAttribute("aria-selected") === "true") ?? tabs[0];
   const first = byHash(location.hash);
   select(first ?? home, false);
   if (first) {
-    const p = panelOf(first);
-    if (p && document.activeElement === p)
-      p.blur();
     const top = () => window.scrollTo({ top: 0, behavior: "instant" });
     top();
     window.addEventListener("load", top, { once: true });

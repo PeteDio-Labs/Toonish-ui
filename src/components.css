@@ -747,14 +747,14 @@
   .toon-chart:last-child, .toon-uptime:last-child { margin-bottom: 0; }
 
   .toon-uptime-cells { display: flex; align-items: flex-end; gap: 1px; height: 28px; }
-  .toon-uptime-cell { flex: 1 1 0; min-width: 0; height: 100%; background: var(--color-toon-blue-text); }
+  .toon-uptime-cell { flex: 1 1 0; min-width: 0; height: 100%; background: var(--color-toon-green-text); }
   .toon-uptime-down { background: repeating-linear-gradient(135deg, var(--color-toon-red-text) 0 3px, var(--color-toon-ink) 3px 4px); }
   .toon-uptime-unknown { height: 40%; background: var(--color-toon-paper); outline: 1px solid var(--color-toon-ink); outline-offset: -1px; }
   .toon-uptime-ends { display: flex; justify-content: space-between; margin: var(--spacing-s1) 0 0; font-family: var(--font-mono); font-size: var(--text-caption1); color: var(--color-toon-muted); }
   .toon-uptime-summary { margin: var(--spacing-s1) 0 0; font-weight: 600; font-size: var(--text-subhead); }
   .toon-uptime-keys { display: flex; flex-wrap: wrap; gap: var(--spacing-s1) var(--spacing-s4); margin: var(--spacing-s1) 0 0; font-family: var(--font-mono); font-size: var(--text-caption1); color: var(--color-toon-muted); }
   .toon-uptime-key { display: inline-flex; align-items: center; gap: var(--spacing-s1); }
-  .toon-uptime-key > i { display: inline-block; width: 10px; height: 14px; background: var(--color-toon-blue-text); }
+  .toon-uptime-key > i { display: inline-block; width: 10px; height: 14px; background: var(--color-toon-green-text); }
   .toon-uptime-key-down > i { background: repeating-linear-gradient(135deg, var(--color-toon-red-text) 0 3px, var(--color-toon-ink) 3px 4px); }
   .toon-uptime-key-unknown > i { height: 6px; background: var(--color-toon-paper); outline: 1px solid var(--color-toon-ink); outline-offset: -1px; }
 

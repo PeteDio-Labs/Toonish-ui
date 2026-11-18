@@ -2477,7 +2477,7 @@
     flex: 1 1 0;
     min-width: 0;
     height: 100%;
-    background: var(--color-toon-blue-text);
+    background: var(--color-toon-green-text);
   }
   .toon-uptime-down {
     background: repeating-linear-gradient(135deg, var(--color-toon-red-text) 0 3px, var(--color-toon-ink) 3px 4px);
@@ -2519,7 +2519,7 @@
     display: inline-block;
     width: 10px;
     height: 14px;
-    background: var(--color-toon-blue-text);
+    background: var(--color-toon-green-text);
   }
   .toon-uptime-key-down > i {
     background: repeating-linear-gradient(135deg, var(--color-toon-red-text) 0 3px, var(--color-toon-ink) 3px 4px);

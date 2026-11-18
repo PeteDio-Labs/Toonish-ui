@@ -209,14 +209,24 @@ function initTabs(nav: HTMLElement): void {
     else history.replaceState(null, '', hash);
   };
 
+  // A browser focuses the target of the address's hash, and a panel is focusable, so a reload would ring the whole panel
+  // before the visitor did anything. It may do so after this script runs. Until the first key or pointer press nobody
+  // chose that focus, so drop it. After that a panel takes focus from the keyboard as usual.
+  let touched = false;
+  const touch = () => { touched = true; };
+  window.addEventListener('keydown', touch, { once: true, capture: true });
+  window.addEventListener('pointerdown', touch, { once: true, capture: true });
+  for (const t of tabs) {
+    const p = panelOf(t);
+    if (!p) continue;
+    p.addEventListener('focus', () => { if (!touched) p.blur(); });
+    if (document.activeElement === p) p.blur();
+  }
+
   const home = tabs.find((t) => t.getAttribute('aria-selected') === 'true') ?? tabs[0]!; // the tab the markup selected
   const first = byHash(location.hash);
   select(first ?? home, false);
   if (first) {
-    // A browser focuses the target of the address's hash, and a panel is focusable, so a reload would ring the whole panel
-    // before the visitor pressed a key. Nobody chose that focus, so drop it. A panel still takes focus from the keyboard.
-    const p = panelOf(first);
-    if (p && document.activeElement === p) p.blur();
     // The browser scrolled to the panel before the other panels hid, and may scroll again once the page loads.
     const top = () => window.scrollTo({ top: 0, behavior: 'instant' }); // not the smooth scroll of the page: the visitor has not asked to move
     top();
