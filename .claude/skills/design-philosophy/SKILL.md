@@ -60,23 +60,23 @@ A page is a path with a purpose, not blocks stacked on a page. Pedro's words: it
 - Fail loudly. A component throws on a blank label instead of rendering something empty.
 - Do not claim what is not true yet, such as a degree in progress or a check that has not run.
 
-## 7. Apple lessons (needs Pedro's words)
+## 7. Apple lessons
 
-> **Draft, not complete.** Pedro spent a year at Apple as a full-stack engineer. Nothing he learned there is written down in a source the project can read. Do not invent it. Sections 1 to 6 hold only what he has said about design in this project.
+Pedro spent a year at Apple as a full-stack engineer. In his words, cleaned up (2026-11-17):
 
-Pedro to fill in, in his own words:
+- **It works everywhere.** The site must work even in a poor browser. Build on plain HTML and CSS, and treat scripts and newer features as enhancements. A page that breaks on an old or limited browser is broken.
+- **Render and function come first.** Content must appear, and every control must work, before any flourish. Polish never replaces function.
+- **Every visitor gets a good experience.** A good UX is the default for everyone, not a premium for modern devices.
+- **Anyone can use the site.** Accessibility is part of that promise, not a separate task. See section 1.
 
-- What Apple taught him about accessibility as a default.
-- What he learned about the way design and engineering work together.
-- What he learned about detail, polish and what ships.
-- What he would carry into this kit, and what he would not.
+To apply them: test the change with scripts off and in Safari, and check that the page reads and works without the decoration.
 
-Until he answers, apply sections 1 to 6 and leave this section as is. When he answers, replace the placeholder with his lessons, dated, and keep them short.
+Pedro may add more lessons here. Keep each one short and dated.
 
 ## Checklist before a pull request
 
 1. Did you check it at 390 px, then 1280 px?
-2. Does it work from the keyboard, and did the axe checks pass without a skipped rule?
+2. Does it render and work in a limited browser, and from the keyboard, and did the axe checks pass without a skipped rule?
 3. Does the page lead somewhere, and is the key result easy to find?
 4. Is every state shown honestly, including unknown, empty and error?
 5. Is the copy plain, and does `docs/` change with the code?
