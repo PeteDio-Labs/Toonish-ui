@@ -42,6 +42,25 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 
 **History.** The first set was cyan with orange, which was rejected. The second was cream, red and yellow, which looked like a default theme. Paper moved from cream to a cool grey on 2026-11-13.
 
+## Palettes
+
+A palette dresses one strip of the page, such as a verdict banner. Four exist: ink, paper, violet and blue. Pedro liked all four on 2026-11-18 and chose `ink` for the verdict strip, because it draws the eye. A page asks for the role, so the choice stays one line to change. Each palette has six roles, written as `--toon-palette-<name>-<role>`.
+
+| Palette | `fill` | `text` | `state` | `edge` | `shadow` | `accent` |
+|---|---|---|---|---|---|---|
+| `ink` | `#0a0a1f` | `#eceff3` | `#f2706a` | `#b9bde0` | `#5f8dff` | `#f2706a` |
+| `paper` | `#eceff3` | `#0a0a1f` | `#c8322b` | `#0a0a1f` | `#5f8dff` | `#f2706a` |
+| `violet` | `#a995f0` | `#0a0a1f` | `#0a0a1f` | `#0a0a1f` | `#5f8dff` | `#eceff3` |
+| `blue` | `#5f8dff` | `#0a0a1f` | `#0a0a1f` | `#0a0a1f` | `#a995f0` | `#eceff3` |
+
+- `text` is the sentence on the fill. It is 16.9:1 on ink and paper, 7.7:1 on violet and 6.3:1 on blue.
+- `state` is the state word, such as "Needs you". It is red only where red passes: 6.8:1 on ink and 4.6:1 on paper. On violet and blue it is ink, because red fails there.
+- `edge` is the outline that separates the strip from the navy ground. Ink on the ground is 1.09:1, so the ink palette uses mist, which is 9.7:1. The other three fills are 5.7:1 or better against the ground.
+- `accent` fills large lettering, such as a count in Bangers. It is decoration, so the sentence carries the meaning. Outline it in ink, or in paper on ink.
+- No palette puts red against yellow. The `shadow` is blue, or violet under the blue palette, so it differs from the fill.
+
+The tests assert each text pair at 4.5:1 and each strip edge at 3:1, and print how many pairs they read.
+
 ## Type
 
 | Token | Value | Use |
