@@ -544,6 +544,19 @@ try {
     eq(await q(() => `${document.querySelectorAll('#dash .toon-uptime-cell').length}|${[...document.querySelectorAll('#dash [data-toon-switch-to], #dash .toon-chart-table > summary')].every((e) => e.getBoundingClientRect().height >= 43.5)}`), '96|true', `${name}: 96 uptime cells render and the switch buttons and table toggles are 44 px tall`);
     eq(await q(() => { const h = (c: string) => document.querySelector(c)!.getBoundingClientRect().height; return h('.toon-uptime-unknown') < h('.toon-uptime-ok'); }), true, `${name}: an unknown uptime cell is shorter than an ok cell`);
     eq(await q(() => document.documentElement.scrollWidth - innerWidth <= 0 && [...document.querySelectorAll('#dash *')].filter((e) => !e.closest('.toon-table-wrap')).every((e) => e.getBoundingClientRect().right <= innerWidth + 1)), true, `${name}: the dashboard components fit the page`);
+    // Answer-first components: the toggle is 44 px and drops a click while aria-disabled, and the readout on the ground is full-strength text.
+    const tg = await q(() => { let hits = 0; const ts = [...document.querySelectorAll<HTMLElement>('#toggles .toon-toggle')]; ts.forEach((b) => b.addEventListener('click', () => hits++)); ts[0]!.click(); const off = hits; ts[1]!.click(); return `${ts.length}|${off}|${hits}|${[...document.querySelectorAll('.toon-toggle')].every((b) => b.getBoundingClientRect().height >= 44)}|${ts[0]!.getAttribute('aria-checked')}${ts[1]!.getAttribute('aria-checked')}`; });
+    eq(tg, '2|0|1|true|falsetrue', `${name}: a disabled toggle drops its click, an enabled one reaches its handler, and each is 44 px tall`);
+    const ro = await q(() => {
+      const lum = (c: string) => { const v = c.match(/[\d.]+/g)!.slice(0, 3).map((x) => +x / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * v[0]! + 0.7152 * v[1]! + 0.0722 * v[2]!; };
+      const ratio = (a: string, b: string) => { const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x); return (hi! + 0.05) / (lo! + 0.05); };
+      const ground = getComputedStyle(document.body).backgroundColor;
+      const r = document.querySelector('#readout-ground')!;
+      const parts = [r.querySelector('.toon-readout-text')!, r.querySelector('.toon-readout-label')!].map((e) => { const cs = getComputedStyle(e); let op = 1; for (let n: Element | null = e; n; n = n.parentElement) op *= +getComputedStyle(n).opacity; return { size: parseFloat(cs.fontSize), ratio: ratio(cs.color, ground), op }; });
+      return { text: parts[0]!, label: parts[1]!, width: r.getBoundingClientRect().width };
+    });
+    eq(ro.text.size >= 15 && ro.text.ratio >= 7 && ro.text.op === 1 && ro.label.size >= 12 && ro.label.ratio >= 7 && ro.label.op === 1, true, `${name}: the readout on the ground is at least 15 px, 7:1 and never dimmed (${JSON.stringify(ro)})`);
+    eq(await q(() => document.documentElement.scrollWidth - innerWidth <= 0 && [...document.querySelectorAll('#answers *, .toon-masthead *')].filter((e) => !e.closest('.toon-table-wrap, .toon-masthead-sr')).every((e) => e.getBoundingClientRect().right <= innerWidth + 1)), true, `${name}: the answer-first components and the masthead fit the page`);
     await p.setViewportSize({ width: 320, height: 700 });
     eq(await q(() => document.documentElement.scrollWidth - innerWidth <= 0 && [...document.querySelectorAll('#desk *')].every((e) => e.getBoundingClientRect().right <= innerWidth + 1)), true, `${name}: the desk components fit at 320 px`);
     await c.close();

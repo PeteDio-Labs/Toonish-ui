@@ -38,6 +38,10 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-tabbar` | `<nav aria-label>` around `role="tablist"`; `role="tab"` links with `aria-selected` and `aria-controls`; `role="tabpanel"` panels with `aria-labelledby` | Required label | `Tab` to the selected tab, `ArrowLeft`, `ArrowRight`, `Home`, `End` move and select | Tabs are 48 px tall and 44 px wide. Icons are `aria-hidden`. Without script, every panel shows and the tabs are in-page links. |
 | `toon-disclosure` | `role="listitem"` with a `<button aria-expanded aria-controls>` and a panel with `hidden`; or `<details>` with `<summary>` | The row's text, which includes the lead, title, value and delta | `Enter`, `Space` | The row is 44 px tall. A chevron shows the state as well as the tint. `ownerLabel` says the owner aloud. |
 | `toon-spark` | `<svg role="img" aria-label>` | Your label, then "Trend from 73 to 82 over 8 readings" | None | Drawn for paper. Put the figure beside it as text. |
+| `toon-verdict` | A `<div>` of paragraphs, or a heading for the title when you pass `heading` | The state word, then the answer | None | The state is a glyph and a word. The fill backs it up. `unknown` is dashed and never reads as ok. |
+| `toon-readout` | `<p>` | Its label, then its text | None | Paper text at 15 px on the ground. Do not dim it or shrink it. |
+| `toon-toggle` | `<button role="switch" aria-checked aria-label>` | Required label that says what "on" means | `Enter`, `Space` | 44 px tall. The side words are `aria-hidden`, because the label and the checked state say them. Disabled is `aria-disabled` with a visible reason, so it keeps focus. |
+| `toon-masthead` | `<header>` with the page's `<h1>` | The title | None | The lettering is `aria-hidden` and an `sr-only` span carries the title. |
 | `toon-motion` | `<button aria-pressed>` | Its text, or an `aria-label` | `Enter`, `Space` | It lets a visitor stop motion. |
 
 **Contrast on paper.** The fill accents are for the navy ground and for shapes. Large text on paper uses the `-text` accents. `figure()` and `strip()` do this for you.
@@ -112,7 +116,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 
 ### Kicker
 
-`toon-kicker` is a numbered section lead-in: a number chip (`toon-kicker-num`), a label (`toon-kicker-label`), a rule to the edge (`toon-kicker-rule`) and an optional link (`toon-kicker-link`, 44 px tall). Helper: `kicker('01', 'Featured work', { link })`.
+`toon-kicker` is a numbered section lead-in: a number chip (`toon-kicker-num`), a label (`toon-kicker-label`), a rule to the edge (`toon-kicker-rule`) and an optional link (`toon-kicker-link`, 44 px tall). Helper: `kicker('01', 'Featured work', { link, heading })`. Pass `heading: 3` to make the label an `h3`, so the section shows in the page outline. The number chip is then `aria-hidden`.
 
 ### Strip
 
@@ -138,7 +142,10 @@ None of these holds data. You pass your own.
 
 `toon-bars` draws stacked columns with a dashed target line. Parts: `toon-bar`, `toon-bar-plot`, `toon-bar-stack`, `toon-bar-seg`, `toon-bar-total`, `toon-bar-label`, `toon-bars-target`, `toon-bars-key`. Segment tones are the badge tones plus `hatch`: `toon-bar-seg-red`, `toon-bar-seg-yellow`, `toon-bar-seg-violet`, `toon-bar-seg-paper`, `toon-bar-seg-mist`, `toon-bar-seg-hatch`. Helper: `bars({ label, columns, max?, target? })`, where a column is `{ label, sub?, segments, current? }` and a segment is `{ value, tone, label }`.
 
-The helper scales heights to `max`, which defaults to the tallest stack or the target. It labels each column for a screen reader and throws on an empty chart. Name what each colour means with a `<ul class="toon-bars-key">`, setting `--toon-dot` on each `<i>`.
+The helper scales heights to `max`, which defaults to the tallest stack or the target. It labels each column for a screen reader and throws on an empty chart.
+
+- `barsKey(items, { label })` writes the key, where an item is `{ label, tone }`. A `hatch` entry draws the hatch of its segment (`toon-bars-key-hatch`), so the key matches the bars.
+- `chartTable({ caption, head, rows, summary })` writes the numbers as a `toon-chart-table`: a `<details>` whose toggle is 44 px tall, around a `toon-table` in a `toon-table-wrap` that a keyboard can scroll. The first cell of each row is its heading. Every `bars()` chart needs one, because the shapes alone do not say the numbers.
 
 ### Table
 
@@ -218,8 +225,9 @@ Six parts for pages that track values over time: a board of calls, a likelihood 
 
 ### Disclosure
 
-`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, badge, value, delta, below, panel, open, owner, ownerLabel, native, heading })`.
+`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, badge, value, note, delta, below, panel, open, owner, ownerLabel, native, heading })`.
 
+- `note` is a short text at the end of the line, such as "15 hours ago" (`toon-disclosure-note`). It is small mono type. `value` is sized for a figure, so do not pass words to it. Pass one or the other.
 - `id` names the panel, and the button takes `<id>-btn`. `lead` is a mono id such as "P-01" in the owner colour. `lead` and `title` are required.
 - `badge` is text or `{ text, tone }`, and `delta` is a number or `{ value, unit, invert }`. `below` and `panel` are markup you trust and are not escaped. Escape any text you put in them.
 - `below` is a full-width slot under the line, for example a `scale()`.
@@ -287,12 +295,53 @@ Four parts for a status dashboard: an uptime strip, a line chart, a status tile 
 
 ### Switch row
 
-`toon-switch-row` shows a service that runs in the lab or in the cloud, with both sides next to each other. Parts: `toon-switch-head`, `toon-switch-name`, `toon-switch-host`, `toon-switch-tags`, `toon-switch-sides`, `toon-switch-side`, `toon-switch-side-on`, `toon-switch-where`, `toon-switch-state`, `toon-switch-ok`, `toon-switch-down`, `toon-switch-unknown`, `toon-switch-age`, `toon-switch-serving`, `toon-switch-btn`, `toon-switch-reason`. Helper: `switchRow({ name, hostname, active, labState, cloudState, labAge, cloudAge, dataClass, pinned, canSwitch, reason, buttonLabel, action, id })`.
+`toon-switch-row` shows a service that runs in the lab or in the cloud, with both sides next to each other. Parts: `toon-switch-head`, `toon-switch-name`, `toon-switch-host`, `toon-switch-tags`, `toon-switch-sides`, `toon-switch-side`, `toon-switch-side-on`, `toon-switch-where`, `toon-switch-state`, `toon-switch-ok`, `toon-switch-down`, `toon-switch-unknown`, `toon-switch-age`, `toon-switch-serving`, `toon-switch-btn`, `toon-switch-reason`. Helper: `switchRow({ name, hostname, active, labState, cloudState, labAge, cloudAge, dataClass, pinned, canSwitch, reason, buttonLabel, action, control, labels, id })`.
 
 - The serving side has a solid border and the word "Serving". The other side is dashed. Each side shows a glyph and "Up", "Down" or "Unknown", and the age of its reading.
 - The button carries `data-toon-switch` (the name) and `data-toon-switch-to` (`lab` or `cloud`). The kit attaches no handler: you listen for a click on `[data-toon-switch-to]`.
+- `control: 'toggle'` draws a [toggle](#toggle) in place of the button, checked when the cloud serves. It carries the same `data-toon-switch` attributes. `labels` renames the sides, such as `{ lab: 'On-prem' }`.
+- `reason` shows under the row whenever you pass it, and the control points to it with `aria-describedby`. Use it while a switch is allowed to say what it waits for.
 - When `canSwitch` is false, `reason` is required. The button gets `aria-disabled="true"` and `aria-describedby` pointing at the visible reason. It stays focusable, and the kit script drops its click before your handler sees it.
 - `action` is markup you trust, in place of the default button. You then own its disabled state: give it `aria-disabled="true"`, `data-toon-switch-to` and `aria-describedby="<id>-reason"` when `canSwitch` is false. `dataClass` is a chip and `pinned` adds a "Pinned" badge.
+
+## Answer first
+
+Four parts for a view that answers one question. Lead with the `verdict()`, put the evidence under it, and end with a `readout()`. [Patterns](patterns.md#dashboard) shows the order.
+
+### Verdict
+
+`toon-verdict` is the answer a view leads with. Parts: `toon-verdict-state`, `toon-verdict-title`, `toon-verdict-body`. States: `toon-verdict-ok`, `toon-verdict-warn`, `toon-verdict-down`, `toon-verdict-unknown`. Helper: `verdict({ state, title, body, stateText, heading, id, cls })`.
+
+- The state line is a glyph and a word: "✓ Ok", "! Warning", "✕ Down" or "? Unknown". `stateText` replaces the word, such as "Needs you".
+- `title` is the answer in one short sentence. `body` is one or two sentences under it.
+- Ok is paper, a warning is yellow and down is red, each with ink text. Unknown is a dashed paper panel, so it never reads as ok.
+- `heading` makes the title a heading of that level. Without it the title is a paragraph.
+
+### Readout
+
+`toon-readout` says what a view read: counts, the age of the read and the source. Parts: `toon-readout-label`, `toon-readout-text`. Helper: `readout(text, { label, onPaper, cls })`.
+
+- It sits on the navy ground: paper text at 15 px with a 1.55 line height and a 62-character measure, under a yellow mono label. The label defaults to "What was read".
+- `onPaper` adds `toon-readout-paper` for a paper surface, where the label and the rule are ink.
+- It is the last line of a section. Position and size rank it below the answer. Do not lower its opacity or shrink it below 15 px: a line that is hard to read is not quiet, it is unread.
+
+### Toggle
+
+`toon-toggle` is a two-state switch between two visible words. Parts: `toon-toggle-row`, `toon-toggle-side`, `toon-toggle-side-on`, `toon-toggle-thumb`. Helper: `toggle({ label, checked, off, on, disabled, describedBy, id, attrs })`.
+
+- The control is a `<button role="switch">`, 44 px tall. `label` is its accessible name and says what "on" means, such as "Authentik: run on cloud".
+- `off` and `on` are the visible words. The side that is on is bold and underlined and the thumb sits next to it, so the state is never colour alone.
+- The kit attaches no handler and does not flip the state. Listen for a click, and render it again with the new `checked` when the change has happened.
+- `disabled` sets `aria-disabled="true"`: the control turns dashed and hollow, keeps focus, and the kit script drops its click. Point `describedBy` at the id of the visible reason.
+- `attrs` adds `data-*` attributes for your handler. Any other attribute name throws.
+- It is drawn for paper.
+
+### Masthead
+
+`toon-masthead` is the header of an app page. Parts: `toon-masthead-eyebrow`, `toon-masthead-title`, `toon-masthead-lede`, `toon-masthead-sr`. Helper: `masthead({ title, accent, eyebrow, lede, cls })`.
+
+- `title` is the page's `h1`, lettered in the comic face. The lettering is `aria-hidden` and an `sr-only` span carries the text, so a screen reader hears one word group, not letters.
+- `eyebrow` is a `toon-caption` box above the title. `lede` is one line that says what the page is for.
 
 ## Interactive
 

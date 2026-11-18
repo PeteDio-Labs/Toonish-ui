@@ -30,6 +30,8 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 
 **Contrast.** Ink on the accent fills is 6.3:1 or better (blue is the lowest at 6.3:1). Ink on paper is 16.9:1, `muted` on paper is 6.9:1 and paper on the ground is 15.5:1. All pass WCAG AA. The tests assert a floor of 5.1:1 for ink on every fill.
 
+**Text on the ground.** Running text on the navy ground is `paper` at full strength, 15 px or larger. `mist` is 9.5:1 on the ground and is for short labels, such as an unselected tab. Do not lower a text's opacity to rank it: `readout()` shows the quiet form that stays readable. The tests assert 7:1 for `paper` and `mist` on the ground.
+
 **Accents on paper.** The fills are 1.4 to 2.7:1 on paper, so they fail as text. Use the `-text` tokens for any text on paper. The tests assert 4.5:1 for each. `figure()` and `strip()` use them.
 
 **Pairing.** A shadow takes its fill's pair: blue and red use yellow, yellow uses blue, violet uses red.

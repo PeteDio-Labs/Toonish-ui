@@ -220,6 +220,9 @@
     const first = byHash(location.hash);
     select(first ?? home, false);
     if (first) {
+      const p = panelOf(first);
+      if (p && document.activeElement === p)
+        p.blur();
       const top = () => window.scrollTo({ top: 0, behavior: "instant" });
       top();
       window.addEventListener("load", top, { once: true });
@@ -295,7 +298,7 @@
       panel.hidden = !open;
     });
     root.addEventListener("click", (e) => {
-      if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) {
+      if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"], .toon-toggle[aria-disabled="true"]')) {
         e.preventDefault();
         e.stopImmediatePropagation();
       }

@@ -213,6 +213,10 @@ function initTabs(nav: HTMLElement): void {
   const first = byHash(location.hash);
   select(first ?? home, false);
   if (first) {
+    // A browser focuses the target of the address's hash, and a panel is focusable, so a reload would ring the whole panel
+    // before the visitor pressed a key. Nobody chose that focus, so drop it. A panel still takes focus from the keyboard.
+    const p = panelOf(first);
+    if (p && document.activeElement === p) p.blur();
     // The browser scrolled to the panel before the other panels hid, and may scroll again once the page loads.
     const top = () => window.scrollTo({ top: 0, behavior: 'instant' }); // not the smooth scroll of the page: the visitor has not asked to move
     top();
@@ -296,7 +300,7 @@ export function initToonish(root: Document = document): void {
 
   // A switch button that says it is disabled keeps focus and its visible reason, so it is aria-disabled and not `disabled`. Drop its click before any handler sees it.
   root.addEventListener('click', (e) => {
-    if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) { e.preventDefault(); e.stopImmediatePropagation(); }
+    if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"], .toon-toggle[aria-disabled="true"]')) { e.preventDefault(); e.stopImmediatePropagation(); }
   }, true);
 
   // Toggle groups: one pressed button at a time, with a bounce on the newly pressed one.

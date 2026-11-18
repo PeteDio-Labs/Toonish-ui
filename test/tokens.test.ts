@@ -77,3 +77,13 @@ test('the -text accents meet 4.5:1 on paper, where the fills do not', () => {
     expect(contrast(c[a]!, c.paper!)).toBeLessThan(3); // the reason the -text tokens exist
   }
 });
+
+test('text on the ground meets 7:1, so running text there is comfortable and not only legal', () => {
+  const c = group('color');
+  const checked: string[] = [];
+  for (const text of ['paper', 'mist', 'yellow']) {
+    expect(contrast(c[text]!, c.ground!)).toBeGreaterThanOrEqual(7);
+    checked.push(text);
+  }
+  expect(checked).toHaveLength(3);
+});

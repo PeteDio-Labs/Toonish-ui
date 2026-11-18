@@ -123,6 +123,8 @@ export interface KickerOptions {
         text: string;
         cls?: string;
     };
+    /** Makes the label a heading of this level, so the section shows in the page outline. The number chip is then `aria-hidden`. */
+    heading?: 2 | 3 | 4 | 5 | 6;
     cls?: string;
 }
 /** A section lead-in: a number chip, a short label, a rule to the right edge and an optional link. */
@@ -321,6 +323,8 @@ export interface DisclosureOptions {
     };
     /** A large figure at the end of the line. */
     value?: string | number;
+    /** A short text at the end of the line, such as an age or a host. It is quieter than `value`, which is sized for a figure. Not with `value`. */
+    note?: string;
     /** The signed change after the value. */
     delta?: number | (DeltaOptions & {
         value: number;
@@ -450,12 +454,19 @@ export interface SwitchRowOptions {
     pinned?: boolean;
     /** Whether a switch is allowed now. When it is not, `reason` is required. */
     canSwitch: boolean;
-    /** Why a switch is not allowed. Shown under the row, and the button points to it. */
+    /** Why a switch is not allowed, or what a switch waits for. Shown under the row, and the control points to it. */
     reason?: string;
     /** The button's text. Default "Switch to cloud" or "Switch to lab". */
     buttonLabel?: string;
     /** Markup you trust, in place of the default button. You attach its handler. */
     action?: string;
+    /** `button` (the default) or `toggle`: a `role="switch"` control between the two side names, checked when the cloud serves. */
+    control?: 'button' | 'toggle';
+    /** The words for each side. Default "Lab" and "Cloud". */
+    labels?: {
+        lab?: string;
+        cloud?: string;
+    };
     /** The id prefix. Default is generated. */
     id?: string;
 }
@@ -465,3 +476,90 @@ export interface SwitchRowOptions {
  * `data-toon-switch-to` (the side), and `aria-disabled` while `canSwitch` is false: the kit script drops a click on it.
  */
 export declare const switchRow: (o: SwitchRowOptions) => string;
+export interface ToggleOptions {
+    /** The accessible name, which says what "on" means, such as "Authentik: run on cloud". Required. */
+    label: string;
+    checked: boolean;
+    /** The visible word on the unchecked side. Required. */
+    off: string;
+    /** The visible word on the checked side. Required. */
+    on: string;
+    /** Sets `aria-disabled`. The control keeps focus, and the kit script drops its click. Point `describedBy` at the visible reason. */
+    disabled?: boolean;
+    /** The id of the text that explains the state. */
+    describedBy?: string;
+    id?: string;
+    /** `data-*` attributes for your handler. */
+    attrs?: Record<string, string>;
+}
+/**
+ * A two-state switch: a `role="switch"` button between two visible words. The side that is on is bold and underlined, and
+ * the thumb sits next to it, so the state is never colour alone. The kit attaches no handler and does not flip the state:
+ * you set `checked` when the change has happened.
+ */
+export declare const toggle: (o: ToggleOptions) => string;
+export interface VerdictOptions {
+    /** `ok`, `warn`, `down` or `unknown`. A glyph and a word say it, and the fill backs them up. */
+    state: TileState;
+    /** The answer, in one short sentence. Required. */
+    title: string;
+    /** One or two sentences under the answer: why, or what to do next. */
+    body?: string;
+    /** Words for the state line in place of "Ok", "Warning", "Down" or "Unknown", such as "Needs you". */
+    stateText?: string;
+    /** Makes the title a heading of this level. */
+    heading?: 2 | 3 | 4 | 5 | 6;
+    id?: string;
+    cls?: string;
+}
+/**
+ * The answer a view leads with: a state line (a glyph and a word), the answer in one sentence, and an optional line under it.
+ * Put it first, the evidence after it and a `readout()` last. `unknown` is dashed and never reads as ok.
+ */
+export declare const verdict: (o: VerdictOptions) => string;
+export interface ReadoutOptions {
+    /** The small label above the text. Default "What was read". */
+    label?: string;
+    /** Set it inside a paper surface: the label and rule turn ink. The default is for the navy ground. */
+    onPaper?: boolean;
+    cls?: string;
+}
+/**
+ * Says what a view read: counts, the age of the read and the source. It is the quiet last line of a section, and it stays
+ * readable: full-strength text at 15 px under a mono label, never a dimmed or shrunken line.
+ */
+export declare const readout: (text: string, o?: ReadoutOptions) => string;
+/** The key for `bars()`: one entry per tone, in words. A `hatch` entry draws the same hatch as its segment. */
+export declare const barsKey: (items: {
+    label: string;
+    tone: Tone | 'hatch';
+}[], o?: {
+    label?: string;
+}) => string;
+export interface ChartTableOptions {
+    /** Names the table. It is the caption, and the toggle reads "Show <caption> as a table". Required. */
+    caption: string;
+    /** The column headings. The first one heads the row labels. */
+    head: string[];
+    /** One array per row. The first cell is the row's heading. */
+    rows: string[][];
+    /** The toggle's text, in place of "Show <caption> as a table". */
+    summary?: string;
+}
+/**
+ * The numbers behind a chart, in a `<details>` the reader opens: the text equivalent `bars()` needs. The table sits in a
+ * `toon-table-wrap` a keyboard can scroll, and the toggle is 44 px tall.
+ */
+export declare const chartTable: (o: ChartTableOptions) => string;
+export interface MastheadOptions {
+    /** The page title. It is the `h1`: the lettering is decoration and an `sr-only` span carries the text. Required. */
+    title: string;
+    accent?: Accent;
+    /** A caption box above the title, such as the owner's name. */
+    eyebrow?: string;
+    /** One line under the title that says what the page is for. */
+    lede?: string;
+    cls?: string;
+}
+/** The header of an app page: a caption box, the title in comic lettering and one line that says what the page is for. */
+export declare const masthead: (o: MastheadOptions) => string;
