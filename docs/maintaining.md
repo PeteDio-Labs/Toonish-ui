@@ -19,7 +19,8 @@ The layout check (`test/layout.ts`) finds the defects a reader sees by eye. It r
 - `text-overlap`: two lines of text from unrelated elements share pixels, as a badge on a heading does.
 
 It runs at rest, with every disclosure open and under hover on desktop. A known-bad canary page must trip all three rules, so a run that cannot see fails. Add `data-layout="ok"` to an element that overlaps or bleeds on purpose, with a reason beside it.
-The check also compares each fixture section with its baseline in `test/snapshots/`. A difference of more than 24 pixels fails, and so does a missing baseline. To accept a deliberate change, run `bun run test:layout:update`, read the changed images, and commit them.
+The check also compares each fixture section with its baseline in `test/snapshots/`. A difference of more than 24 pixels fails, and so does a missing baseline. Pixels depend on the browser build and fonts, so the baselines come from the CI runner, not from a laptop: a local `bun run test:layout` compares against them and differs by a few thousand pixels.
+To accept a deliberate change, run the `update-snapshots` workflow on your branch (Actions > update-snapshots > Run workflow). It commits the new images. Read them in the pull request diff.
 Baselines live in the repository. On a failure, the `screenshots` artifact holds the actual and diff images for one day. A passing run uploads nothing, which keeps Actions storage small.
 
 Every action is pinned to a full commit SHA. Dependabot proposes weekly bumps for the actions and the Bun packages.

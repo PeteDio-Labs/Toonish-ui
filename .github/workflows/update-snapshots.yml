@@ -1,0 +1,47 @@
+name: update-snapshots
+
+# The layout check compares pixels with baselines in test/snapshots/. Pixels depend on the browser build and its fonts,
+# so the baselines come from this runner, the same one ci uses, and never from a laptop.
+# Run it by hand on a pull request branch (Actions > update-snapshots > Run workflow). It rebuilds the baselines,
+# commits the changed images to that branch and stops. It refuses to run on main.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write # push the regenerated baselines to the branch
+
+concurrency:
+  group: update-snapshots-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - name: Install the browser
+        run: bunx playwright-core install --with-deps chromium
+      - name: Rebuild the baselines
+        run: bun run test:layout:update
+      - name: Commit the changed baselines
+        run: |
+          set -eu
+          n=$(git ls-files test/snapshots | wc -l)
+          git add test/snapshots
+          if git diff --cached --quiet; then
+            echo "No baseline changed. $n baselines tracked."
+            exit 0
+          fi
+          git diff --cached --stat | tail -3
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update layout baselines from the CI runner"
+          git push

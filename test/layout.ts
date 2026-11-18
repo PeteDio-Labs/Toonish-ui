@@ -2,7 +2,8 @@
 //   - a layout finding from test/layout-audit.ts (clipped svg, cut text, overlapping text), at rest and under hover
 //   - a section whose pixels differ from its committed baseline in test/snapshots/
 // A missing baseline fails too, so a new section cannot pass unchecked. To accept a deliberate change, run
-// `UPDATE_SNAPSHOTS=1 bun run test:layout`, look at the changed files in test/snapshots/, and commit them.
+// the update-snapshots workflow on the branch, which rebuilds the baselines on the CI runner and commits them.
+// Pixels depend on the browser build and fonts, so a laptop's baselines would fail in CI.
 // On a failure the actual and diff images go to test/out/layout/, and CI uploads them for one day.
 // Set CHROMIUM_PATH to use a browser Playwright did not install.
 import { mkdir, rm } from 'node:fs/promises';
@@ -54,7 +55,7 @@ try {
     checks++;
     const base = Bun.file(`${SNAPSHOTS}/${file}`);
     if (update) { await Bun.write(`${SNAPSHOTS}/${file}`, actual); return; }
-    if (!(await base.exists())) { fail.push(`${what}: no baseline ${SNAPSHOTS}/${file}. Run UPDATE_SNAPSHOTS=1 bun run test:layout and commit it.`); return; }
+    if (!(await base.exists())) { fail.push(`${what}: no baseline ${SNAPSHOTS}/${file}. Run the update-snapshots workflow on this branch.`); return; }
     const png = (b: Uint8Array | Buffer) => `data:image/png;base64,${Buffer.from(b).toString('base64')}`;
     const r = await diffPage.evaluate(diffPngs, { a: png(Buffer.from(await base.arrayBuffer())), b: png(actual), tolerance: TOLERANCE });
     if (r.sizeMismatch || r.ratio * r.w * r.h > MAX_PIXELS) {
