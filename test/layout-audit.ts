@@ -92,7 +92,9 @@ export const audit = (): AuditResult => {
     range.selectNodeContents(n);
     for (const q of range.getClientRects()) {
       if (q.width < 1 || q.height < 1) continue;
-      const box = { el, l: q.left + scrollX, t: q.top + scrollY, r: q.right + scrollX, b: q.bottom + scrollY };
+      // Lettering is rotated and raised, so its line box is taller than its ink. Count the middle 70% of its height.
+      const trim = el.matches('.toon-type, .toon-sfx') ? q.height * 0.15 : 0;
+      const box = { el, l: q.left + scrollX, t: q.top + scrollY + trim, r: q.right + scrollX, b: q.bottom + scrollY - trim };
       boxes.push(box);
       // text-cut: walk up to the first ancestors that clip, and compare the line box with their padding box.
       for (let a: Element | null = el; a && a !== document.documentElement; a = a.parentElement) {
