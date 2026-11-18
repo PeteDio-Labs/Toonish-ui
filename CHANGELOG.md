@@ -5,6 +5,10 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- A row with an icon inside `toon-list-stack` keeps its three-column layout from 640 px up. The stack rule had given it two columns, so the icon column took the space and the text centred. `test/fixture.ts` has the case and `test/browser.ts` asserts the layout.
+
 ## [0.7.0] - 2026-11-18
 
 ### Added

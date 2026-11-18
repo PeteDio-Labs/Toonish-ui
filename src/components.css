@@ -216,7 +216,7 @@
   .toon-row:has(.toon-row-icon) .toon-row-lead + .toon-row-body { @apply mt-s1; }
   .toon-row:has(.toon-row-icon) .toon-row-aside { @apply mt-s2 whitespace-normal; }
   @media (min-width: 640px) {
-    .toon-row:has(.toon-row-icon) { grid-template-columns: 3rem minmax(0, 1fr) auto; }
+    .toon-row:has(.toon-row-icon), .toon-list-stack .toon-row:has(.toon-row-icon) { grid-template-columns: 3rem minmax(0, 1fr) auto; }
     .toon-row:has(.toon-row-icon) .toon-row-aside { @apply mt-0 whitespace-nowrap; grid-column: 3; grid-row: 1 / span 3; align-self: center; }
   }
 
