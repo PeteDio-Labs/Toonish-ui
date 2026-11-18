@@ -15,6 +15,30 @@
   --toon-color-muted: #4a4d78; /** Secondary text on paper. */
   --toon-color-mist: #b9bde0; /** Secondary text on the ground, and the quiet fill for a closed or inactive state. */
   --toon-color-rule: #d3d8e0; /** Grid lines and the current-row fill on paper. */
+  --toon-palette-ink-fill: #0a0a1f; /** Ink palette: a dark strip. Its edge is mist, because ink on the navy ground is 1.09:1. */
+  --toon-palette-ink-text: #eceff3; /** 16.9:1 on the ink fill. */
+  --toon-palette-ink-state: #f2706a; /** The state word on ink: 6.8:1. */
+  --toon-palette-ink-edge: #b9bde0; /** 9.7:1 against the ground. */
+  --toon-palette-ink-shadow: #5f8dff;
+  --toon-palette-ink-accent: #f2706a; /** Lettering fill, with a paper outline. Decoration. */
+  --toon-palette-paper-fill: #eceff3; /** Paper palette: a light strip. */
+  --toon-palette-paper-text: #0a0a1f; /** 16.9:1 on the paper fill. */
+  --toon-palette-paper-state: #c8322b; /** The state word on paper: 4.6:1. */
+  --toon-palette-paper-edge: #0a0a1f;
+  --toon-palette-paper-shadow: #5f8dff;
+  --toon-palette-paper-accent: #f2706a; /** Lettering fill, with an ink outline. Decoration. */
+  --toon-palette-violet-fill: #a995f0; /** Violet palette. 7.0:1 against the ground. */
+  --toon-palette-violet-text: #0a0a1f; /** 7.7:1 on the violet fill. */
+  --toon-palette-violet-state: #0a0a1f; /** The state word is ink, because red on violet fails. */
+  --toon-palette-violet-edge: #0a0a1f;
+  --toon-palette-violet-shadow: #5f8dff;
+  --toon-palette-violet-accent: #eceff3; /** Lettering fill, with an ink outline. Decoration. */
+  --toon-palette-blue-fill: #5f8dff; /** Blue palette. 5.7:1 against the ground. */
+  --toon-palette-blue-text: #0a0a1f; /** 6.3:1 on the blue fill. */
+  --toon-palette-blue-state: #0a0a1f; /** The state word is ink, because red on blue fails. */
+  --toon-palette-blue-edge: #0a0a1f;
+  --toon-palette-blue-shadow: #a995f0;
+  --toon-palette-blue-accent: #eceff3; /** Lettering fill, with an ink outline. Decoration. */
   --toon-font-family-display: 'IBM Plex Sans', system-ui, sans-serif;
   --toon-font-family-comic: Bangers, 'Arial Black', Impact, sans-serif;
   --toon-font-family-body: 'IBM Plex Sans', system-ui, sans-serif;

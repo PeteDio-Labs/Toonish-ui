@@ -87,3 +87,27 @@ test('text on the ground meets 7:1, so running text there is comfortable and not
   }
   expect(checked).toHaveLength(4);
 });
+
+// The palettes dress one strip of the page. Values are aliases such as {color.ink}, so resolve them first.
+test('every palette has six roles, and its text and edge pairs pass WCAG AA', () => {
+  const c = group('color');
+  const pal = group('palette');
+  const resolve = (v: string) => {
+    const m = v.match(/^\{color\.([a-z-]+)\}$/);
+    if (!m || !c[m[1]!]) throw new Error(`palette value ${v} is not a colour token`);
+    return c[m[1]!]!;
+  };
+  const roles = ['fill', 'text', 'state', 'edge', 'shadow', 'accent'];
+  let pairs = 0;
+  for (const name of ['ink', 'paper', 'violet', 'blue']) {
+    for (const r of roles) expect(pal[`${name}-${r}`]).toBeDefined();
+    const [fill, text, state, edge] = ['fill', 'text', 'state', 'edge'].map((r) => resolve(pal[`${name}-${r}`]!));
+    expect(contrast(text!, fill!)).toBeGreaterThanOrEqual(4.5); // the sentence on the strip
+    expect(contrast(state!, fill!)).toBeGreaterThanOrEqual(4.5); // the state word on the strip
+    expect(Math.max(contrast(edge!, c.ground!), contrast(fill!, c.ground!))).toBeGreaterThanOrEqual(3); // the strip is visible on the ground
+    pairs += 3;
+  }
+  expect(Object.keys(pal)).toHaveLength(24);
+  expect(pairs).toBe(12);
+  console.log(`palette check: 4 palettes, ${Object.keys(pal).length} roles, ${pairs} contrast pairs read`);
+});

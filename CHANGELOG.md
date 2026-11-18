@@ -5,6 +5,10 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `palette` tokens: four ways to dress a strip of the page (ink, paper, violet, blue), each with `fill`, `text`, `state`, `edge`, `shadow` and `accent` roles, written as `--toon-palette-<name>-<role>`. `test/tokens.test.ts` asserts every text pair at 4.5:1 and every strip edge at 3:1. No component uses them yet. Ink is the choice for the verdict strip.
+
 ## [0.7.3] - 2026-11-18
 
 ### Added
