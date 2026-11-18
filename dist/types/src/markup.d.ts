@@ -573,7 +573,7 @@ export interface BuildBadgeOptions {
     sha?: string;
 }
 /**
- * A quiet footer line that names the build: the environment and the short commit hash. It draws only when `env` names a
+ * A quiet line that names the build: the environment and the short commit hash. It draws only when `env` names a
  * non-production environment, so a page passes `process.env.BUILD_ENV` and `process.env.BUILD_SHA` at build time and
  * production ships nothing. Put it last in the body. It is in the flow, so it never covers a control.
  */

@@ -658,7 +658,7 @@
     grid-column: 1 / -1;
     font-variant-numeric: tabular-nums;
   }
-  .toon-row-lead::before {
+  .toon-row-lead[style*="--toon-lead-dot"]::before {
     content: "";
     display: inline-block;
     width: 9px;
@@ -2397,7 +2397,9 @@
   }
   .toon-disclosure-lead {
     grid-row: 1;
-    grid-column: 1 / -1;
+    grid-column: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
     font-family: var(--font-mono);
     font-size: var(--text-footnote);
     font-weight: 700;

@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, button, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, button, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu, buildBadge } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -754,4 +754,21 @@ test('icons and button attributes refuse the markup an attacker would use', () =
   expect(() => button({ label: 'Go', attrs: { role: 'x' } })).toThrow('not allowed');
   expect(() => button({ label: 'Go', href: '//evil.example' })).toThrow('href');
   expect(button({ label: 'Go', attrs: { 'data-x': '1', 'aria-pressed': 'false' } })).toContain('data-x="1"');
+});
+
+test('buildBadge draws only for a non-production environment and names the short hash', () => {
+  expect(buildBadge()).toBe('');
+  expect(buildBadge({ env: '', sha: 'abcdef1234567' })).toBe('');
+  expect(buildBadge({ env: 'production', sha: 'abcdef1234567' })).toBe('');
+  expect(buildBadge({ env: 'Prod' })).toBe('');
+  const html = buildBadge({ env: 'staging', sha: 'ABCDEF1234567890' });
+  expect(html).toContain('aria-label="Build"');
+  expect(html).toContain('<code>abcdef1</code>');
+  expect(buildBadge({ env: 'pr_123', sha: 'abcdef1' })).toContain('pr_123 build');
+  expect(buildBadge({ env: 'staging' })).toContain('commit not named');
+});
+
+test('buildBadge refuses a malformed environment or hash', () => {
+  expect(() => buildBadge({ env: 'stag ing<', sha: 'abcdef1' })).toThrow('env');
+  expect(() => buildBadge({ env: 'staging', sha: 'not-a-hash' })).toThrow('sha');
 });

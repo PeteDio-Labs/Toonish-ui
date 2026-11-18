@@ -14,8 +14,8 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- `row()` puts `sub` on its own line under the title. `row({ leadTone })` and `disclosure({ tone })` colour the lead dot, and a row lead now has the dot too. On a phone, a disclosure's fact and chevron sit on the lead line, so the title gets the full width. `toon-disclosure-note` and `toon-row-aside` are bold mono, and an open panel ending in a button or link has a 12 px bottom gap.
-- The `design-philosophy` skill gains two rules: make components very legible, and hard-code a locked design into the kit.
+- **Layout change for every row:** `row()` puts `sub` on its own line under the title. `row({ leadTone })` and `disclosure({ tone })` colour the lead dot, and a row lead has the dot when `leadTone` is set. On a phone, a disclosure's fact and chevron sit on the lead line, so the title gets the full width. `toon-disclosure-note` and `toon-row-aside` are bold mono, and an open panel ending in a button or link has a 12 px bottom gap.
+- The `design-philosophy` skill gains section 8: make components very legible, and hard-code a locked design into the kit.
 
 ## [0.7.2] - 2026-11-18
 

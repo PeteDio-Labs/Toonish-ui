@@ -198,7 +198,7 @@
   .toon-row { @apply grid items-baseline gap-x-s3 gap-y-s1 border-t-(length:--toon-border-toon) border-toon-ink px-s4 py-s3; grid-template-columns: minmax(0, 1fr) auto; }
   .toon-row:first-child { @apply border-t-0; }
   .toon-row-lead { @apply text-footnote font-bold text-toon-muted; grid-column: 1 / -1; font-variant-numeric: tabular-nums; }
-  .toon-row-lead::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border: 2px solid var(--color-toon-ink); border-radius: 50%; background: var(--toon-lead-dot, var(--color-toon-ink)); box-sizing: border-box; vertical-align: 0; }
+  .toon-row-lead[style*="--toon-lead-dot"]::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border: 2px solid var(--color-toon-ink); border-radius: 50%; background: var(--toon-lead-dot, var(--color-toon-ink)); box-sizing: border-box; vertical-align: 0; }
   .toon-row-body { @apply min-w-0; }
   .toon-row-body > small { @apply mt-s1 block text-subhead text-toon-muted; }
   .toon-row-aside { @apply whitespace-nowrap text-footnote font-bold; font-family: var(--font-mono); font-weight: 700; }
@@ -728,7 +728,7 @@
     transform: rotate(45deg); transition: transform var(--toon-duration-fast) var(--ease-bounce);
   }
   .toon-disclosure-btn[aria-expanded="true"]::after, details[open] > .toon-disclosure-btn::after { margin-bottom: -4px; transform: rotate(225deg); }
-  .toon-disclosure-lead { grid-row: 1; grid-column: 1 / -1; font-family: var(--font-mono); font-size: var(--text-footnote); font-weight: 700; }
+  .toon-disclosure-lead { grid-row: 1; grid-column: 1; min-width: 0; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: var(--text-footnote); font-weight: 700; }
   .toon-disclosure-lead::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border: 2px solid var(--color-toon-ink); border-radius: 50%; background: var(--toon-lead-dot, var(--color-toon-ink)); box-sizing: border-box; vertical-align: 0; }
   .toon-disclosure-lead.toon-owner-b { color: var(--toon-t-violet); }
   .toon-disclosure-lead.toon-owner-b::before { background: var(--toon-lead-dot, var(--color-toon-violet)); }

@@ -39,7 +39,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-disclosure` | `role="listitem"` with a `<button aria-expanded aria-controls>` and a panel with `hidden`; or `<details>` with `<summary>` | The row's text, which includes the lead, title, value and delta | `Enter`, `Space` | The row is 44 px tall. A chevron shows the state as well as the tint. `ownerLabel` says the owner aloud. |
 | `toon-spark` | `<svg role="img" aria-label>` | Your label, then "Trend from 73 to 82 over 8 readings" | None | Drawn for paper. Put the figure beside it as text. |
 | `toon-verdict` | A `<div>` of paragraphs, or a heading for the title when you pass `heading` | The state word, then the answer | None | The state is a glyph and a word. The fill backs it up. `unknown` is dashed and never reads as ok. |
-| `toon-build` | `<footer>` | The environment and the short hash, as one line | None | One mono line at the end of the page, in the flow. Drawn only for a non-production build. |
+| `toon-build` | `<aside aria-label="Build">` | The environment and the short hash, as one line | None | One mono line at the end of the page, in the flow. Drawn only for a non-production build. |
 | `toon-readout` | `<p>` | Its label, then its text | None | Paper text at 15 px on the ground. Do not dim it or shrink it. |
 | `toon-toggle` | `<button role="switch" aria-checked aria-label>` | Required label that says what "on" means | `Enter`, `Space` | 44 px tall. The side words are `aria-hidden`, because the label and the checked state say them. Disabled is `aria-disabled` with a visible reason, so it keeps focus. |
 | `toon-switch-card` | `role="group"` named by the service, with two `<button aria-pressed>` | The side, its state and "Serving" | `Enter`, `Space` | Each button is 72 px tall. A refused side is `aria-disabled` and points to the visible reason. Text is ink on every fill. |
@@ -141,7 +141,7 @@ None of these holds data. You pass your own.
 
 `toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helpers: `list(rows, { label, cls })` writes the container with `role="list"` and a label, and `row({ lead, title, sub, aside, dot, leadTone, icon })` writes each `role="listitem"`. Use them instead of a bullet list.
 
-`sub` sits on its own line under the title. `leadTone` is a `Tone` that colours the small dot before the lead; the default is ink. `aside` is bold mono type.
+`sub` sits on its own line under the title. `leadTone` is a `Tone` that draws a small dot before the lead in that colour. Without it the lead has no dot. `aside` is bold mono type.
 
 `icon` is one inline `<svg>` about 48 px square, drawn by the caller. The helper puts it in `toon-row-icon`, hides it from a screen reader (`aria-hidden`), and throws when the markup is not a single `<svg>` or holds a script, `foreignObject`, event attribute or `javascript:` link. The icon is decoration, so the row's text must say everything the icon does. Give the row an aside that tells a reader one fact, such as a number or a state: on a phone it sits under the body, and from `sm` it sits at the end of the row. Animate an icon with CSS that you scope to `prefers-reduced-motion: no-preference`; the kit also stops animation when the motion switch is off.
 
@@ -341,7 +341,7 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 
 - Pass `process.env.BUILD_ENV` and the commit hash at build time. A staging build sets `BUILD_ENV=staging`, and a local run sets it by hand. Do not detect staging from the URL.
 - The hash is hex, 7 to 40 characters, and the line shows the first 7. A malformed hash throws.
-- The `<footer>` is the page's contentinfo landmark and sits in the flow after the last content, so it never covers a control. `data-toon-build` carries the environment for a test.
+- The `<aside>` is a labelled complementary landmark, so a page with its own site footer has no duplicate landmark. Put it last in `<body>`, outside `<main>`. It sits in the flow after the last content, so it never covers a control. `data-toon-build` carries the environment for a test.
 - Components: `toon-build` holds the line, and its `<code>` holds the hash.
 
 ### Toggle
