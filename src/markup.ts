@@ -137,6 +137,8 @@ export interface RowOptions {
   aside?: string;
   /** A colour dot before the aside. */
   dot?: Tone;
+  /** The colour of the small dot before the lead. Default ink. Needs `lead`. */
+  leadTone?: Tone;
   /** An inline `<svg>` drawn for the row, about 48 px square. It is decoration: the row's text says everything the icon does, so the helper hides it from a screen reader. */
   icon?: string;
 }
@@ -154,8 +156,9 @@ const iconMarkup = (svg: string): string => {
 /** A row for `list()`. It is a `listitem`, so the container must be `role="list"`. */
 export const row = (o: RowOptions): string => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : '';
+  const leadDot = o.leadTone ? ` style="--toon-lead-dot:${TONE_HEX[toneOf(o.leadTone)]}"` : '';
   const icon = o.icon ? `<span class="toon-row-icon" aria-hidden="true">${iconMarkup(o.icon)}</span>` : '';
-  return `<div class="toon-row" role="listitem">${icon}${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
+  return `<div class="toon-row" role="listitem">${icon}${o.lead ? `<span class="toon-row-lead"${leadDot}>${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
 };
 export interface ListOptions {
   /** Names the list for a screen reader. Required. */
@@ -682,6 +685,8 @@ export interface DisclosureOptions {
   /** A mono id for the row, such as "P-01". Required. */
   lead: string;
   title: string;
+  /** A line of plain words under the title: what the row means, in muted type. It wraps, and a screen reader reads it with the row. */
+  sub?: string;
   /** A badge after the title. Text, or text with a tone (default yellow). */
   badge?: string | { text: string; tone?: Tone };
   /** A large figure at the end of the line. */
@@ -696,6 +701,8 @@ export interface DisclosureOptions {
   panel: string;
   open?: boolean;
   owner?: Owner;
+  /** The colour of the lead's dot. Default ink, or violet for owner `b`. */
+  tone?: Tone;
   /** Says the owner aloud, such as "Pedro". The dot and colour show it to the eye. */
   ownerLabel?: string;
   /** Use `<details>` and `<summary>`, which work without script. */
@@ -716,8 +723,9 @@ export const disclosure = (o: DisclosureOptions): string => {
   if (o.heading !== undefined && (o.native || ![2, 3, 4, 5, 6].includes(o.heading))) throw new Error('disclosure: heading is a level from 2 to 6, and not for native');
   const b = typeof o.badge === 'string' ? { text: o.badge, tone: 'yellow' as Tone } : o.badge ? { text: o.badge.text, tone: o.badge.tone ?? 'yellow' } : undefined;
   const d = o.delta === undefined ? '' : typeof o.delta === 'number' ? delta(o.delta) : delta(o.delta.value, o.delta);
-  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ''}${esc(o.lead)}</span>` +
+  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}"${o.tone ? ` style="--toon-lead-dot:${TONE_HEX[toneOf(o.tone)]}"` : ''}>${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ''}${esc(o.lead)}</span>` +
     `<span class="toon-disclosure-title">${esc(o.title)}${b ? ' ' + badge(b.text, b.tone) : ''}</span>` +
+    `${o.sub?.trim() ? `<span class="toon-disclosure-sub">${esc(o.sub.trim())}</span>` : ''}` +
     `${o.value === undefined ? '' : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${o.note?.trim() ? `<span class="toon-disclosure-value toon-disclosure-note">${esc(o.note.trim())}</span>` : ''}${d}` +
     `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ''}`;
   const panel = `<div class="toon-disclosure-panel" id="${o.id}"${o.native || o.open ? '' : ' hidden'}>${o.panel}</div>`;
@@ -1131,6 +1139,28 @@ export interface ReadoutOptions {
 export const readout = (text: string, o: ReadoutOptions = {}): string => {
   if (!text?.trim()) throw new Error('readout: text is required');
   return `<p class="toon-readout${o.onPaper ? ' toon-readout-paper' : ''}${o.cls ? ' ' + esc(o.cls) : ''}"><span class="toon-readout-label">${esc(o.label?.trim() || 'What was read')}</span> <span class="toon-readout-text">${esc(text.trim())}</span></p>`;
+};
+
+export interface BuildBadgeOptions {
+  /** The build environment, such as `staging`. Empty, missing, `production` or `prod` draws nothing, so a production build carries no badge. */
+  env?: string;
+  /** The commit hash. Hex, 7 to 40 characters. The helper shows the first 7. A malformed hash throws, so a build never ships a badge with a wrong name. */
+  sha?: string;
+}
+
+/**
+ * A quiet line that names the build: the environment and the short commit hash. It draws only when `env` names a
+ * non-production environment, so a page passes `process.env.BUILD_ENV` and `process.env.BUILD_SHA` at build time and
+ * production ships nothing. Put it last in the body. It is in the flow, so it never covers a control.
+ */
+export const buildBadge = (o: BuildBadgeOptions = {}): string => {
+  const env = o.env?.trim().toLowerCase() ?? '';
+  if (!env || env === 'production' || env === 'prod') return '';
+  if (!/^[a-z][a-z0-9_-]{0,31}$/.test(env)) throw new Error(`buildBadge: env "${o.env}" must be a short word of letters, digits, - or _`);
+  const sha = o.sha?.trim() ?? '';
+  if (sha && !/^[0-9a-f]{7,40}$/i.test(sha)) throw new Error('buildBadge: sha must be 7 to 40 hex characters');
+  const text = sha ? `${esc(env)} build <code>${esc(sha.slice(0, 7).toLowerCase())}</code>` : `${esc(env)} build, commit not named`;
+  return `<aside class="toon-build" aria-label="Build" data-toon-build="${esc(env)}">${text}</aside>`;
 };
 
 /** The key for `bars()`: one entry per tone, in words. A `hatch` entry draws the same hatch as its segment. */

@@ -76,6 +76,8 @@ export interface RowOptions {
     aside?: string;
     /** A colour dot before the aside. */
     dot?: Tone;
+    /** The colour of the small dot before the lead. Default ink. Needs `lead`. */
+    leadTone?: Tone;
     /** An inline `<svg>` drawn for the row, about 48 px square. It is decoration: the row's text says everything the icon does, so the helper hides it from a screen reader. */
     icon?: string;
 }
@@ -347,6 +349,8 @@ export interface DisclosureOptions {
     /** A mono id for the row, such as "P-01". Required. */
     lead: string;
     title: string;
+    /** A line of plain words under the title: what the row means, in muted type. It wraps, and a screen reader reads it with the row. */
+    sub?: string;
     /** A badge after the title. Text, or text with a tone (default yellow). */
     badge?: string | {
         text: string;
@@ -366,6 +370,8 @@ export interface DisclosureOptions {
     panel: string;
     open?: boolean;
     owner?: Owner;
+    /** The colour of the lead's dot. Default ink, or violet for owner `b`. */
+    tone?: Tone;
     /** Says the owner aloud, such as "Pedro". The dot and colour show it to the eye. */
     ownerLabel?: string;
     /** Use `<details>` and `<summary>`, which work without script. */
@@ -560,6 +566,18 @@ export interface ReadoutOptions {
  * readable: full-strength text at 15 px under a mono label, never a dimmed or shrunken line.
  */
 export declare const readout: (text: string, o?: ReadoutOptions) => string;
+export interface BuildBadgeOptions {
+    /** The build environment, such as `staging`. Empty, missing, `production` or `prod` draws nothing, so a production build carries no badge. */
+    env?: string;
+    /** The commit hash. Hex, 7 to 40 characters. The helper shows the first 7. A malformed hash throws, so a build never ships a badge with a wrong name. */
+    sha?: string;
+}
+/**
+ * A quiet line that names the build: the environment and the short commit hash. It draws only when `env` names a
+ * non-production environment, so a page passes `process.env.BUILD_ENV` and `process.env.BUILD_SHA` at build time and
+ * production ships nothing. Put it last in the body. It is in the flow, so it never covers a control.
+ */
+export declare const buildBadge: (o?: BuildBadgeOptions) => string;
 /** The key for `bars()`: one entry per tone, in words. A `hatch` entry draws the same hatch as its segment. */
 export declare const barsKey: (items: {
     label: string;

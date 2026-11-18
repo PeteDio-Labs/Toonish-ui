@@ -531,8 +531,9 @@ var iconMarkup = (svg) => {
 };
 var row = (o) => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : "";
+  const leadDot = o.leadTone ? ` style="--toon-lead-dot:${TONE_HEX[toneOf(o.leadTone)]}"` : "";
   const icon = o.icon ? `<span class="toon-row-icon" aria-hidden="true">${iconMarkup(o.icon)}</span>` : "";
-  return `<div class="toon-row" role="listitem">${icon}${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
+  return `<div class="toon-row" role="listitem">${icon}${o.lead ? `<span class="toon-row-lead"${leadDot}>${esc(o.lead)}</span>` : ""}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ""}</div>`;
 };
 var BUTTON_KIND = { primary: "", secondary: " toon-btn-paper", accent: " toon-btn-yellow", danger: " toon-btn-red" };
 var BUTTON_ICON = {
@@ -810,7 +811,7 @@ var disclosure = (o) => {
     throw new Error("disclosure: heading is a level from 2 to 6, and not for native");
   const b = typeof o.badge === "string" ? { text: o.badge, tone: "yellow" } : o.badge ? { text: o.badge.text, tone: o.badge.tone ?? "yellow" } : undefined;
   const d = o.delta === undefined ? "" : typeof o.delta === "number" ? delta(o.delta) : delta(o.delta.value, o.delta);
-  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ""}${esc(o.lead)}</span>` + `<span class="toon-disclosure-title">${esc(o.title)}${b ? " " + badge(b.text, b.tone) : ""}</span>` + `${o.value === undefined ? "" : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${o.note?.trim() ? `<span class="toon-disclosure-value toon-disclosure-note">${esc(o.note.trim())}</span>` : ""}${d}` + `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ""}`;
+  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}"${o.tone ? ` style="--toon-lead-dot:${TONE_HEX[toneOf(o.tone)]}"` : ""}>${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ""}${esc(o.lead)}</span>` + `<span class="toon-disclosure-title">${esc(o.title)}${b ? " " + badge(b.text, b.tone) : ""}</span>` + `${o.sub?.trim() ? `<span class="toon-disclosure-sub">${esc(o.sub.trim())}</span>` : ""}` + `${o.value === undefined ? "" : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${o.note?.trim() ? `<span class="toon-disclosure-value toon-disclosure-note">${esc(o.note.trim())}</span>` : ""}${d}` + `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ""}`;
   const panel = `<div class="toon-disclosure-panel" id="${o.id}"${o.native || o.open ? "" : " hidden"}>${o.panel}</div>`;
   if (o.native)
     return `<div class="toon-disclosure" role="listitem"><details class="toon-disclosure-details"${o.open ? " open" : ""}><summary class="toon-disclosure-btn" id="${o.id}-btn">${inner}</summary>${panel}</details></div>`;

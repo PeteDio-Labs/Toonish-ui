@@ -39,6 +39,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-disclosure` | `role="listitem"` with a `<button aria-expanded aria-controls>` and a panel with `hidden`; or `<details>` with `<summary>` | The row's text, which includes the lead, title, value and delta | `Enter`, `Space` | The row is 44 px tall. A chevron shows the state as well as the tint. `ownerLabel` says the owner aloud. |
 | `toon-spark` | `<svg role="img" aria-label>` | Your label, then "Trend from 73 to 82 over 8 readings" | None | Drawn for paper. Put the figure beside it as text. |
 | `toon-verdict` | A `<div>` of paragraphs, or a heading for the title when you pass `heading` | The state word, then the answer | None | The state is a glyph and a word. The fill backs it up. `unknown` is dashed and never reads as ok. |
+| `toon-build` | `<aside aria-label="Build">` | The environment and the short hash, as one line | None | One mono line at the end of the page, in the flow. Drawn only for a non-production build. |
 | `toon-readout` | `<p>` | Its label, then its text | None | Paper text at 15 px on the ground. Do not dim it or shrink it. |
 | `toon-toggle` | `<button role="switch" aria-checked aria-label>` | Required label that says what "on" means | `Enter`, `Space` | 44 px tall. The side words are `aria-hidden`, because the label and the checked state say them. Disabled is `aria-disabled` with a visible reason, so it keeps focus. |
 | `toon-switch-card` | `role="group"` named by the service, with two `<button aria-pressed>` | The side, its state and "Serving" | `Enter`, `Space` | Each button is 72 px tall. A refused side is `aria-disabled` and points to the visible reason. Text is ink on every fill. |
@@ -138,7 +139,9 @@ None of these holds data. You pass your own.
 
 ### List and row
 
-`toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helpers: `list(rows, { label, cls })` writes the container with `role="list"` and a label, and `row({ lead, title, sub, aside, dot, icon })` writes each `role="listitem"`. Use them instead of a bullet list.
+`toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helpers: `list(rows, { label, cls })` writes the container with `role="list"` and a label, and `row({ lead, title, sub, aside, dot, leadTone, icon })` writes each `role="listitem"`. Use them instead of a bullet list.
+
+`sub` sits on its own line under the title. `leadTone` is a `Tone` that draws a small dot before the lead in that colour. Without it the lead has no dot. `aside` is bold mono type.
 
 `icon` is one inline `<svg>` about 48 px square, drawn by the caller. The helper puts it in `toon-row-icon`, hides it from a screen reader (`aria-hidden`), and throws when the markup is not a single `<svg>` or holds a script, `foreignObject`, event attribute or `javascript:` link. The icon is decoration, so the row's text must say everything the icon does. Give the row an aside that tells a reader one fact, such as a number or a state: on a phone it sits under the body, and from `sm` it sits at the end of the row. Animate an icon with CSS that you scope to `prefers-reduced-motion: no-preference`; the kit also stops animation when the motion switch is off.
 
@@ -231,9 +234,10 @@ Six parts for pages that track values over time: a board of calls, a likelihood 
 
 ### Disclosure
 
-`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, badge, value, note, delta, below, panel, open, owner, ownerLabel, native, heading })`.
+`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-sub`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, sub, badge, value, note, delta, tone, below, panel, open, owner, ownerLabel, native, heading })`.
 
-- `note` is a short text at the end of the line, such as "15 hours ago" (`toon-disclosure-note`). It is small mono type. `value` is sized for a figure, so do not pass words to it. Pass one or the other.
+- `sub` is a line of plain words under the title that says what the row means. It is muted subhead type, wraps, and sits between the title and `below`. Use it so a closed row is informative without opening it.
+- `note` is a short text at the end of the line, such as "15 hours ago" (`toon-disclosure-note`). It is small bold mono type, and it does not wrap from 640 px. `tone` is a `Tone` that colours the lead's dot (default ink, or violet for owner `b`). Below 640 px the value or note, the delta and the chevron sit on the lead line, so the title and `sub` get the full width; from 640 px they sit at the end of the title line. `value` is sized for a figure, so do not pass words to it. Pass one or the other.
 - `id` names the panel, and the button takes `<id>-btn`. `lead` is a mono id such as "P-01" in the owner colour. `lead` and `title` are required.
 - `badge` is text or `{ text, tone }`, and `delta` is a number or `{ value, unit, invert }`. `below` and `panel` are markup you trust and are not escaped. Escape any text you put in them.
 - `below` is a full-width slot under the line, for example a `scale()`.
@@ -330,6 +334,15 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 - It sits on the navy ground: paper text at 15 px with a 1.55 line height and a 62-character measure, under a yellow mono label. The label defaults to "What was read".
 - `onPaper` adds `toon-readout-paper` for a paper surface, where the label and the rule are ink.
 - It is the last line of a section. Position and size rank it below the answer. Do not lower its opacity or shrink it below 15 px: a line that is hard to read is not quiet, it is unread.
+
+### Build badge
+
+`toon-build` names the build on a staging page. Helper: `buildBadge({ env, sha })`. The helper returns an empty string when `env` is empty, `production` or `prod`, so a page passes its build-time variables and production ships nothing.
+
+- Pass `process.env.BUILD_ENV` and the commit hash at build time. A staging build sets `BUILD_ENV=staging`, and a local run sets it by hand. Do not detect staging from the URL.
+- The hash is hex, 7 to 40 characters, and the line shows the first 7. A malformed hash throws.
+- The `<aside>` is a labelled complementary landmark, so a page with its own site footer has no duplicate landmark. Put it last in `<body>`, outside `<main>`. It sits in the flow after the last content, so it never covers a control. `data-toon-build` carries the environment for a test.
+- Components: `toon-build` holds the line, and its `<code>` holds the hash.
 
 ### Toggle
 
