@@ -215,6 +215,35 @@ function initTabs(nav) {
     else
       history.replaceState(null, "", hash);
   };
+  const named = byHash(location.hash);
+  const namedPanel = named ? panelOf(named) : null;
+  if (namedPanel) {
+    let touched = false;
+    const touch = () => {
+      touched = true;
+    };
+    const off = () => {
+      window.removeEventListener("keydown", touch, true);
+      window.removeEventListener("pointerdown", touch, true);
+      namedPanel.removeEventListener("focus", drop);
+    };
+    const drop = () => {
+      off();
+      if (!touched)
+        namedPanel.blur();
+    };
+    window.addEventListener("keydown", touch, true);
+    window.addEventListener("pointerdown", touch, true);
+    if (document.activeElement === namedPanel)
+      namedPanel.blur();
+    else
+      namedPanel.addEventListener("focus", drop);
+    const done = () => setTimeout(off, 500);
+    if (document.readyState === "complete")
+      done();
+    else
+      window.addEventListener("load", done, { once: true });
+  }
   const home = tabs.find((t) => t.getAttribute("aria-selected") === "true") ?? tabs[0];
   const first = byHash(location.hash);
   select(first ?? home, false);
@@ -294,7 +323,7 @@ function initToonish(root = document) {
     panel.hidden = !open;
   });
   root.addEventListener("click", (e) => {
-    if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) {
+    if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"], .toon-toggle[aria-disabled="true"]')) {
       e.preventDefault();
       e.stopImmediatePropagation();
     }
@@ -504,7 +533,10 @@ var kicker = (num, label, o = {}) => {
   if (!num.trim() || !label.trim())
     throw new Error("kicker: num and label are required");
   const link = o.link ? `<a class="toon-link toon-kicker-link${o.link.cls ? " " + esc(o.link.cls) : ""}" href="${esc(o.link.href)}">${esc(o.link.text)}</a>` : "";
-  return `<div class="toon-kicker${o.cls ? " " + esc(o.cls) : ""}"><span class="toon-kicker-num">${esc(num)}</span><span class="toon-kicker-label">${esc(label)}</span><span class="toon-kicker-rule" aria-hidden="true"></span>${link}</div>`;
+  if (o.heading !== undefined && ![2, 3, 4, 5, 6].includes(o.heading))
+    throw new Error("kicker: heading is a level from 2 to 6");
+  const tag = o.heading ? `h${o.heading}` : "span";
+  return `<div class="toon-kicker${o.cls ? " " + esc(o.cls) : ""}"><span class="toon-kicker-num"${o.heading ? ' aria-hidden="true"' : ""}>${esc(num)}</span><${tag} class="toon-kicker-label">${esc(label)}</${tag}><span class="toon-kicker-rule" aria-hidden="true"></span>${link}</div>`;
 };
 var strip = (cells, o = {}) => {
   if (!cells.length)
@@ -633,7 +665,7 @@ var scale = (o) => {
   return `<span class="toon-scale" role="img" aria-label="${esc(o.label)}" style="--v:${num(value)};--p:${num(prev ?? value)}">${ticks}${past}${move}<span class="toon-scale-mark toon-owner-${owner}"></span></span>`;
 };
 var scaleAxis = () => `<span class="toon-scale-axis" aria-hidden="true">${[0, 25, 50, 75, 100].map((t) => `<span style="--at:${t}">${t}</span>`).join("")}</span>`;
-var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist" };
+var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist", green: "toon-meter-fill-green" };
 var uid = 0;
 var meter = (o) => {
   if (!o.label?.trim())
@@ -699,11 +731,13 @@ var disclosure = (o) => {
   if (!o.lead?.trim() || !o.title?.trim())
     throw new Error("disclosure: lead and title are required");
   const owner = ownerOf("disclosure", o.owner ?? "a");
+  if (o.value !== undefined && o.note !== undefined)
+    throw new Error("disclosure: pass value or note, not both");
   if (o.heading !== undefined && (o.native || ![2, 3, 4, 5, 6].includes(o.heading)))
     throw new Error("disclosure: heading is a level from 2 to 6, and not for native");
   const b = typeof o.badge === "string" ? { text: o.badge, tone: "yellow" } : o.badge ? { text: o.badge.text, tone: o.badge.tone ?? "yellow" } : undefined;
   const d = o.delta === undefined ? "" : typeof o.delta === "number" ? delta(o.delta) : delta(o.delta.value, o.delta);
-  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ""}${esc(o.lead)}</span>` + `<span class="toon-disclosure-title">${esc(o.title)}${b ? " " + badge(b.text, b.tone) : ""}</span>` + `${o.value === undefined ? "" : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${d}` + `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ""}`;
+  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ""}${esc(o.lead)}</span>` + `<span class="toon-disclosure-title">${esc(o.title)}${b ? " " + badge(b.text, b.tone) : ""}</span>` + `${o.value === undefined ? "" : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${o.note?.trim() ? `<span class="toon-disclosure-value toon-disclosure-note">${esc(o.note.trim())}</span>` : ""}${d}` + `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ""}`;
   const panel = `<div class="toon-disclosure-panel" id="${o.id}"${o.native || o.open ? "" : " hidden"}>${o.panel}</div>`;
   if (o.native)
     return `<div class="toon-disclosure" role="listitem"><details class="toon-disclosure-details"${o.open ? " open" : ""}><summary class="toon-disclosure-btn" id="${o.id}-btn">${inner}</summary>${panel}</details></div>`;
@@ -932,16 +966,35 @@ var switchRow = (o) => {
   if (o.id !== undefined && !/^[A-Za-z][\w-]*$/.test(o.id))
     throw new Error(`switchRow: id "${o.id}" is not a valid id`);
   const id = o.id ?? `toon-switch-${++uid}`;
+  if (o.control !== undefined && o.control !== "button" && o.control !== "toggle")
+    throw new Error(`switchRow: unknown control "${String(o.control)}": use button or toggle`);
   const other = o.active === "lab" ? "cloud" : "lab";
+  const word = { lab: o.labels?.lab?.trim() || "Lab", cloud: o.labels?.cloud?.trim() || "Cloud" };
   const side = (p, state, age) => {
     const on = o.active === p;
-    return `<div class="toon-switch-side${on ? " toon-switch-side-on" : ""}"><span class="toon-switch-where">${p === "lab" ? "Lab" : "Cloud"}</span>` + `<span class="toon-switch-state toon-switch-${state}"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === "ok" ? "Up" : state === "down" ? "Down" : "Unknown"}</span>` + `${age ? `<span class="toon-switch-age">Read ${esc(age)}</span>` : ""}${on ? '<span class="toon-switch-serving"><span aria-hidden="true">●</span> Serving</span>' : ""}</div>`;
+    return `<div class="toon-switch-side${on ? " toon-switch-side-on" : ""}"><span class="toon-switch-where">${esc(word[p])}</span>` + `<span class="toon-switch-state toon-switch-${state}"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === "ok" ? "Up" : state === "down" ? "Down" : "Unknown"}</span>` + `${age ? `<span class="toon-switch-age">Read ${esc(age)}</span>` : ""}${on ? '<span class="toon-switch-serving"><span aria-hidden="true">●</span> Serving</span>' : ""}</div>`;
   };
-  const reason = !o.canSwitch ? `<p class="toon-switch-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : "";
-  const label = o.buttonLabel?.trim() || `Switch to ${other}`;
-  const button = o.action ?? `<button type="button" class="toon-btn toon-btn-yellow toon-switch-btn" data-toon-switch="${esc(o.name)}" data-toon-switch-to="${other}"${o.canSwitch ? "" : ` aria-disabled="true" aria-describedby="${id}-reason"`}>${esc(label)}</button>`;
+  const why = o.reason?.trim() ? ` aria-describedby="${id}-reason"` : "";
+  const reason = o.reason?.trim() ? `<p class="toon-switch-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : "";
+  const label = o.buttonLabel?.trim() || (o.control === "toggle" ? `${o.name}: run on ${word.cloud.toLowerCase()}` : `Switch to ${word[other].toLowerCase()}`);
+  const button = o.action ?? (o.control === "toggle" ? toggle({ label, checked: o.active === "cloud", off: word.lab, on: word.cloud, disabled: !o.canSwitch, describedBy: o.reason?.trim() ? `${id}-reason` : undefined, id: `${id}-toggle`, attrs: { "data-toon-switch": o.name, "data-toon-switch-to": other } }) : `<button type="button" class="toon-btn toon-btn-yellow toon-switch-btn" data-toon-switch="${esc(o.name)}" data-toon-switch-to="${other}"${o.canSwitch ? "" : ' aria-disabled="true"'}${why}>${esc(label)}</button>`);
   const tags = `${o.dataClass?.trim() ? chip(o.dataClass.trim()) : ""}${o.pinned ? ' <span class="toon-badge toon-badge-violet">Pinned</span>' : ""}`;
   return `<div class="toon-switch-row" role="group" aria-labelledby="${id}-name"><div class="toon-switch-head"><b class="toon-switch-name" id="${id}-name">${esc(o.name)}</b>${o.hostname ? `<span class="toon-switch-host">${esc(o.hostname)}</span>` : ""}${tags ? `<span class="toon-switch-tags">${tags}</span>` : ""}</div>` + `<div class="toon-switch-sides">${side("lab", o.labState, o.labAge)}${side("cloud", o.cloudState, o.cloudAge)}</div>${button}${reason}</div>`;
+};
+var toggle = (o) => {
+  if (!o.label?.trim() || !o.off?.trim() || !o.on?.trim())
+    throw new Error("toggle: label, off and on are required");
+  if (o.id !== undefined && !ID_RE.test(o.id))
+    throw new Error(`toggle: id "${o.id}" is not a valid id`);
+  if (o.describedBy !== undefined && !ID_RE.test(o.describedBy))
+    throw new Error(`toggle: describedBy "${o.describedBy}" is not a valid id`);
+  const attrs = Object.entries(o.attrs ?? {}).map(([k, v]) => {
+    if (!/^data-[a-z0-9-]+$/.test(k))
+      throw new Error(`toggle: attribute "${k}" is not a data-* attribute`);
+    return ` ${k}="${esc(v)}"`;
+  }).join("");
+  const side = (text, on) => `<span class="toon-toggle-side${on ? " toon-toggle-side-on" : ""}" aria-hidden="true">${esc(text.trim())}</span>`;
+  return `<span class="toon-toggle-row">${side(o.off, !o.checked)}<button type="button" role="switch" class="toon-toggle"${o.id ? ` id="${o.id}"` : ""} aria-checked="${o.checked ? "true" : "false"}" aria-label="${esc(o.label.trim())}"` + `${o.disabled ? ' aria-disabled="true"' : ""}${o.describedBy ? ` aria-describedby="${o.describedBy}"` : ""}${attrs}><span class="toon-toggle-thumb" aria-hidden="true"></span></button>${side(o.on, o.checked)}</span>`;
 };
 // tokens/toonish.tokens.json
 var toonish_tokens_default = {
@@ -959,6 +1012,8 @@ var toonish_tokens_default = {
     "red-text": { $value: "#c8322b", $description: "Red for large figures on paper (4.6:1)." },
     "violet-text": { $value: "#6b4fd6", $description: "Violet for large figures on paper (4.9:1)." },
     "yellow-text": { $value: "#7a5c00", $description: "Yellow for large figures on paper (5.4:1). The fill yellow is 1.4:1 on paper." },
+    green: { $value: "#4ccf8f", $description: "The ok state: a fill and a shadow. Not a fifth accent. Green says healthy, clear or serving, and nothing else." },
+    "green-text": { $value: "#0f6e42", $description: "Green for an ok state's text on paper (5.5:1). The fill green is 1.7:1 on paper." },
     muted: { $value: "#4a4d78", $description: "Secondary text on paper." },
     mist: { $value: "#b9bde0", $description: "Secondary text on the ground, and the quiet fill for a closed or inactive state." },
     rule: { $value: "#d3d8e0", $description: "Grid lines and the current-row fill on paper." }

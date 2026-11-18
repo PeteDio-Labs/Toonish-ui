@@ -26,11 +26,15 @@ A case study is one long read, so it needs orientation more than decoration.
 
 ## Dashboard
 
-- A row of `stat()` tiles in `toon-stats`.
-- `bars()` for a trend, with a `toon-bars-key` that names each colour.
-- `toon-list` of `row()` entries for recent events, with a coloured dot for state.
-- `toon-table` for the full record. Mark the current row with `aria-current`.
-- `toon-empty` when there is nothing to show. A value you cannot read is an empty state or an alert, never a zero that looks like a yes.
+A dashboard view answers one question, and its first phone screen holds the answer. The lab dashboard's tabs ask: is anything wrong, what do I act on, what is exposed, can I fail over, and what is open.
+
+1. **The answer.** `verdict()` first: a state, the answer in one sentence, and one line on why or what to do. An unread or stale source gives `unknown`, never ok.
+2. **The evidence.** Each group starts with `kicker('01', ..., { heading: 3 })`. Use `statusTile()` in `toon-tiles` or `strip()` for figures, `list()` of `disclosure()` rows for items that open, `switchRow()` for a service on two sides, and `bars()` with `barsKey()` and `chartTable()` for a trend.
+3. **What was read.** `readout()` last: counts, the age of the read and the source. "0 findings after reading 4,120 packages" and "0 findings because nothing was read" must not look alike.
+
+- Put charts and tiles on paper. Their ink and `-text` accents fail on the navy ground.
+- Use `toon-empty` when there is nothing to show. A value you cannot read is an unknown state or an alert, never a zero that looks like a yes.
+- Do not rank text by dimming it. Text on the ground is `paper`, at 15 px or more. Rank it by position and size.
 
 ## Architecture diagram
 

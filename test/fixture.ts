@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation is docs/components.md. The portfolio's kit page was removed on 2026-11-14.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard } from '../src/markup.ts';
 
 const icon = (d: string) => `<svg viewBox="0 0 20 20" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -14,7 +14,7 @@ export const fixture = (): string => `<!doctype html>
 <title>${esc('toonish-ui fixture')}</title>
 <link rel="icon" href="data:,"><link rel="stylesheet" href="/dist/toonish.css"></head>
 <body>${skipLink('main')}<div class="toon-page" style="padding-bottom:var(--toon-tabbar-h)"><main id="main">
-<h1>${letters('toonish-ui', 'yellow', { live: true })}</h1>
+${masthead({ title: 'toonish-ui', eyebrow: 'Fixture', lede: 'Every component once, for the browser test.' })}
 <section id="buttons"><h2 class="toon-heading">Buttons</h2>
 <button class="toon-btn" type="button">Blue</button> <button class="toon-btn toon-btn-red" type="button">Red</button>
 <button class="toon-btn toon-btn-yellow" type="button">Yellow</button> <button class="toon-btn toon-btn-paper toon-wiggle" type="button">Paper</button></section>
@@ -90,6 +90,20 @@ ${line({ label: 'Latency today', yUnit: 'ms', series: [{ name: 'p95', points: Ar
 </div>
 <div class="toon-tiles" id="tiles">${statusTile({ label: 'Services', value: '41 of 42', state: 'warn', delta: -1, readAt: '2026-11-16T14:02:00Z', detail: 'Vault sealed' })}${statusTile({ label: 'Plex', value: '12 ms', state: 'ok', readAt: '2026-11-16T14:02:00Z', extra: spark([10, 12, 11, 14], { label: 'Plex latency', min: 0, max: 20 }) })}${statusTile({ label: 'Backups', value: '2 failed', state: 'down', readAtText: '4 min ago' })}${statusTile({ label: 'Prometheus', state: 'unknown', readAt: '2026-11-16T09:00:00Z' })}</div>
 <div id="switches" style="display:grid;gap:12px;margin-top:12px">${switchRow({ name: 'Authentik', hostname: 'auth.pdlab.dev', active: 'lab', labState: 'ok', cloudState: 'unknown', labAge: '4 min ago', cloudAge: '3 h ago', dataClass: 'stateless', canSwitch: false, reason: 'Cloud copy has not answered for 3 hours.', id: 'sw-a' })}${switchRow({ name: 'Dashboard', hostname: 'lab.pdlab.dev', active: 'cloud', labState: 'down', cloudState: 'ok', labAge: '1 min ago', cloudAge: '1 min ago', pinned: true, canSwitch: true, id: 'sw-b' })}</div>
+</section>
+<section id="answers"><h2 class="toon-heading">Answer first</h2>
+${kicker('01', 'Is anything wrong?', { heading: 3 })}
+<div id="verdicts" style="display:grid;gap:16px;margin:12px 0">${verdict({ state: 'ok', title: 'Nothing needs you', body: 'Every item was read and none asks for a step.', stateText: 'All clear' })}${verdict({ state: 'warn', title: '1 item needs you', id: 'v-warn' })}${verdict({ state: 'down', title: '2 services are down', body: 'Authentik and Plex do not answer on either side.' })}${verdict({ state: 'unknown', title: 'It is unknown whether anything needs you', body: 'The list was not read in full, or it is out of date.', heading: 4 })}</div>
+${readout('Read 3 alerts, 4 services and 1 item that needs you, 30 hours ago. Source: fixture.').replace('<p class="toon-readout', '<p id="readout-ground" class="toon-readout')}
+<div class="toon-card" id="answers-card" style="margin-top:16px">${bars({ label: 'Alerts per day', columns: [{ label: '11-15', segments: [{ value: 2, tone: 'red', label: 'needs you' }, { value: 3, tone: 'hatch', label: 'unreadable' }] }, { label: '11-16', segments: [{ value: 1, tone: 'mist', label: 'no action' }] }] })}
+${barsKey([{ label: 'Needs you', tone: 'red' }, { label: 'No action', tone: 'mist' }, { label: 'Unreadable', tone: 'hatch' }])}
+${chartTable({ caption: 'alerts per day', head: ['Day', 'Needs you', 'No action', 'Unreadable'], rows: [['2026-11-15', '2', '0', '3'], ['2026-11-16', '0', '1', '0']] })}
+${readout('Read 2 days and 6 alerts.', { onPaper: true, label: 'Source' })}
+${meter({ label: 'Probes healthy', value: 6, max: 8, tone: 'green', valueText: '6 of 8', id: 'm-green' })}
+<p style="margin-top:12px">${toggle({ label: 'Motion: on', checked: true, off: 'Off', on: 'On', id: 'tg-free' })}</p></div>
+<div id="toggles" style="display:grid;gap:12px;margin-top:16px">${switchRow({ name: 'Tracerr', hostname: 'trace.pdlab.dev', active: 'lab', labState: 'ok', cloudState: 'unknown', labAge: '1 min ago', dataClass: 'snapshot', canSwitch: false, reason: 'The cloud side is unknown. A switch needs it healthy first.', control: 'toggle', labels: { lab: 'On-prem' }, id: 'tg-a' })}${switchRow({ name: 'Dashboard API', active: 'cloud', labState: 'ok', cloudState: 'ok', labAge: '1 min ago', cloudAge: '1 min ago', canSwitch: true, reason: 'Waits for your tap on lab-write.', control: 'toggle', labels: { lab: 'On-prem' }, id: 'tg-b' })}</div>
+<div id="switch-cards" style="display:grid;gap:12px;margin:16px 0">${switchCard({ name: 'tracerr', active: 'lab', labState: 'ok', cloudState: 'unknown', dataClass: 'snapshot', canSwitch: false, reason: 'The cloud side is unknown. A switch needs it healthy first.', labels: { lab: 'On-prem' }, id: 'sc-a' })}${switchCard({ name: 'dashboard-api', active: 'cloud', labState: 'ok', cloudState: 'ok', canSwitch: true, reason: 'Waits for your tap on lab-write.', labels: { lab: 'On-prem' }, id: 'sc-b' })}${switchCard({ name: 'plex', active: 'lab', labState: 'down', cloudState: 'unknown', pinned: true, canSwitch: false, reason: 'Pinned on-prem. This service does not move.', id: 'sc-c' })}</div>
+${list([disclosure({ id: 'n-01', lead: '01', title: 'Plex backup on pve03 failed', note: '15 hours ago', native: true, panel: '<p>Detail.</p>' })], { label: 'Notes' })}
 </section>
 <section id="tabs-demo"><h2 class="toon-heading">Tabs</h2>
 ${tabpanel('tab-board', '<p>Board panel.</p>')}${tabpanel('tab-brief', '<p>Brief panel.</p>')}${tabpanel('tab-record', '<p>Record panel.</p>')}

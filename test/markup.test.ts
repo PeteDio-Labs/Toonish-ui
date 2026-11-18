@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -584,4 +584,109 @@ test('line orders ISO times by instant, keeps other labels in order, marks a lon
   const wide = line({ label: 'x', series: [{ name: 'A', points: pts }, { name: 'B', points: Array.from({ length: 13 }, (_, i) => ({ x: `2026-11-${String(i + 1).padStart(2, '0')}`, y: 2 })) }] });
   expect(wide).toContain('<circle'); // the lone point at Nov 5 and the last point both carry a marker
   expect(() => line({ label: 'x', target: -5, series: [{ name: 'A', points: [{ x: 'a', y: 1 }, { x: 'b', y: 2 }] }] })).toThrow('target');
+});
+
+test('verdict leads with a glyph, a word and the answer, and unknown is its own state', () => {
+  const v = verdict({ state: 'warn', title: '1 item needs you', body: 'Open it below.', stateText: 'Needs you', id: 'v' });
+  expect(v).toContain('class="toon-verdict toon-verdict-warn" id="v"');
+  expect(v).toContain('<span aria-hidden="true">!</span> Needs you');
+  expect(v).toContain('<p class="toon-verdict-title">1 item needs you</p>');
+  expect(verdict({ state: 'unknown', title: 'Unknown', heading: 3 })).toContain('<h3 class="toon-verdict-title">Unknown</h3>');
+  expect(verdict({ state: 'unknown', title: 'x' })).toContain('<span aria-hidden="true">?</span> Unknown');
+  expect(() => verdict({ state: 'fine' as never, title: 'x' })).toThrow('unknown state');
+  expect(() => verdict({ state: 'ok', title: ' ' })).toThrow('title is required');
+  expect(() => verdict({ state: 'ok', title: 'x', heading: 1 as never })).toThrow('heading');
+  expect(verdict({ state: 'ok', title: EVIL, body: EVIL, stateText: EVIL, cls: EVIL }).includes('<img')).toBe(false);
+});
+
+test('readout labels what was read and has a paper form', () => {
+  const r = readout('Read 3 alerts.');
+  expect(r).toBe('<p class="toon-readout"><span class="toon-readout-label">What was read</span> <span class="toon-readout-text">Read 3 alerts.</span></p>');
+  expect(readout('x', { onPaper: true, label: 'Source' })).toContain('class="toon-readout toon-readout-paper"><span class="toon-readout-label">Source</span>');
+  expect(() => readout(' ')).toThrow('text is required');
+  expect(readout(EVIL, { label: EVIL, cls: EVIL }).includes('<img')).toBe(false);
+});
+
+test('toggle is a labelled switch whose disabled form stays focusable', () => {
+  const t = toggle({ label: 'Auth: run on cloud', checked: false, off: 'On-prem', on: 'Cloud', disabled: true, describedBy: 'why', id: 't', attrs: { 'data-x': 'a"b' } });
+  expect(t).toContain('role="switch" class="toon-toggle" id="t" aria-checked="false" aria-label="Auth: run on cloud" aria-disabled="true" aria-describedby="why" data-x="a&quot;b"');
+  expect(t).not.toContain(' disabled');
+  expect(t).toContain('<span class="toon-toggle-side toon-toggle-side-on" aria-hidden="true">On-prem</span>');
+  expect(toggle({ label: 'x', checked: true, off: 'a', on: 'b' })).toContain('<span class="toon-toggle-side toon-toggle-side-on" aria-hidden="true">b</span>');
+  expect(() => toggle({ label: '', checked: true, off: 'a', on: 'b' })).toThrow('required');
+  expect(() => toggle({ label: 'x', checked: true, off: 'a', on: 'b', attrs: { onclick: 'x' } })).toThrow('not a data-* attribute');
+  expect(() => toggle({ label: 'x', checked: true, off: 'a', on: 'b', describedBy: 'a b' })).toThrow('describedBy');
+  expect(toggle({ label: EVIL, checked: true, off: EVIL, on: EVIL }).includes('<img')).toBe(false);
+});
+
+test('switchRow can draw a toggle, name its sides and show a reason while a switch is allowed', () => {
+  const s = switchRow({ name: 'Auth', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, reason: 'Waits for your tap.', control: 'toggle', labels: { lab: 'On-prem' }, id: 'a' });
+  expect(s).toContain('role="switch" class="toon-toggle" id="a-toggle" aria-checked="false" aria-label="Auth: run on cloud" aria-describedby="a-reason" data-toon-switch="Auth" data-toon-switch-to="cloud"');
+  expect(s).toContain('<span class="toon-switch-where">On-prem</span>');
+  expect(s).toContain('<p class="toon-switch-reason" id="a-reason">Waits for your tap.</p>');
+  const off = switchRow({ name: 'Auth', active: 'cloud', labState: 'unknown', cloudState: 'ok', canSwitch: false, reason: 'Lab is unknown.', control: 'toggle', id: 'b' });
+  expect(off).toContain('aria-checked="true"');
+  expect(off).toContain('aria-disabled="true" aria-describedby="b-reason"');
+  expect(switchRow({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, labels: { lab: 'On-prem' } })).toContain('>Switch to cloud<');
+  expect(switchRow({ name: 'x', active: 'cloud', labState: 'ok', cloudState: 'ok', canSwitch: true, labels: { lab: 'On-prem' } })).toContain('>Switch to on-prem<');
+  expect(() => switchRow({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: true, control: 'dial' as never })).toThrow('unknown control');
+});
+
+test('barsKey names each tone and draws a hatch entry as a hatch', () => {
+  const k = barsKey([{ label: 'Needs you', tone: 'red' }, { label: 'Low', tone: 'hatch' }]);
+  expect(k).toContain('<ul class="toon-bars-key" role="list" aria-label="Chart key">');
+  expect(k).toContain('style="--toon-dot:var(--color-toon-red)"');
+  expect(k).toContain('<i class="toon-bars-key-hatch" aria-hidden="true"></i>Low');
+  expect(() => barsKey([])).toThrow('at least one');
+  expect(() => barsKey([{ label: 'x', tone: 'pink' as never }])).toThrow('unknown tone');
+  expect(barsKey([{ label: EVIL, tone: 'red' }], { label: EVIL }).includes('<img')).toBe(false);
+});
+
+test('chartTable writes a table with row and column headings in a region a keyboard can scroll', () => {
+  const t = chartTable({ caption: 'alerts per day', head: ['Day', 'Act'], rows: [['11-15', '2']] });
+  expect(t).toContain('<summary>Show alerts per day as a table</summary>');
+  expect(t).toContain('<div class="toon-table-wrap" tabindex="0" role="region" aria-label="alerts per day">');
+  expect(t).toContain('<th scope="col">Day</th><th scope="col">Act</th>');
+  expect(t).toContain('<tr><th scope="row">11-15</th><td>2</td></tr>');
+  expect(() => chartTable({ caption: 'x', head: ['a', 'b'], rows: [['1']] })).toThrow('1 cells');
+  expect(() => chartTable({ caption: ' ', head: ['a'], rows: [] })).toThrow('caption is required');
+  expect(chartTable({ caption: EVIL, head: [EVIL], rows: [[EVIL]], summary: EVIL }).includes('<img')).toBe(false);
+});
+
+test('masthead keeps the title as real h1 text and hides the lettering', () => {
+  const m = masthead({ title: 'Lab dashboard', eyebrow: 'PeteDio Labs', lede: 'One page.' });
+  expect(m).toContain('<h1 class="toon-masthead-title"><span class="toon-masthead-sr">Lab dashboard</span><span aria-hidden="true"><span class="toon-type toon-type-comic');
+  expect(m).toContain('<span class="toon-caption">PeteDio Labs</span>');
+  expect(m).toContain('<p class="toon-masthead-lede">One page.</p>');
+  expect(() => masthead({ title: '' })).toThrow('title is required');
+  expect(masthead({ title: EVIL, eyebrow: EVIL, lede: EVIL }).includes('<img')).toBe(false);
+});
+
+test('kicker can make its label a heading, and a disclosure can end in a note', () => {
+  const k = kicker('01', 'Open alerts', { heading: 3 });
+  expect(k).toContain('<span class="toon-kicker-num" aria-hidden="true">01</span><h3 class="toon-kicker-label">Open alerts</h3>');
+  expect(kicker('01', 'x')).toContain('<span class="toon-kicker-label">x</span>');
+  expect(() => kicker('01', 'x', { heading: 1 as never })).toThrow('heading');
+  const d = disclosure({ id: 'a', lead: '01', title: 't', note: '15 hours ago', native: true, panel: '' });
+  expect(d).toContain('<span class="toon-disclosure-value toon-disclosure-note">15 hours ago</span>');
+  expect(() => disclosure({ id: 'a', lead: '01', title: 't', note: 'x', value: 1, panel: '' })).toThrow('not both');
+  expect(disclosure({ id: 'a', lead: '01', title: 't', note: EVIL, panel: '' }).includes('<img')).toBe(false);
+});
+
+test('switchCard is two buttons: the serving side is pressed and the other asks for the switch or says why not', () => {
+  const c = switchCard({ name: 'auth', active: 'lab', labState: 'ok', cloudState: 'unknown', canSwitch: false, reason: 'Cloud is unknown.', labels: { lab: 'On-prem' }, id: 'a' });
+  expect(c).toContain('<button type="button" class="toon-switch-card-side toon-switch-card-ok" id="a-lab" aria-pressed="true" data-toon-switch="auth">');
+  expect(c).toContain('id="a-cloud" aria-pressed="false" data-toon-switch="auth" data-toon-switch-to="cloud" aria-disabled="true" aria-describedby="a-reason">');
+  expect(c).toContain('<span class="toon-switch-card-where">On-prem</span><span class="toon-switch-card-state"><span aria-hidden="true">✓</span> Up</span><span class="toon-switch-card-serving">Serving</span>');
+  expect(c.match(/Serving/g)).toHaveLength(1);
+  expect(c).toContain('<p class="toon-switch-card-reason" id="a-reason">Cloud is unknown.</p>');
+  const go = switchCard({ name: 'auth', active: 'cloud', labState: 'ok', cloudState: 'down', canSwitch: true, pinned: true, dataClass: 'replicated', id: 'b' });
+  expect(go).toContain('id="b-lab" aria-pressed="false" data-toon-switch="auth" data-toon-switch-to="lab">');
+  expect(go).not.toContain('aria-disabled');
+  expect(go).toContain('toon-switch-card-down" id="b-cloud" aria-pressed="true"');
+  expect(go).toContain('Pinned');
+  expect(() => switchCard({ name: 'x', active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: false })).toThrow('reason is required');
+  expect(() => switchCard({ name: 'x', active: 'moon' as never, labState: 'ok', cloudState: 'ok', canSwitch: true })).toThrow('unknown active');
+  expect(() => switchCard({ name: 'x', active: 'lab', labState: 'fine' as never, cloudState: 'ok', canSwitch: true })).toThrow('unknown state');
+  expect(switchCard({ name: EVIL, active: 'lab', labState: 'ok', cloudState: 'ok', canSwitch: false, reason: EVIL, dataClass: EVIL, labels: { lab: EVIL, cloud: EVIL } }).includes('<img')).toBe(false);
 });

@@ -5,6 +5,29 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-18
+
+### Added
+
+- `color.green` (`#4ccf8f`) and `color.green-text` (`#0f6e42`): the ok state. Green is a state colour, not a fifth accent. An ok `verdict()` is green, an ok `statusTile()` has a green shadow and green state text, an up side in `switchRow()` is green text, an ok `uptime()` cell is green, and `meter()` takes `tone: 'green'`.
+- `switchCard({ name, active, labState, cloudState, canSwitch, reason })` and `toon-switch-card`: a service's two sides as two buttons. The serving side is pressed, and the other asks for the switch or says why it cannot.
+- `verdict({ state, title, body, stateText, heading })` and `toon-verdict`: the answer a view leads with. A glyph and a word say the state, the fill backs it up, and `unknown` is a dashed panel.
+- `readout(text, { label, onPaper })` and `toon-readout`: what a view read, as a last line that stays readable. Paper text at 15 px on the ground, under a yellow mono label.
+- `toggle({ label, checked, off, on, disabled, describedBy, attrs })` and `toon-toggle`: a 44 px `role="switch"` between two visible words. `switchRow({ control: 'toggle', labels })` draws it in place of the button.
+- `masthead({ title, eyebrow, lede })` and `toon-masthead`: an app page's header, with the title as a real `h1` under the lettering.
+- `barsKey()` and `chartTable()`: the key and the table of numbers for `bars()`. A hatch entry in the key draws a hatch.
+- `kicker(..., { heading })` makes the label a heading. `disclosure({ note })` ends a row with small mono text in place of a figure.
+
+### Changed
+
+- `switchRow()` shows `reason` whenever you pass it, not only while the switch is refused.
+- The small mono lines on paper (`toon-tile-read`, `toon-switch-age`, `toon-chart-at`, the uptime ends and keys) are 12 px, up from 11 px.
+- A row heading in a `toon-table` body reads as a cell: 15 px ink, not an uppercase column label.
+
+### Fixed
+
+- A page that loads with a tab's hash no longer shows a focus ring around the whole panel. The browser focused the hash target, and the script now drops that focus.
+
 ### Added
 
 - A `design-philosophy` agent skill in `.claude/skills/`, linked from `CLAUDE.md` and `docs/principles.md`. The skill holds the rule that each page answers one question first, with portfolio and dashboard examples.

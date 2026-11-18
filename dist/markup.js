@@ -105,7 +105,10 @@ var kicker = (num, label, o = {}) => {
   if (!num.trim() || !label.trim())
     throw new Error("kicker: num and label are required");
   const link = o.link ? `<a class="toon-link toon-kicker-link${o.link.cls ? " " + esc(o.link.cls) : ""}" href="${esc(o.link.href)}">${esc(o.link.text)}</a>` : "";
-  return `<div class="toon-kicker${o.cls ? " " + esc(o.cls) : ""}"><span class="toon-kicker-num">${esc(num)}</span><span class="toon-kicker-label">${esc(label)}</span><span class="toon-kicker-rule" aria-hidden="true"></span>${link}</div>`;
+  if (o.heading !== undefined && ![2, 3, 4, 5, 6].includes(o.heading))
+    throw new Error("kicker: heading is a level from 2 to 6");
+  const tag = o.heading ? `h${o.heading}` : "span";
+  return `<div class="toon-kicker${o.cls ? " " + esc(o.cls) : ""}"><span class="toon-kicker-num"${o.heading ? ' aria-hidden="true"' : ""}>${esc(num)}</span><${tag} class="toon-kicker-label">${esc(label)}</${tag}><span class="toon-kicker-rule" aria-hidden="true"></span>${link}</div>`;
 };
 var strip = (cells, o = {}) => {
   if (!cells.length)
@@ -234,7 +237,7 @@ var scale = (o) => {
   return `<span class="toon-scale" role="img" aria-label="${esc(o.label)}" style="--v:${num(value)};--p:${num(prev ?? value)}">${ticks}${past}${move}<span class="toon-scale-mark toon-owner-${owner}"></span></span>`;
 };
 var scaleAxis = () => `<span class="toon-scale-axis" aria-hidden="true">${[0, 25, 50, 75, 100].map((t) => `<span style="--at:${t}">${t}</span>`).join("")}</span>`;
-var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist" };
+var METER_FILL = { blue: "", red: "toon-meter-fill-red", yellow: "toon-meter-fill-yellow", violet: "toon-meter-fill-violet", mist: "toon-meter-fill-mist", green: "toon-meter-fill-green" };
 var uid = 0;
 var meter = (o) => {
   if (!o.label?.trim())
@@ -300,11 +303,13 @@ var disclosure = (o) => {
   if (!o.lead?.trim() || !o.title?.trim())
     throw new Error("disclosure: lead and title are required");
   const owner = ownerOf("disclosure", o.owner ?? "a");
+  if (o.value !== undefined && o.note !== undefined)
+    throw new Error("disclosure: pass value or note, not both");
   if (o.heading !== undefined && (o.native || ![2, 3, 4, 5, 6].includes(o.heading)))
     throw new Error("disclosure: heading is a level from 2 to 6, and not for native");
   const b = typeof o.badge === "string" ? { text: o.badge, tone: "yellow" } : o.badge ? { text: o.badge.text, tone: o.badge.tone ?? "yellow" } : undefined;
   const d = o.delta === undefined ? "" : typeof o.delta === "number" ? delta(o.delta) : delta(o.delta.value, o.delta);
-  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ""}${esc(o.lead)}</span>` + `<span class="toon-disclosure-title">${esc(o.title)}${b ? " " + badge(b.text, b.tone) : ""}</span>` + `${o.value === undefined ? "" : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${d}` + `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ""}`;
+  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ""}${esc(o.lead)}</span>` + `<span class="toon-disclosure-title">${esc(o.title)}${b ? " " + badge(b.text, b.tone) : ""}</span>` + `${o.value === undefined ? "" : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${o.note?.trim() ? `<span class="toon-disclosure-value toon-disclosure-note">${esc(o.note.trim())}</span>` : ""}${d}` + `${o.below ? `<span class="toon-disclosure-below">${o.below}</span>` : ""}`;
   const panel = `<div class="toon-disclosure-panel" id="${o.id}"${o.native || o.open ? "" : " hidden"}>${o.panel}</div>`;
   if (o.native)
     return `<div class="toon-disclosure" role="listitem"><details class="toon-disclosure-details"${o.open ? " open" : ""}><summary class="toon-disclosure-btn" id="${o.id}-btn">${inner}</summary>${panel}</details></div>`;
@@ -533,16 +538,104 @@ var switchRow = (o) => {
   if (o.id !== undefined && !/^[A-Za-z][\w-]*$/.test(o.id))
     throw new Error(`switchRow: id "${o.id}" is not a valid id`);
   const id = o.id ?? `toon-switch-${++uid}`;
+  if (o.control !== undefined && o.control !== "button" && o.control !== "toggle")
+    throw new Error(`switchRow: unknown control "${String(o.control)}": use button or toggle`);
   const other = o.active === "lab" ? "cloud" : "lab";
+  const word = { lab: o.labels?.lab?.trim() || "Lab", cloud: o.labels?.cloud?.trim() || "Cloud" };
   const side = (p, state, age) => {
     const on = o.active === p;
-    return `<div class="toon-switch-side${on ? " toon-switch-side-on" : ""}"><span class="toon-switch-where">${p === "lab" ? "Lab" : "Cloud"}</span>` + `<span class="toon-switch-state toon-switch-${state}"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === "ok" ? "Up" : state === "down" ? "Down" : "Unknown"}</span>` + `${age ? `<span class="toon-switch-age">Read ${esc(age)}</span>` : ""}${on ? '<span class="toon-switch-serving"><span aria-hidden="true">●</span> Serving</span>' : ""}</div>`;
+    return `<div class="toon-switch-side${on ? " toon-switch-side-on" : ""}"><span class="toon-switch-where">${esc(word[p])}</span>` + `<span class="toon-switch-state toon-switch-${state}"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === "ok" ? "Up" : state === "down" ? "Down" : "Unknown"}</span>` + `${age ? `<span class="toon-switch-age">Read ${esc(age)}</span>` : ""}${on ? '<span class="toon-switch-serving"><span aria-hidden="true">●</span> Serving</span>' : ""}</div>`;
   };
-  const reason = !o.canSwitch ? `<p class="toon-switch-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : "";
-  const label = o.buttonLabel?.trim() || `Switch to ${other}`;
-  const button = o.action ?? `<button type="button" class="toon-btn toon-btn-yellow toon-switch-btn" data-toon-switch="${esc(o.name)}" data-toon-switch-to="${other}"${o.canSwitch ? "" : ` aria-disabled="true" aria-describedby="${id}-reason"`}>${esc(label)}</button>`;
+  const why = o.reason?.trim() ? ` aria-describedby="${id}-reason"` : "";
+  const reason = o.reason?.trim() ? `<p class="toon-switch-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : "";
+  const label = o.buttonLabel?.trim() || (o.control === "toggle" ? `${o.name}: run on ${word.cloud.toLowerCase()}` : `Switch to ${word[other].toLowerCase()}`);
+  const button = o.action ?? (o.control === "toggle" ? toggle({ label, checked: o.active === "cloud", off: word.lab, on: word.cloud, disabled: !o.canSwitch, describedBy: o.reason?.trim() ? `${id}-reason` : undefined, id: `${id}-toggle`, attrs: { "data-toon-switch": o.name, "data-toon-switch-to": other } }) : `<button type="button" class="toon-btn toon-btn-yellow toon-switch-btn" data-toon-switch="${esc(o.name)}" data-toon-switch-to="${other}"${o.canSwitch ? "" : ' aria-disabled="true"'}${why}>${esc(label)}</button>`);
   const tags = `${o.dataClass?.trim() ? chip(o.dataClass.trim()) : ""}${o.pinned ? ' <span class="toon-badge toon-badge-violet">Pinned</span>' : ""}`;
   return `<div class="toon-switch-row" role="group" aria-labelledby="${id}-name"><div class="toon-switch-head"><b class="toon-switch-name" id="${id}-name">${esc(o.name)}</b>${o.hostname ? `<span class="toon-switch-host">${esc(o.hostname)}</span>` : ""}${tags ? `<span class="toon-switch-tags">${tags}</span>` : ""}</div>` + `<div class="toon-switch-sides">${side("lab", o.labState, o.labAge)}${side("cloud", o.cloudState, o.cloudAge)}</div>${button}${reason}</div>`;
+};
+var toggle = (o) => {
+  if (!o.label?.trim() || !o.off?.trim() || !o.on?.trim())
+    throw new Error("toggle: label, off and on are required");
+  if (o.id !== undefined && !ID_RE.test(o.id))
+    throw new Error(`toggle: id "${o.id}" is not a valid id`);
+  if (o.describedBy !== undefined && !ID_RE.test(o.describedBy))
+    throw new Error(`toggle: describedBy "${o.describedBy}" is not a valid id`);
+  const attrs = Object.entries(o.attrs ?? {}).map(([k, v]) => {
+    if (!/^data-[a-z0-9-]+$/.test(k))
+      throw new Error(`toggle: attribute "${k}" is not a data-* attribute`);
+    return ` ${k}="${esc(v)}"`;
+  }).join("");
+  const side = (text, on) => `<span class="toon-toggle-side${on ? " toon-toggle-side-on" : ""}" aria-hidden="true">${esc(text.trim())}</span>`;
+  return `<span class="toon-toggle-row">${side(o.off, !o.checked)}<button type="button" role="switch" class="toon-toggle"${o.id ? ` id="${o.id}"` : ""} aria-checked="${o.checked ? "true" : "false"}" aria-label="${esc(o.label.trim())}"` + `${o.disabled ? ' aria-disabled="true"' : ""}${o.describedBy ? ` aria-describedby="${o.describedBy}"` : ""}${attrs}><span class="toon-toggle-thumb" aria-hidden="true"></span></button>${side(o.on, o.checked)}</span>`;
+};
+var verdict = (o) => {
+  if (!Object.hasOwn(TILE_WORD, o.state))
+    throw new Error(`verdict: unknown state "${String(o.state)}": use ok, warn, down or unknown`);
+  if (!o.title?.trim())
+    throw new Error("verdict: title is required");
+  if (o.heading !== undefined && ![2, 3, 4, 5, 6].includes(o.heading))
+    throw new Error("verdict: heading is a level from 2 to 6");
+  if (o.id !== undefined && !ID_RE.test(o.id))
+    throw new Error(`verdict: id "${o.id}" is not a valid id`);
+  const tag = o.heading ? `h${o.heading}` : "p";
+  return `<div class="toon-verdict toon-verdict-${o.state}${o.cls ? " " + esc(o.cls) : ""}"${o.id ? ` id="${o.id}"` : ""}><p class="toon-verdict-state"><span aria-hidden="true">${TILE_GLYPH[o.state]}</span> ${esc(o.stateText?.trim() || TILE_WORD[o.state])}</p>` + `<${tag} class="toon-verdict-title">${esc(o.title.trim())}</${tag}>${o.body?.trim() ? `<p class="toon-verdict-body">${esc(o.body.trim())}</p>` : ""}</div>`;
+};
+var readout = (text, o = {}) => {
+  if (!text?.trim())
+    throw new Error("readout: text is required");
+  return `<p class="toon-readout${o.onPaper ? " toon-readout-paper" : ""}${o.cls ? " " + esc(o.cls) : ""}"><span class="toon-readout-label">${esc(o.label?.trim() || "What was read")}</span> <span class="toon-readout-text">${esc(text.trim())}</span></p>`;
+};
+var barsKey = (items, o = {}) => {
+  if (!items.length)
+    throw new Error("barsKey: at least one entry is required");
+  const li = items.map((s) => {
+    if (!s.label?.trim())
+      throw new Error("barsKey: every entry needs a label");
+    if (s.tone !== "hatch")
+      toneOf(s.tone);
+    return `<li><i${s.tone === "hatch" ? ' class="toon-bars-key-hatch"' : ` style="--toon-dot:var(--color-toon-${s.tone})"`} aria-hidden="true"></i>${esc(s.label.trim())}</li>`;
+  }).join("");
+  return `<ul class="toon-bars-key" role="list" aria-label="${esc(o.label?.trim() || "Chart key")}">${li}</ul>`;
+};
+var chartTable = (o) => {
+  if (!o.caption?.trim())
+    throw new Error("chartTable: caption is required");
+  if (!o.head.length)
+    throw new Error("chartTable: head is required");
+  for (const r of o.rows)
+    if (r.length !== o.head.length)
+      throw new Error(`chartTable: a row has ${r.length} cells and the head has ${o.head.length}`);
+  const head = `<tr>${o.head.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr>`;
+  const rows = o.rows.map((r) => `<tr><th scope="row">${esc(r[0])}</th>${r.slice(1).map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("");
+  const cap = o.caption.trim();
+  return `<details class="toon-chart-table"><summary>${esc(o.summary?.trim() || `Show ${cap} as a table`)}</summary><div class="toon-table-wrap" tabindex="0" role="region" aria-label="${esc(cap)}"><table class="toon-table"><caption class="toon-chart-cap">${esc(cap)}</caption><thead>${head}</thead><tbody>${rows}</tbody></table></div></details>`;
+};
+var masthead = (o) => {
+  if (!o.title?.trim())
+    throw new Error("masthead: title is required");
+  const title = o.title.trim();
+  return `<header class="toon-masthead${o.cls ? " " + esc(o.cls) : ""}">${o.eyebrow?.trim() ? `<p class="toon-masthead-eyebrow"><span class="toon-caption">${esc(o.eyebrow.trim())}</span></p>` : ""}` + `<h1 class="toon-masthead-title"><span class="toon-masthead-sr">${esc(title)}</span><span aria-hidden="true">${letters(title, o.accent ?? "yellow", { live: true })}</span></h1>` + `${o.lede?.trim() ? `<p class="toon-masthead-lede">${esc(o.lede.trim())}</p>` : ""}</header>`;
+};
+var switchCard = (o) => {
+  if (!o.name?.trim())
+    throw new Error("switchCard: name is required");
+  if (o.active !== "lab" && o.active !== "cloud")
+    throw new Error(`switchCard: unknown active "${String(o.active)}": use lab or cloud`);
+  stateOf("switchCard: labState", o.labState);
+  stateOf("switchCard: cloudState", o.cloudState);
+  if (!o.canSwitch && !o.reason?.trim())
+    throw new Error("switchCard: reason is required when canSwitch is false");
+  if (o.id !== undefined && !ID_RE.test(o.id))
+    throw new Error(`switchCard: id "${o.id}" is not a valid id`);
+  const id = o.id ?? `toon-switch-card-${++uid}`;
+  const word = { lab: o.labels?.lab?.trim() || "Lab", cloud: o.labels?.cloud?.trim() || "Cloud" };
+  const why = o.reason?.trim() ? ` aria-describedby="${id}-reason"` : "";
+  const side = (pl, state) => {
+    const on = o.active === pl;
+    return `<button type="button" class="toon-switch-card-side toon-switch-card-${state}" id="${id}-${pl}" aria-pressed="${on ? "true" : "false"}" data-toon-switch="${esc(o.name)}"${on ? "" : ` data-toon-switch-to="${pl}"`}${on ? "" : `${o.canSwitch ? "" : ' aria-disabled="true"'}${why}`}>` + `<span class="toon-switch-card-where">${esc(word[pl])}</span><span class="toon-switch-card-state"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === "ok" ? "Up" : state === "down" ? "Down" : "Unknown"}</span>` + `${on ? '<span class="toon-switch-card-serving">Serving</span>' : ""}</button>`;
+  };
+  const tags = `${o.dataClass?.trim() ? chip(o.dataClass.trim()) : ""}${o.pinned ? ' <span class="toon-badge toon-badge-violet">Pinned</span>' : ""}`;
+  return `<div class="toon-switch-card" role="group" aria-labelledby="${id}-name"><div class="toon-switch-card-head"><b class="toon-switch-card-name" id="${id}-name">${esc(o.name)}</b>${tags ? `<span class="toon-switch-card-tags">${tags}</span>` : ""}</div>` + `<div class="toon-switch-card-sides">${side("lab", o.labState)}${side("cloud", o.cloudState)}</div>${o.reason?.trim() ? `<p class="toon-switch-card-reason" id="${id}-reason">${esc(o.reason.trim())}</p>` : ""}</div>`;
 };
 export {
   BADGE,
@@ -551,7 +644,9 @@ export {
   PAIR,
   badge,
   bars,
+  barsKey,
   burst,
+  chartTable,
   chip,
   deck,
   delta,
@@ -563,10 +658,12 @@ export {
   letters,
   line,
   list,
+  masthead,
   meter,
   meters,
   pager,
   portrait,
+  readout,
   row,
   scale,
   scaleAxis,
@@ -579,8 +676,11 @@ export {
   statusTile,
   steps,
   strip,
+  switchCard,
   switchRow,
   tabbar,
   tabpanel,
-  uptime
+  toggle,
+  uptime,
+  verdict
 };

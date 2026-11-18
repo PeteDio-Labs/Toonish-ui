@@ -209,6 +209,34 @@ function initTabs(nav: HTMLElement): void {
     else history.replaceState(null, '', hash);
   };
 
+  // A browser focuses the target of the address's hash, and a panel is focusable, so a load with a tab's hash would ring
+  // the whole panel before the visitor did anything. It may do so after this script runs. So the panel the address names
+  // drops that one focus, unless a key or pointer press came first. Every later focus stays, whoever asked for it: a
+  // keyboard, a screen reader in browse mode, voice control or a script.
+  const named = byHash(location.hash);
+  const namedPanel = named ? panelOf(named) : null;
+  if (namedPanel) {
+    let touched = false;
+    const touch = () => { touched = true; };
+    const off = () => {
+      window.removeEventListener('keydown', touch, true);
+      window.removeEventListener('pointerdown', touch, true);
+      namedPanel.removeEventListener('focus', drop);
+    };
+    const drop = () => {
+      off();
+      if (!touched) namedPanel.blur();
+    };
+    window.addEventListener('keydown', touch, true);
+    window.addEventListener('pointerdown', touch, true);
+    if (document.activeElement === namedPanel) namedPanel.blur();
+    else namedPanel.addEventListener('focus', drop);
+    // A browser that focuses the hash target does so by the time the page has loaded. After that, nothing is dropped.
+    const done = () => setTimeout(off, 500);
+    if (document.readyState === 'complete') done();
+    else window.addEventListener('load', done, { once: true });
+  }
+
   const home = tabs.find((t) => t.getAttribute('aria-selected') === 'true') ?? tabs[0]!; // the tab the markup selected
   const first = byHash(location.hash);
   select(first ?? home, false);
@@ -296,7 +324,7 @@ export function initToonish(root: Document = document): void {
 
   // A switch button that says it is disabled keeps focus and its visible reason, so it is aria-disabled and not `disabled`. Drop its click before any handler sees it.
   root.addEventListener('click', (e) => {
-    if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) { e.preventDefault(); e.stopImmediatePropagation(); }
+    if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"], .toon-toggle[aria-disabled="true"]')) { e.preventDefault(); e.stopImmediatePropagation(); }
   }, true);
 
   // Toggle groups: one pressed button at a time, with a bounce on the newly pressed one.

@@ -216,6 +216,35 @@
       else
         history.replaceState(null, "", hash);
     };
+    const named = byHash(location.hash);
+    const namedPanel = named ? panelOf(named) : null;
+    if (namedPanel) {
+      let touched = false;
+      const touch = () => {
+        touched = true;
+      };
+      const off = () => {
+        window.removeEventListener("keydown", touch, true);
+        window.removeEventListener("pointerdown", touch, true);
+        namedPanel.removeEventListener("focus", drop);
+      };
+      const drop = () => {
+        off();
+        if (!touched)
+          namedPanel.blur();
+      };
+      window.addEventListener("keydown", touch, true);
+      window.addEventListener("pointerdown", touch, true);
+      if (document.activeElement === namedPanel)
+        namedPanel.blur();
+      else
+        namedPanel.addEventListener("focus", drop);
+      const done = () => setTimeout(off, 500);
+      if (document.readyState === "complete")
+        done();
+      else
+        window.addEventListener("load", done, { once: true });
+    }
     const home = tabs.find((t) => t.getAttribute("aria-selected") === "true") ?? tabs[0];
     const first = byHash(location.hash);
     select(first ?? home, false);
@@ -295,7 +324,7 @@
       panel.hidden = !open;
     });
     root.addEventListener("click", (e) => {
-      if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"]')) {
+      if (e.target instanceof Element && e.target.closest('[data-toon-switch-to][aria-disabled="true"], .toon-toggle[aria-disabled="true"]')) {
         e.preventDefault();
         e.stopImmediatePropagation();
       }
