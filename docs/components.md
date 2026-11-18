@@ -345,7 +345,7 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 - The side that serves is pressed and says "Serving". Its fill is green when it is up, red when it is down and mist when it is unknown.
 - The other side is a raised white button. A click on it asks for the switch. When `canSwitch` is false it is dashed and flat, carries `aria-disabled="true"`, and points to `reason`, which is then required.
 - `reason` is one short sentence under the buttons. Pass it while a switch is allowed to say what the switch waits for.
-- Both buttons carry `data-toon-switch` (the name) and `data-toon-switch-to` (`lab` or `cloud`). The kit attaches no handler. Listen for a click and ignore the pressed side. The kit script drops a click on an `aria-disabled` side.
+- Both buttons carry `data-toon-switch` (the name). Only the idle side carries `data-toon-switch-to` (`lab` or `cloud`), so a click handler on `[data-toon-switch-to]` never asks for the side that already serves. The kit attaches no handler. The kit script drops a click on an `aria-disabled` side.
 - `labels` renames the sides. `dataClass` is a chip and `pinned` adds a badge.
 
 ### Masthead

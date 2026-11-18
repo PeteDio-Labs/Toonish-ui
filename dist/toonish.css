@@ -2322,6 +2322,9 @@
     font-variant-numeric: tabular-nums;
   }
   .toon-disclosure-note {
+    max-width: 10rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
     font-family: var(--font-mono);
     font-size: var(--text-footnote);
     font-weight: 600;
@@ -3278,10 +3281,14 @@
   box-shadow: 0 0 0 2px #0a0a1f, 2px 2px 0 var(--color-toon-blue);
 }
 .toon-toggle:focus-visible {
-  box-shadow: 0 0 0 2px #0a0a1f, 3px 3px 0 var(--color-toon-blue);
+  outline: 3px solid var(--color-toon-ink);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px var(--color-toon-blue), 3px 3px 0 var(--color-toon-blue);
 }
 .toon-switch-card-side:focus-visible {
-  box-shadow: 0 0 0 2px #0a0a1f;
+  outline: 3px solid var(--color-toon-ink);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px var(--color-toon-blue);
 }
 @media (forced-colors: active) {
   :focus-visible {

@@ -1150,7 +1150,7 @@ export const switchCard = (o: SwitchCardOptions): string => {
   const why = o.reason?.trim() ? ` aria-describedby="${id}-reason"` : '';
   const side = (pl: Place, state: UptimeState) => {
     const on = o.active === pl;
-    return `<button type="button" class="toon-switch-card-side toon-switch-card-${state}" id="${id}-${pl}" aria-pressed="${on ? 'true' : 'false'}" data-toon-switch="${esc(o.name)}" data-toon-switch-to="${pl}"${on ? '' : `${o.canSwitch ? '' : ' aria-disabled="true"'}${why}`}>` +
+    return `<button type="button" class="toon-switch-card-side toon-switch-card-${state}" id="${id}-${pl}" aria-pressed="${on ? 'true' : 'false'}" data-toon-switch="${esc(o.name)}"${on ? '' : ` data-toon-switch-to="${pl}"`}${on ? '' : `${o.canSwitch ? '' : ' aria-disabled="true"'}${why}`}>` +
       `<span class="toon-switch-card-where">${esc(word[pl])}</span><span class="toon-switch-card-state"><span aria-hidden="true">${STATE_GLYPH[state]}</span> ${state === 'ok' ? 'Up' : state === 'down' ? 'Down' : 'Unknown'}</span>` +
       `${on ? '<span class="toon-switch-card-serving">Serving</span>' : ''}</button>`;
   };

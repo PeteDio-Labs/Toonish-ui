@@ -215,22 +215,34 @@ function initTabs(nav) {
     else
       history.replaceState(null, "", hash);
   };
-  let touched = false;
-  const touch = () => {
-    touched = true;
-  };
-  window.addEventListener("keydown", touch, { once: true, capture: true });
-  window.addEventListener("pointerdown", touch, { once: true, capture: true });
-  for (const t of tabs) {
-    const p = panelOf(t);
-    if (!p)
-      continue;
-    p.addEventListener("focus", () => {
+  const named = byHash(location.hash);
+  const namedPanel = named ? panelOf(named) : null;
+  if (namedPanel) {
+    let touched = false;
+    const touch = () => {
+      touched = true;
+    };
+    const off = () => {
+      window.removeEventListener("keydown", touch, true);
+      window.removeEventListener("pointerdown", touch, true);
+      namedPanel.removeEventListener("focus", drop);
+    };
+    const drop = () => {
+      off();
       if (!touched)
-        p.blur();
-    });
-    if (document.activeElement === p)
-      p.blur();
+        namedPanel.blur();
+    };
+    window.addEventListener("keydown", touch, true);
+    window.addEventListener("pointerdown", touch, true);
+    if (document.activeElement === namedPanel)
+      namedPanel.blur();
+    else
+      namedPanel.addEventListener("focus", drop);
+    const done = () => setTimeout(off, 500);
+    if (document.readyState === "complete")
+      done();
+    else
+      window.addEventListener("load", done, { once: true });
   }
   const home = tabs.find((t) => t.getAttribute("aria-selected") === "true") ?? tabs[0];
   const first = byHash(location.hash);

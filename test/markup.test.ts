@@ -675,7 +675,7 @@ test('kicker can make its label a heading, and a disclosure can end in a note', 
 
 test('switchCard is two buttons: the serving side is pressed and the other asks for the switch or says why not', () => {
   const c = switchCard({ name: 'auth', active: 'lab', labState: 'ok', cloudState: 'unknown', canSwitch: false, reason: 'Cloud is unknown.', labels: { lab: 'On-prem' }, id: 'a' });
-  expect(c).toContain('<button type="button" class="toon-switch-card-side toon-switch-card-ok" id="a-lab" aria-pressed="true" data-toon-switch="auth" data-toon-switch-to="lab">');
+  expect(c).toContain('<button type="button" class="toon-switch-card-side toon-switch-card-ok" id="a-lab" aria-pressed="true" data-toon-switch="auth">');
   expect(c).toContain('id="a-cloud" aria-pressed="false" data-toon-switch="auth" data-toon-switch-to="cloud" aria-disabled="true" aria-describedby="a-reason">');
   expect(c).toContain('<span class="toon-switch-card-where">On-prem</span><span class="toon-switch-card-state"><span aria-hidden="true">✓</span> Up</span><span class="toon-switch-card-serving">Serving</span>');
   expect(c.match(/Serving/g)).toHaveLength(1);
