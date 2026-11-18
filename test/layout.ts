@@ -140,6 +140,13 @@ try {
   server.stop(true);
 }
 
+if (update) {
+  // Update mode rebuilds the baselines and still prints every layout finding, so a bug is never hidden by an update.
+  // The ci job fails on the same findings.
+  if (fail.length) console.warn(`update mode: ${fail.length} layout findings left unfixed, and ci will fail on them:\n- ${fail.join('\n- ')}`);
+  console.log(`baselines ${seenFiles.length} written`);
+  process.exit(0);
+}
 if (fail.length) {
   console.error(`layout check FAILED, ${fail.length} problems in ${checks} checks:\n- ${fail.join('\n- ')}`);
   process.exit(1);
