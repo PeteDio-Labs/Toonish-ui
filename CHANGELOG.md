@@ -30,7 +30,7 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- A `design-philosophy` agent skill in `.claude/skills/`, linked from `CLAUDE.md` and `docs/principles.md`.
+- A `design-philosophy` agent skill in `.claude/skills/`, linked from `CLAUDE.md` and `docs/principles.md`. The skill holds the rule that each page answers one question first, with portfolio and dashboard examples.
 
 ## [0.4.0] - 2026-11-16
 

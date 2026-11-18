@@ -36,6 +36,7 @@ A page is a path with a purpose, not blocks stacked on a page. Pedro's words: it
 - Decide the one thing a reader should do or understand. Order the page so each section leads to the next.
 - Give sections different weight. The result gets the one light `toon-panel`. A reader sees where the answer is.
 - Number the steps. Point at the thing that matters with a bubble, a burst or a speed line. Decoration points; it does not fill space.
+- Each page answers one question first. See the Apple lessons in section 7.
 - Compose components instead of writing bullets. A list of facts is `toon-list`, figures are `toon-strip`, a process is `toon-steps`.
 
 ## 4. Easy on the eyes
@@ -68,6 +69,30 @@ Pedro spent a year at Apple as a full-stack engineer. In his words, cleaned up (
 - **Render and function come first.** Content must appear, and every control must work, before any flourish. Polish never replaces function.
 - **Every visitor gets a good experience.** A good UX is the default for everyone, not a premium for modern devices.
 - **Anyone can use the site.** Accessibility is part of that promise, not a separate task. See section 1.
+- **Each page answers one question first.** Name the question before you design the page, and answer it at the top. Detail sits underneath for the reader who wants it. A page with no question is a pile of blocks.
+
+Examples of the question each page answers, from the portfolio and the dashboard:
+
+**Portfolio (`pdlab.dev`), built that way:**
+
+| Page | Question | How the page answers it |
+|---|---|---|
+| Home | Can this person build systems with AI? | The splash headline and the proof strip of four linked figures answer first. The lead case study and three compact cards sit underneath. |
+| Work | Which study should I read? | The filterable list of case studies, so a reader narrows to the one that matches. |
+| A case study | What happened, and what did it prove? | The title and the key figure sit together in the header. The result gets the one light panel. Numbered sections follow for the reader who wants the detail. |
+| About | Who is this person? | The portrait and a short bio come first. |
+
+**Dashboard, designed that way.** Each tab has one question. Detail sits under it in a `toon-disclosure`.
+
+| Tab | Question | Answer at the top |
+|---|---|---|
+| Now | Is anything wrong? | One state: all clear, or the thing that needs you. `unknown` is its own state, never "all clear". |
+| Alerts | What do I act on? | The alerts that need an action, ordered by urgency. Noise sits below. |
+| Services | Can I fail over? | Per service: is the cloud side healthy, how stale is it, and is the switch enabled or disabled with a reason. |
+| CVE | What is exposed, and what do I patch? | Fixable vulnerabilities on running services first. |
+| Plane | What is open, and what is blocked? | Open work that waits on Pedro, then the rest. |
+
+To design a page: write its question in one line, put the answer in the first screen at 390 px, and move everything else below it.
 
 To apply them: test the change with scripts off and in Safari, and check that the page reads and works without the decoration.
 
@@ -77,6 +102,6 @@ Pedro may add more lessons here. Keep each one short and dated.
 
 1. Did you check it at 390 px, then 1280 px?
 2. Does it render and work in a limited browser, and from the keyboard, and did the axe checks pass without a skipped rule?
-3. Does the page lead somewhere, and is the key result easy to find?
+3. Does the page answer one named question first, and is the key result easy to find?
 4. Is every state shown honestly, including unknown, empty and error?
 5. Is the copy plain, and does `docs/` change with the code?
