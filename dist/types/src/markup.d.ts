@@ -76,6 +76,8 @@ export interface RowOptions {
     aside?: string;
     /** A colour dot before the aside. */
     dot?: Tone;
+    /** The colour of the small dot before the lead. Default ink. Needs `lead`. */
+    leadTone?: Tone;
     /** An inline `<svg>` drawn for the row, about 48 px square. It is decoration: the row's text says everything the icon does, so the helper hides it from a screen reader. */
     icon?: string;
 }
@@ -368,6 +370,8 @@ export interface DisclosureOptions {
     panel: string;
     open?: boolean;
     owner?: Owner;
+    /** The colour of the lead's dot. Default ink, or violet for owner `b`. */
+    tone?: Tone;
     /** Says the owner aloud, such as "Pedro". The dot and colour show it to the eye. */
     ownerLabel?: string;
     /** Use `<details>` and `<summary>`, which work without script. */

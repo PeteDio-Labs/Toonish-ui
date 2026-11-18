@@ -137,6 +137,8 @@ export interface RowOptions {
   aside?: string;
   /** A colour dot before the aside. */
   dot?: Tone;
+  /** The colour of the small dot before the lead. Default ink. Needs `lead`. */
+  leadTone?: Tone;
   /** An inline `<svg>` drawn for the row, about 48 px square. It is decoration: the row's text says everything the icon does, so the helper hides it from a screen reader. */
   icon?: string;
 }
@@ -154,8 +156,9 @@ const iconMarkup = (svg: string): string => {
 /** A row for `list()`. It is a `listitem`, so the container must be `role="list"`. */
 export const row = (o: RowOptions): string => {
   const dot = o.dot ? `<i style="--toon-dot:${TONE_HEX[toneOf(o.dot)]}"></i>` : '';
+  const leadDot = o.leadTone ? ` style="--toon-lead-dot:${TONE_HEX[toneOf(o.leadTone)]}"` : '';
   const icon = o.icon ? `<span class="toon-row-icon" aria-hidden="true">${iconMarkup(o.icon)}</span>` : '';
-  return `<div class="toon-row" role="listitem">${icon}${o.lead ? `<span class="toon-row-lead">${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? ` <small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
+  return `<div class="toon-row" role="listitem">${icon}${o.lead ? `<span class="toon-row-lead"${leadDot}>${esc(o.lead)}</span>` : ''}<span class="toon-row-body"><b>${esc(o.title)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</span>${o.aside ? `<span class="toon-row-aside">${dot}${esc(o.aside)}</span>` : ''}</div>`;
 };
 export interface ListOptions {
   /** Names the list for a screen reader. Required. */
@@ -698,6 +701,8 @@ export interface DisclosureOptions {
   panel: string;
   open?: boolean;
   owner?: Owner;
+  /** The colour of the lead's dot. Default ink, or violet for owner `b`. */
+  tone?: Tone;
   /** Says the owner aloud, such as "Pedro". The dot and colour show it to the eye. */
   ownerLabel?: string;
   /** Use `<details>` and `<summary>`, which work without script. */
@@ -718,7 +723,7 @@ export const disclosure = (o: DisclosureOptions): string => {
   if (o.heading !== undefined && (o.native || ![2, 3, 4, 5, 6].includes(o.heading))) throw new Error('disclosure: heading is a level from 2 to 6, and not for native');
   const b = typeof o.badge === 'string' ? { text: o.badge, tone: 'yellow' as Tone } : o.badge ? { text: o.badge.text, tone: o.badge.tone ?? 'yellow' } : undefined;
   const d = o.delta === undefined ? '' : typeof o.delta === 'number' ? delta(o.delta) : delta(o.delta.value, o.delta);
-  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}">${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ''}${esc(o.lead)}</span>` +
+  const inner = `<span class="toon-disclosure-lead toon-owner-${owner}"${o.tone ? ` style="--toon-lead-dot:${TONE_HEX[toneOf(o.tone)]}"` : ''}>${o.ownerLabel?.trim() ? `<span class="toon-disclosure-owner">Owner: ${esc(o.ownerLabel)}. </span>` : ''}${esc(o.lead)}</span>` +
     `<span class="toon-disclosure-title">${esc(o.title)}${b ? ' ' + badge(b.text, b.tone) : ''}</span>` +
     `${o.sub?.trim() ? `<span class="toon-disclosure-sub">${esc(o.sub.trim())}</span>` : ''}` +
     `${o.value === undefined ? '' : `<span class="toon-disclosure-value">${esc(String(o.value))}</span>`}${o.note?.trim() ? `<span class="toon-disclosure-value toon-disclosure-note">${esc(o.note.trim())}</span>` : ''}${d}` +

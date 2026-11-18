@@ -138,7 +138,9 @@ None of these holds data. You pass your own.
 
 ### List and row
 
-`toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helpers: `list(rows, { label, cls })` writes the container with `role="list"` and a label, and `row({ lead, title, sub, aside, dot, icon })` writes each `role="listitem"`. Use them instead of a bullet list.
+`toon-list` and `toon-row` make rows with a lead (`toon-row-lead`), a body (`toon-row-body`) and an aside (`toon-row-aside`). Add `toon-list-stack` to a list in a narrow column: each row's lead keeps its own line at every width, as it does on a phone. Helpers: `list(rows, { label, cls })` writes the container with `role="list"` and a label, and `row({ lead, title, sub, aside, dot, leadTone, icon })` writes each `role="listitem"`. Use them instead of a bullet list.
+
+`sub` sits on its own line under the title. `leadTone` is a `Tone` that colours the small dot before the lead; the default is ink. `aside` is bold mono type.
 
 `icon` is one inline `<svg>` about 48 px square, drawn by the caller. The helper puts it in `toon-row-icon`, hides it from a screen reader (`aria-hidden`), and throws when the markup is not a single `<svg>` or holds a script, `foreignObject`, event attribute or `javascript:` link. The icon is decoration, so the row's text must say everything the icon does. Give the row an aside that tells a reader one fact, such as a number or a state: on a phone it sits under the body, and from `sm` it sits at the end of the row. Animate an icon with CSS that you scope to `prefers-reduced-motion: no-preference`; the kit also stops animation when the motion switch is off.
 
@@ -231,10 +233,10 @@ Six parts for pages that track values over time: a board of calls, a likelihood 
 
 ### Disclosure
 
-`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-sub`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, sub, badge, value, note, delta, below, panel, open, owner, ownerLabel, native, heading })`.
+`toon-disclosure` is a list row that opens to show detail. Put rows in `list()`. Parts: `toon-disclosure-btn`, `toon-disclosure-lead`, `toon-disclosure-title`, `toon-disclosure-sub`, `toon-disclosure-value`, `toon-disclosure-below`, `toon-disclosure-panel`, `toon-disclosure-owner`, `toon-disclosure-h`, `toon-disclosure-details`. Helper: `disclosure({ id, lead, title, sub, badge, value, note, delta, tone, below, panel, open, owner, ownerLabel, native, heading })`.
 
 - `sub` is a line of plain words under the title that says what the row means. It is muted subhead type, wraps, and sits between the title and `below`. Use it so a closed row is informative without opening it.
-- `note` is a short text at the end of the line, such as "15 hours ago" (`toon-disclosure-note`). It is small mono type. `value` is sized for a figure, so do not pass words to it. Pass one or the other.
+- `note` is a short text at the end of the line, such as "15 hours ago" (`toon-disclosure-note`). It is small bold mono type, and it does not wrap from 640 px. `tone` is a `Tone` that colours the lead's dot (default ink, or violet for owner `b`). Below 640 px the value or note, the delta and the chevron sit on the lead line, so the title and `sub` get the full width; from 640 px they sit at the end of the title line. `value` is sized for a figure, so do not pass words to it. Pass one or the other.
 - `id` names the panel, and the button takes `<id>-btn`. `lead` is a mono id such as "P-01" in the owner colour. `lead` and `title` are required.
 - `badge` is text or `{ text, tone }`, and `delta` is a number or `{ value, unit, invert }`. `below` and `panel` are markup you trust and are not escaped. Escape any text you put in them.
 - `below` is a full-width slot under the line, for example a `scale()`.
