@@ -5,6 +5,16 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-11-19
+
+### Changed
+
+- The red is vermilion: `color.red` is `#ff4b3e` and `color.red-text` is `#b3261b` (5.7:1 on paper). The state word on the ink strip is 5.9:1. Pedro chose it from three options so the "wrong now" colour stays clearly apart from the bubblegum accent.
+
+### Fixed
+
+- `docs/tokens.md` no longer says blue, red and violet are bubblegum pink. Only `color.yellow` is.
+
 ## [0.8.2] - 2026-11-19
 
 ### Changed

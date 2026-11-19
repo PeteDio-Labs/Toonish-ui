@@ -96,7 +96,7 @@ test('row renders its parts, omits the empty ones and escapes', () => {
   const html = row({ lead: 'Nov 1', title: '<x>', sub: 's', aside: 'a', dot: 'red' });
   expect(html).toContain('toon-row-lead');
   expect(html).toContain('&lt;x&gt;');
-  expect(html).toContain('--toon-dot:#f2706a');
+  expect(html).toContain('--toon-dot:#ff4b3e');
   expect(row({ title: 't' })).toBe('<div class="toon-row" role="listitem"><span class="toon-row-body"><b>t</b></span></div>');
 });
 
@@ -189,7 +189,7 @@ test('strip renders linked and plain cells, sets the column count and escapes', 
   const html = strip([{ value: '21', label: 'studies', href: '/work.html' }, { value: '~594', label: 'packages', accent: 'red' }], { label: 'Proof' });
   expect(html).toContain('role="list" aria-label="Proof" style="--toon-cols:2"');
   expect(html).toContain('<a class="toon-strip-item" href="/work.html">');
-  expect(html).toContain('<div class="toon-strip-item"><span class="toon-strip-value" style="--toon-fill:#c8322b">~594</span>');
+  expect(html).toContain('<div class="toon-strip-item"><span class="toon-strip-value" style="--toon-fill:#b3261b">~594</span>');
   expect(html.match(/<li class="toon-strip-cell">/g)).toHaveLength(2);
   // A space separates the figure from its label, so the link's name reads "21 studies" and not "21studies".
   expect(html).toContain('>21</span> <span class="toon-strip-label">studies</span>');
@@ -218,7 +218,7 @@ test('sfx letters each character, is the same every time, and is decoration only
   expect(a).toBe(sfx('MERGE!', 'red'));
   expect(a).toContain('aria-hidden="true"');
   expect(a.match(/<span style="--n:/g)).toHaveLength(6);
-  expect(a).toContain('--toon-fill:#f2706a; --toon-shade:#ff94c8');
+  expect(a).toContain('--toon-fill:#ff4b3e; --toon-shade:#ff94c8');
   // Letters differ from one another in turn, rise and size.
   const turns = [...a.matchAll(/--r:(-?\d+)deg/g)].map((m) => m[1]);
   expect(new Set(turns).size).toBeGreaterThan(3);
@@ -509,7 +509,7 @@ test('spark writes role img with the generated trend label, and one dot per read
   const lg = spark([0, 100], { label: 'x', size: 'lg', accent: 'red', target: 50 });
   expect(lg).toContain('viewBox="0 0 120 32"');
   expect(lg).toContain('toon-spark-target');
-  expect(lg).toContain('fill="#f2706a"');
+  expect(lg).toContain('fill="#ff4b3e"');
 });
 
 test('spark escapes the label and throws on bad input', () => {

@@ -16,12 +16,12 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 | `color.ground` | `#0c1240` | Page background, deep navy. |
 | `color.ink` | `#0a0a1f` | Outlines, and text on every fill. |
 | `color.paper` | `#eceff3` | Panels and bubbles. Text on the ground. |
-| `color.blue` | `#5f8dff` | Fill and shadow. Bubblegum pink since 0.8.2 (2026-11-19); the name `yellow` is kept so no class or token changes. |
-| `color.red` | `#f2706a` | Fill and shadow. Bubblegum pink since 0.8.2; the name `yellow` is kept so no class or token changes. |
-| `color.yellow` | `#ff94c8` | Fill and shadow. Bubblegum pink since 0.8.2; the name `yellow` is kept so no class or token changes. |
-| `color.violet` | `#a995f0` | Fill and shadow. Bubblegum pink since 0.8.2; the name `yellow` is kept so no class or token changes. |
+| `color.blue` | `#5f8dff` | Fill and shadow. |
+| `color.red` | `#ff4b3e` | Fill and shadow. Vermilion since 0.8.3. |
+| `color.yellow` | `#ff94c8` | Fill and shadow. Bubblegum pink since 0.8.2 (2026-11-19); the name `yellow` is kept so no class or token changes. |
+| `color.violet` | `#a995f0` | Fill and shadow. |
 | `color.blue-text` | `#2a57d6` | Blue for large text on paper. 5.3:1. |
-| `color.red-text` | `#c8322b` | Red for large text on paper. 4.6:1. |
+| `color.red-text` | `#b3261b` | Red for large text on paper. 5.7:1. |
 | `color.violet-text` | `#6b4fd6` | Violet for large text on paper. 4.9:1. |
 | `color.yellow-text` | `#b3236f` | The accent for large text on paper. 5.4:1. |
 | `color.green` | `#4ccf8f` | The ok state: a fill and a shadow. Not an accent. |
@@ -48,13 +48,13 @@ A palette dresses one strip of the page, such as a verdict banner. Four exist: i
 
 | Palette | `fill` | `text` | `state` | `edge` | `shadow` | `accent` |
 |---|---|---|---|---|---|---|
-| `ink` | `#0a0a1f` | `#eceff3` | `#f2706a` | `#b9bde0` | `#5f8dff` | `#f2706a` |
-| `paper` | `#eceff3` | `#0a0a1f` | `#c8322b` | `#0a0a1f` | `#5f8dff` | `#f2706a` |
+| `ink` | `#0a0a1f` | `#eceff3` | `#ff4b3e` | `#b9bde0` | `#5f8dff` | `#ff4b3e` |
+| `paper` | `#eceff3` | `#0a0a1f` | `#b3261b` | `#0a0a1f` | `#5f8dff` | `#ff4b3e` |
 | `violet` | `#a995f0` | `#0a0a1f` | `#0a0a1f` | `#0a0a1f` | `#5f8dff` | `#eceff3` |
 | `blue` | `#5f8dff` | `#0a0a1f` | `#0a0a1f` | `#0a0a1f` | `#a995f0` | `#eceff3` |
 
 - `text` is the sentence on the fill. It is 16.9:1 on ink and paper, 7.7:1 on violet and 6.3:1 on blue.
-- `state` is the state word, such as "Needs you". It is red only where red passes: 6.8:1 on ink and 4.6:1 on paper. On violet and blue it is ink, because red fails there.
+- `state` is the state word, such as "Needs you". It is red only where red passes: 5.9:1 on ink and 5.7:1 on paper. On violet and blue it is ink, because red fails there.
 - `edge` is the outline that separates the strip from the navy ground. Ink on the ground is 1.09:1, so the ink palette uses mist, which is 9.7:1. The other three fills are 5.7:1 or better against the ground.
 - `accent` fills large lettering, such as a count in Bangers. It is decoration, so the sentence carries the meaning. Outline it in ink, or in paper on ink.
 - No palette puts red against yellow. The `shadow` is blue, or violet under the blue palette, so it differs from the fill.
@@ -104,8 +104,8 @@ The border is `2px` (`border.toon`). The scale has no `s7`: it skips from `s6` t
 | Token | Value |
 |---|---|
 | `shadow.blue`, `.red`, `.yellow`, `.violet` | `4px 4px 0` in the accent |
-| `shadow.lift` | `6px 7px 0 var(--toon-shadow, #f2706a)`. Applies on hover. |
-| `shadow.press` | `0 0 0 var(--toon-shadow, #f2706a)`. Applies while pressed. |
+| `shadow.lift` | `6px 7px 0 var(--toon-shadow, #ff4b3e)`. Applies on hover. |
+| `shadow.press` | `0 0 0 var(--toon-shadow, #ff4b3e)`. Applies while pressed. |
 
 Shadows are plain CSS strings, because the token format has no way to say "a `var()` colour".
 

@@ -40,7 +40,7 @@ ${list([row({ lead: 'Secrets', title: 'Vault', sub: 'short-lived credentials for
   { label: 'Plain', segments: [{ value: 1, tone: 'blue', label: 'b' }, { value: 1, tone: 'red', label: 'r' }] },
   { label: 'Empty', segments: [] }] })}</div>
 <div class="toon-card">${bars({ label: 'Week', target: 1, columns: [{ label: 'Mon', sub: '9', segments: [{ value: 0.6, tone: 'blue', label: 'Email' }, { value: 0.2, tone: 'hatch', label: 'Dropped' }] }, { label: 'Tue', sub: '10', current: true, segments: [{ value: 1.1, tone: 'red', label: 'Site' }] }, { label: 'Wed', sub: '11', segments: [] }] })}
-<ul class="toon-bars-key"><li><i></i>Email</li><li><i style="--toon-dot:#f2706a"></i>Site</li></ul></div>
+<ul class="toon-bars-key"><li><i></i>Email</li><li><i style="--toon-dot:#ff4b3e"></i>Site</li></ul></div>
 <div class="toon-table-wrap"><table class="toon-table"><thead><tr><th>Day</th><th>Email</th><th>Site</th></tr></thead><tbody><tr><td>Mon</td><td>3</td><td>0</td></tr><tr aria-current="date"><td>Tue</td><td>1</td><td>2</td></tr></tbody><tfoot><tr><td>Week</td><td>4</td><td>2</td></tr></tfoot></table></div></section>
 <section id="nav"><div class="toon-nav" role="group" aria-label="Sample" data-toon-toggle><button type="button" aria-pressed="true">One</button><button type="button" aria-pressed="false">Two</button></div></section>
 <section id="modal"><button id="open" class="toon-btn toon-btn-yellow" type="button" data-toon-modal-open="demo">Open</button>
