@@ -108,6 +108,14 @@ Pedro, 2026-11-18: "We should strive to have very legible components. When I loc
 - **Do not restyle in a page.** A page that overrides a kit component's type, spacing or colour is a missing kit option. Add the option to the kit, and take the override out of the page.
 - **Check legibility with the browser check.** Text stays at 12 px or larger at 390 px, and meets 4.5:1.
 
+## 9. Mocks with options get a fixed switcher
+
+Pedro, 2026-11-19: "When we are doing design mock ups like this you have to give me a switcher at the bottom if possible so I don't have to scroll. Makes it easier to pick. Make it a rule."
+
+- **Fix a switcher to the bottom of the screen.** One button per option (A, B, C, and a desktop view when it differs). Pressing a button swaps the whole view and scrolls to the top, so Pedro compares options without scrolling.
+- **Make the switcher usable.** Buttons are at least 44 px tall, mark the chosen option with `aria-pressed`, and stay clear of the phone's bottom inset.
+- **Show every option without scripts.** When scripts are off, the page lists all options in order.
+
 ## Checklist before a pull request
 
 1. Did you check it at 390 px, then 1280 px?
