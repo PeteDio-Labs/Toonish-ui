@@ -17,7 +17,7 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 | `color.ink` | `#0a0a1f` | Outlines, and text on every fill. |
 | `color.paper` | `#eceff3` | Panels and bubbles. Text on the ground. |
 | `color.blue` | `#5f8dff` | Fill and shadow. |
-| `color.red` | `#ff4b3e` | Fill and shadow. Vermilion since 0.8.3. |
+| `color.red` | `#ff4b3e` | Fill and shadow. Vermilion since 0.8.3 (2026-11-19). |
 | `color.yellow` | `#ff94c8` | Fill and shadow. Bubblegum pink since 0.8.2 (2026-11-19); the name `yellow` is kept so no class or token changes. |
 | `color.violet` | `#a995f0` | Fill and shadow. |
 | `color.blue-text` | `#2a57d6` | Blue for large text on paper. 5.3:1. |
