@@ -3487,6 +3487,24 @@
   .toon-srow-go {
     margin-top: var(--spacing-s2);
   }
+  .toon-srow-go .toon-btn {
+    min-height: 44px;
+    padding: 0 18px;
+    font-size: var(--text-subhead);
+    box-shadow: 3px 3px 0 var(--color-toon-ink);
+  }
+  @media (hover: hover) {
+    .toon-srow-go .toon-btn:hover {
+      box-shadow: 3px 3px 0 var(--color-toon-ink);
+    }
+  }
+  .toon-srow-go .toon-btn:active {
+    box-shadow: 1px 1px 0 var(--color-toon-ink);
+  }
+  .toon-srow-go .toon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
   .toon-srow-visual {
     margin-top: var(--spacing-s1);
   }
