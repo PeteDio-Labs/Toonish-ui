@@ -5,6 +5,12 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-11-19
+
+### Changed
+
+- The button in a `statusRow()` is compact: 44 px tall, a 3 px ink shadow, subhead text and a 16 px arrow. A list of rows is shorter.
+
 ## [0.8.0] - 2026-11-18
 
 ### Added

@@ -978,6 +978,11 @@
   .toon-srow-title { font-size: var(--text-body); font-weight: 700; line-height: 1.25; }
   .toon-srow-sub { font-size: var(--text-subhead); line-height: 1.4; color: var(--color-toon-muted); }
   .toon-srow-go { margin-top: var(--spacing-s2); }
+  /* The row's button is the compact one from the mock: 44 px tall, a 3 px ink shadow and a 16 px arrow, so a list of rows stays short. */
+  .toon-srow-go .toon-btn { min-height: 44px; padding: 0 18px; font-size: var(--text-subhead); box-shadow: 3px 3px 0 var(--color-toon-ink); }
+  @media (hover: hover) { .toon-srow-go .toon-btn:hover { box-shadow: 3px 3px 0 var(--color-toon-ink); } }
+  .toon-srow-go .toon-btn:active { box-shadow: 1px 1px 0 var(--color-toon-ink); }
+  .toon-srow-go .toon-btn svg { width: 16px; height: 16px; }
   .toon-srow-visual { margin-top: var(--spacing-s1); }
   .toon-srow-fact { margin-top: var(--spacing-s1); font-family: var(--font-mono); font-size: var(--text-subhead); font-weight: 700; }
   .toon-srow-plain > .toon-srow-inner, .toon-srow-plain > .toon-srow-link { grid-template-columns: minmax(0, 1fr); }
