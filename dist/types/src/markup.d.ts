@@ -513,6 +513,27 @@ export interface SwitchRowOptions {
  * `data-toon-switch-to` (the side), and `aria-disabled` while `canSwitch` is false: the kit script drops a click on it.
  */
 export declare const switchRow: (o: SwitchRowOptions) => string;
+export interface SegmentedItem {
+    /** The visible word, such as "Needs you". Required. */
+    text: string;
+    /** The key the page reads from `data-value`. Required. */
+    value: string;
+    /** A count after the word, such as 2. */
+    count?: number;
+    pressed?: boolean;
+}
+export interface SegmentedOptions {
+    /** Names the group for a screen reader, such as "Show". Required. */
+    label: string;
+    items: SegmentedItem[];
+    cls?: string;
+}
+/**
+ * A filter switch: two to five buttons joined in one pill, where one is pressed. Each button is `aria-pressed` and carries
+ * `data-value`. The pressed one is filled and bold, so the state is never colour alone. The kit attaches no handler: your page
+ * sets `aria-pressed` when the view changes. Exactly one item must be pressed.
+ */
+export declare const segmented: (o: SegmentedOptions) => string;
 export interface ToggleOptions {
     /** The accessible name, which says what "on" means, such as "Authentik: run on cloud". Required. */
     label: string;

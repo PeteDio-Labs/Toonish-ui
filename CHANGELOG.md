@@ -5,6 +5,12 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.4] - 2026-11-19
+
+### Added
+
+- `segmented()` and `toon-seg`: a filter switch of two to five joined buttons, one pressed, 44 px tall. Pedro asked for a bar with switches and buttons for the Secrets page, and chose the row-and-group layout from three mocks.
+
 ## [0.8.3] - 2026-11-19
 
 ### Changed

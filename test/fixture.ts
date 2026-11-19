@@ -1,6 +1,6 @@
 // A test page that shows every component once. It is a fixture for the browser test, not documentation:
 // the kit's documentation is docs/components.md. The portfolio's kit page was removed on 2026-11-14.
-import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, button, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, settingsMenu, buildBadge, appbar, brief, statusRow, cells, cycle } from '../src/markup.ts';
+import { badge, bars, burst, chip, esc, figure, deck, kicker, letters, list, row, button, skipLink, shot, speedLines, stat, steps, strip, sfx, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, settingsMenu, buildBadge, appbar, brief, statusRow, cells, cycle, segmented } from '../src/markup.ts';
 
 const icon = (d: string) => `<svg viewBox="0 0 20 20" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
@@ -98,6 +98,7 @@ ${line({ label: 'Latency today', yUnit: 'ms', series: [{ name: 'p95', points: Ar
 <section id="answers"><h2 class="toon-heading">Answer first</h2>
 ${kicker('01', 'Is anything wrong?', { heading: 3 })}
 <div id="verdicts" style="display:grid;gap:16px;margin:12px 0">${verdict({ state: 'ok', title: 'Nothing needs you', body: 'Every item was read and none asks for a step.', stateText: 'All clear' })}${verdict({ state: 'warn', title: '1 item needs you', id: 'v-warn' })}${verdict({ state: 'down', title: '2 services are down', body: 'Authentik and Plex do not answer on either side.' })}${verdict({ state: 'unknown', title: 'It is unknown whether anything needs you', body: 'The list was not read in full, or it is out of date.', heading: 4 })}</div>
+${segmented({ label: 'Show keys', items: [{ text: 'Needs you', value: 'needs', count: 2, pressed: true }, { text: 'All', value: 'all', count: 4 }] })}
 ${readout('Read 3 alerts, 4 services and 1 item that needs you, 30 hours ago. Source: fixture.').replace('<p class="toon-readout', '<p id="readout-ground" class="toon-readout')}
 <div class="toon-card" id="answers-card" style="margin-top:16px">${bars({ label: 'Alerts per day', columns: [{ label: '11-15', segments: [{ value: 2, tone: 'red', label: 'needs you' }, { value: 3, tone: 'hatch', label: 'unreadable' }] }, { label: '11-16', segments: [{ value: 1, tone: 'mist', label: 'no action' }] }] })}
 ${barsKey([{ label: 'Needs you', tone: 'red' }, { label: 'No action', tone: 'mist' }, { label: 'Unreadable', tone: 'hatch' }])}
