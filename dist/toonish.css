@@ -2933,6 +2933,43 @@
     font-size: var(--text-footnote);
     font-weight: 600;
   }
+  .toon-seg {
+    display: flex;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: var(--toon-border-toon) solid var(--color-toon-ink);
+    border-radius: 9999px;
+    background: white;
+  }
+  .toon-seg-btn {
+    flex: 1 1 0;
+    min-height: 44px;
+    padding-inline: var(--spacing-s3);
+    border: 0;
+    border-right: var(--toon-border-toon) solid var(--color-toon-ink);
+    background: transparent;
+    color: var(--color-toon-ink);
+    font: inherit;
+    font-size: var(--text-subhead);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .toon-seg-btn:last-child {
+    border-right: 0;
+  }
+  .toon-seg-btn[aria-pressed="true"] {
+    background: var(--color-toon-yellow);
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    cursor: default;
+  }
+  .toon-seg-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-caption1);
+    font-weight: 700;
+  }
   .toon-toggle-row {
     display: inline-flex;
     flex-wrap: wrap;
@@ -4040,6 +4077,10 @@
 }
 .toon-tab[aria-selected="true"]:focus-visible {
   box-shadow: 0 0 0 2px #0a0a1f, 2px 2px 0 var(--color-toon-blue);
+}
+.toon-seg-btn:focus-visible {
+  outline: 3px solid var(--color-toon-ink);
+  outline-offset: -6px;
 }
 .toon-toggle:focus-visible {
   outline: 3px solid var(--color-toon-ink);

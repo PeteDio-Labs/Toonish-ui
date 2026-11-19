@@ -42,6 +42,7 @@ Applies to every component: the text and the focus ring meet WCAG 2.2 AA, target
 | `toon-build` | `<aside aria-label="Build">` | The environment and the short hash, as one line | None | One mono line at the end of the page, in the flow. Drawn only for a non-production build. |
 | `toon-readout` | `<p>` | Its label, then its text | None | Paper text at 15 px on the ground. Do not dim it or shrink it. |
 | `toon-toggle` | `<button role="switch" aria-checked aria-label>` | Required label that says what "on" means | `Enter`, `Space` | 44 px tall. The side words are `aria-hidden`, because the label and the checked state say them. Disabled is `aria-disabled` with a visible reason, so it keeps focus. |
+| `toon-seg` | `<div role="group" aria-label>` of `<button aria-pressed>` | Required label, then each button's word and count | `Tab`, `Enter`, `Space` | 44 px tall. The pressed button is filled, bold and underlined, so colour is not the only cue. The kit attaches no handler. |
 | `toon-switch-card` | `role="group"` named by the service, with two `<button aria-pressed>` | The side, its state and "Serving" | `Enter`, `Space` | Each button is 72 px tall. A refused side is `aria-disabled` and points to the visible reason. Text is ink on every fill. |
 | `toon-settings` | `<details>` with a `<summary aria-label>` and a `<nav aria-label>` of links; the gears are `aria-hidden` | The control's label, "Settings" by default | `Enter` or `Space` opens it, `Escape` closes it and returns focus to the button | The button is 48 px and each item 44 px tall. It opens without script. The gears turn while it is hovered, focused or open, and reduced motion stops them. |
 | `toon-appbar` | `<header>` with the page's `h1` (or a lower heading), a decorative mark, one mono line and a state pill | The title, then the sub line, then the pill's words | None | The mark and the pill's glyph are `aria-hidden`, and the pill says the state in words. It is not a control. |
@@ -348,6 +349,15 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 - The hash is hex, 7 to 40 characters, and the line shows the first 7. A malformed hash throws.
 - The `<aside>` is a labelled complementary landmark, so a page with its own site footer has no duplicate landmark. Put it last in `<body>`, outside `<main>`. It sits in the flow after the last content, so it never covers a control. `data-toon-build` carries the environment for a test.
 - Components: `toon-build` holds the line, and its `<code>` holds the hash.
+
+### Segmented
+
+`toon-seg` is a filter switch: two to five buttons joined in one pill, one pressed. Parts: `toon-seg-btn`, `toon-seg-count`. Helper: `segmented({ label, items, cls })`, where an item is `{ text, value, count, pressed }`.
+
+- The group is `role="group"` with a required `label`, such as "Show". Each button is `aria-pressed` and carries `data-value`.
+- Exactly one item is pressed. The helper throws on none, two or more, fewer than two items, more than five, and a blank label, text or value.
+- The pressed button is filled with the accent, bold and underlined, so the state is never colour alone. Each button is at least 44 px tall.
+- The kit attaches no handler. Listen for a click, set `aria-pressed` on each button, and change the view. Use it to filter one list. Use `toon-toggle` for an on and off setting.
 
 ### Toggle
 

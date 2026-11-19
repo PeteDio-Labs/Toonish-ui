@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { group } from '../src/tokens.ts';
-import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, button, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu, buildBadge, appbar, brief, statusRow, cells as miniCells, cycle } from '../src/markup.ts';
+import { HEX, badge, bars, burst, chip, esc, figure, fitSize, letters, row, button, shot, speedLines, stat, kicker, strip, list, skipLink, steps, sfx, deck, portrait, pager, delta, scale, scaleAxis, meter, meters, tabbar, tabpanel, disclosure, spark, uptime, line, statusTile, switchRow, verdict, readout, barsKey, chartTable, masthead, toggle, switchCard, gears, settingsMenu, buildBadge, appbar, brief, statusRow, cells as miniCells, cycle, segmented } from '../src/markup.ts';
 
 test('esc escapes the five HTML characters', () => {
   expect(esc(`<a href="x">&'`)).toBe('&lt;a href=&quot;x&quot;&gt;&amp;&#39;');
@@ -852,4 +852,22 @@ test('cells says its counts aloud and cycle says whether it is on pace', () => {
   expect(() => cycle({ label: 'x', done: 1, total: 2, day: 8, days: 7, from: 'a', to: 'b' })).toThrow('day must be');
   expect(() => cycle({ label: 'x', done: NaN, total: 2, day: 1, days: 7, from: 'a', to: 'b' })).toThrow('done must be');
   expect(() => cycle({ label: 'x', done: 1, total: 2, day: 1, days: 7, from: ' ', to: 'b' })).toThrow('dates are required');
+});
+
+test('segmented writes one pressed button per item and a named group', () => {
+  const h = segmented({ label: 'Show', items: [{ text: 'Needs you', value: 'needs', count: 2, pressed: true }, { text: 'All', value: 'all' }] });
+  expect(h).toContain('role="group" aria-label="Show"');
+  expect(h).toContain('aria-pressed="true" data-value="needs">Needs you <span class="toon-seg-count">2</span>');
+  expect(h).toContain('aria-pressed="false" data-value="all">All</button>');
+});
+
+test('segmented escapes every string and throws on bad input', () => {
+  const h = segmented({ label: EVIL, items: [{ text: EVIL, value: EVIL, pressed: true }, { text: 'b', value: 'b' }], cls: EVIL });
+  expect(h).not.toContain('<img');
+  const ok = [{ text: 'a', value: 'a', pressed: true }, { text: 'b', value: 'b' }];
+  expect(() => segmented({ label: ' ', items: ok })).toThrow('label is required');
+  expect(() => segmented({ label: 'x', items: [ok[0]!] })).toThrow('two to five');
+  expect(() => segmented({ label: 'x', items: [{ text: 'a', value: 'a' }, { text: 'b', value: 'b' }] })).toThrow('exactly one');
+  expect(() => segmented({ label: 'x', items: [{ text: 'a', value: 'a', pressed: true }, { text: 'b', value: 'b', pressed: true }] })).toThrow('exactly one');
+  expect(() => segmented({ label: 'x', items: [{ ...ok[0]!, count: -1 }, ok[1]!] })).toThrow('count');
 });

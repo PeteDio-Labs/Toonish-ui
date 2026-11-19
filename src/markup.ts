@@ -1060,6 +1060,40 @@ export const switchRow = (o: SwitchRowOptions): string => {
     `<div class="toon-switch-sides">${side('lab', o.labState, o.labAge)}${side('cloud', o.cloudState, o.cloudAge)}</div>${button}${reason}</div>`;
 };
 
+export interface SegmentedItem {
+  /** The visible word, such as "Needs you". Required. */
+  text: string;
+  /** The key the page reads from `data-value`. Required. */
+  value: string;
+  /** A count after the word, such as 2. */
+  count?: number;
+  pressed?: boolean;
+}
+
+export interface SegmentedOptions {
+  /** Names the group for a screen reader, such as "Show". Required. */
+  label: string;
+  items: SegmentedItem[];
+  cls?: string;
+}
+
+/**
+ * A filter switch: two to five buttons joined in one pill, where one is pressed. Each button is `aria-pressed` and carries
+ * `data-value`. The pressed one is filled and bold, so the state is never colour alone. The kit attaches no handler: your page
+ * sets `aria-pressed` when the view changes. Exactly one item must be pressed.
+ */
+export const segmented = (o: SegmentedOptions): string => {
+  if (!o.label?.trim()) throw new Error('segmented: label is required');
+  if (!Array.isArray(o.items) || o.items.length < 2 || o.items.length > 5) throw new Error('segmented: pass two to five items');
+  if (o.items.filter((i) => i.pressed).length !== 1) throw new Error('segmented: exactly one item must be pressed');
+  const btns = o.items.map((i) => {
+    if (!i.text?.trim() || !i.value?.trim()) throw new Error('segmented: each item needs text and value');
+    if (i.count !== undefined && (!Number.isInteger(i.count) || i.count < 0)) throw new Error(`segmented: count must be a whole number from 0, got ${String(i.count)}`);
+    return `<button type="button" class="toon-seg-btn" aria-pressed="${i.pressed ? 'true' : 'false'}" data-value="${esc(i.value.trim())}">${esc(i.text.trim())}${i.count === undefined ? '' : ` <span class="toon-seg-count">${i.count}</span>`}</button>`;
+  }).join('');
+  return `<div class="toon-seg${o.cls ? ' ' + esc(o.cls) : ''}" role="group" aria-label="${esc(o.label.trim())}">${btns}</div>`;
+};
+
 export interface ToggleOptions {
   /** The accessible name, which says what "on" means, such as "Authentik: run on cloud". Required. */
   label: string;

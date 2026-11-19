@@ -609,6 +609,22 @@ var switchRow = (o) => {
   const tags = `${o.dataClass?.trim() ? chip(o.dataClass.trim()) : ""}${o.pinned ? ' <span class="toon-badge toon-badge-violet">Pinned</span>' : ""}`;
   return `<div class="toon-switch-row" role="group" aria-labelledby="${id}-name"><div class="toon-switch-head"><b class="toon-switch-name" id="${id}-name">${esc(o.name)}</b>${o.hostname ? `<span class="toon-switch-host">${esc(o.hostname)}</span>` : ""}${tags ? `<span class="toon-switch-tags">${tags}</span>` : ""}</div>` + `<div class="toon-switch-sides">${side("lab", o.labState, o.labAge)}${side("cloud", o.cloudState, o.cloudAge)}</div>${button}${reason}</div>`;
 };
+var segmented = (o) => {
+  if (!o.label?.trim())
+    throw new Error("segmented: label is required");
+  if (!Array.isArray(o.items) || o.items.length < 2 || o.items.length > 5)
+    throw new Error("segmented: pass two to five items");
+  if (o.items.filter((i) => i.pressed).length !== 1)
+    throw new Error("segmented: exactly one item must be pressed");
+  const btns = o.items.map((i) => {
+    if (!i.text?.trim() || !i.value?.trim())
+      throw new Error("segmented: each item needs text and value");
+    if (i.count !== undefined && (!Number.isInteger(i.count) || i.count < 0))
+      throw new Error(`segmented: count must be a whole number from 0, got ${String(i.count)}`);
+    return `<button type="button" class="toon-seg-btn" aria-pressed="${i.pressed ? "true" : "false"}" data-value="${esc(i.value.trim())}">${esc(i.text.trim())}${i.count === undefined ? "" : ` <span class="toon-seg-count">${i.count}</span>`}</button>`;
+  }).join("");
+  return `<div class="toon-seg${o.cls ? " " + esc(o.cls) : ""}" role="group" aria-label="${esc(o.label.trim())}">${btns}</div>`;
+};
 var toggle = (o) => {
   if (!o.label?.trim() || !o.off?.trim() || !o.on?.trim())
     throw new Error("toggle: label, off and on are required");
@@ -861,6 +877,7 @@ export {
   row,
   scale,
   scaleAxis,
+  segmented,
   settingsMenu,
   sfx,
   shot,
