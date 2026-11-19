@@ -7,7 +7,7 @@ const ext = preset.theme.extend;
 // The values below are the ones tailwind.config.js held in pdlabs-portfolio before the extraction. A change to a
 // token must change this file on purpose.
 test('the preset keeps every value the portfolio config held', () => {
-  expect(ext.colors.toon).toEqual({ ground: '#0c1240', ink: '#0a0a1f', paper: '#eceff3', blue: '#5f8dff', red: '#f2706a', yellow: '#f2c94c', violet: '#a995f0', 'blue-text': '#2a57d6', 'red-text': '#c8322b', 'violet-text': '#6b4fd6', 'yellow-text': '#7a5c00', green: '#4ccf8f', 'green-text': '#0f6e42', muted: '#4a4d78', mist: '#b9bde0', rule: '#d3d8e0' });
+  expect(ext.colors.toon).toEqual({ ground: '#0c1240', ink: '#0a0a1f', paper: '#eceff3', blue: '#5f8dff', red: '#f2706a', yellow: '#ff94c8', violet: '#a995f0', 'blue-text': '#2a57d6', 'red-text': '#c8322b', 'violet-text': '#6b4fd6', 'yellow-text': '#b3236f', green: '#4ccf8f', 'green-text': '#0f6e42', muted: '#4a4d78', mist: '#b9bde0', rule: '#d3d8e0' });
   expect(ext.fontFamily).toEqual({
     display: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
     comic: ['Bangers', '"Arial Black"', 'Impact', 'sans-serif'],

@@ -50,12 +50,12 @@
     --color-toon-paper: #eceff3;
     --color-toon-blue: #5f8dff;
     --color-toon-red: #f2706a;
-    --color-toon-yellow: #f2c94c;
+    --color-toon-yellow: #ff94c8;
     --color-toon-violet: #a995f0;
     --color-toon-blue-text: #2a57d6;
     --color-toon-red-text: #c8322b;
     --color-toon-violet-text: #6b4fd6;
-    --color-toon-yellow-text: #7a5c00;
+    --color-toon-yellow-text: #b3236f;
     --color-toon-green: #4ccf8f;
     --color-toon-green-text: #0f6e42;
     --color-toon-muted: #4a4d78;
@@ -655,7 +655,7 @@
     border-color: var(--color-toon-ink);
     background-color: var(--color-toon-paper);
     color: var(--color-toon-ink);
-    --tw-shadow: 4px 4px 0 var(--tw-shadow-color, #f2c94c);
+    --tw-shadow: 4px 4px 0 var(--tw-shadow-color, #ff94c8);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .toon-row {
@@ -799,7 +799,7 @@
     padding-inline: var(--spacing-s2);
     padding-block: var(--spacing-s1);
     color: var(--color-toon-ink);
-    --tw-shadow: 4px 4px 0 var(--tw-shadow-color, #f2c94c);
+    --tw-shadow: 4px 4px 0 var(--tw-shadow-color, #ff94c8);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .toon-table {
@@ -1012,7 +1012,7 @@
     border-color: var(--color-toon-ink);
     background-color: var(--color-toon-paper);
     padding: var(--spacing-s1);
-    --tw-shadow: 4px 4px 0 var(--tw-shadow-color, #f2c94c);
+    --tw-shadow: 4px 4px 0 var(--tw-shadow-color, #ff94c8);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     @media (width >= 40rem) {
       gap: var(--spacing-s2);
@@ -1277,7 +1277,7 @@
     border-width: var(--toon-border-toon);
     border-color: var(--color-toon-ink);
     background-color: var(--color-toon-paper);
-    --tw-shadow: 4px 4px 0 var(--tw-shadow-color, #f2c94c);
+    --tw-shadow: 4px 4px 0 var(--tw-shadow-color, #ff94c8);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .toon-shot-panel img {
@@ -2590,7 +2590,7 @@
     border: var(--toon-border-toon) solid var(--color-toon-ink);
     border-radius: var(--radius-toon);
     font-size: var(--text-subhead);
-    background: color-mix(in srgb, #f2c94c 20%, white);
+    background: color-mix(in srgb, #ff94c8 20%, white);
     @supports (color: color-mix(in lab, red, red)) {
       background: color-mix(in srgb, var(--color-toon-yellow) 20%, white);
     }
@@ -4020,7 +4020,7 @@
   transform: translateY(-200%);
   border: 2px solid #0a0a1f;
   border-radius: 9999px;
-  background: #f2c94c;
+  background: #ff94c8;
   padding: 0.75rem 1.25rem;
   font-weight: 700;
   color: #0a0a1f;

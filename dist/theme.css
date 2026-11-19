@@ -5,12 +5,12 @@
   --color-toon-paper: #eceff3;
   --color-toon-blue: #5f8dff;
   --color-toon-red: #f2706a;
-  --color-toon-yellow: #f2c94c;
+  --color-toon-yellow: #ff94c8;
   --color-toon-violet: #a995f0;
   --color-toon-blue-text: #2a57d6;
   --color-toon-red-text: #c8322b;
   --color-toon-violet-text: #6b4fd6;
-  --color-toon-yellow-text: #7a5c00;
+  --color-toon-yellow-text: #b3236f;
   --color-toon-green: #4ccf8f;
   --color-toon-green-text: #0f6e42;
   --color-toon-muted: #4a4d78;
@@ -45,7 +45,7 @@
   --radius-toon: 10px;
   --shadow-toon-blue: 4px 4px 0 #5f8dff;
   --shadow-toon-red: 4px 4px 0 #f2706a;
-  --shadow-toon-yellow: 4px 4px 0 #f2c94c;
+  --shadow-toon-yellow: 4px 4px 0 #ff94c8;
   --shadow-toon-violet: 4px 4px 0 #a995f0;
   --shadow-toon-lift: 6px 7px 0 var(--toon-shadow, #f2706a);
   --shadow-toon-press: 0 0 0 var(--toon-shadow, #f2706a);

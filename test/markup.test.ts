@@ -9,7 +9,7 @@ test('esc escapes the five HTML characters', () => {
 test('letters wraps each character in a span and escapes it', () => {
   const html = letters('a<b c', 'blue');
   expect(html).toContain('<span>a</span><span>&lt;</span><span>b</span>');
-  expect(html).toContain('--toon-fill:#5f8dff; --toon-shade:#f2c94c');
+  expect(html).toContain('--toon-fill:#5f8dff; --toon-shade:#ff94c8');
   expect(html.match(/class="toon-word"/g)).toHaveLength(2);
   expect(html).not.toContain('<b');
 });
@@ -218,7 +218,7 @@ test('sfx letters each character, is the same every time, and is decoration only
   expect(a).toBe(sfx('MERGE!', 'red'));
   expect(a).toContain('aria-hidden="true"');
   expect(a.match(/<span style="--n:/g)).toHaveLength(6);
-  expect(a).toContain('--toon-fill:#f2706a; --toon-shade:#f2c94c');
+  expect(a).toContain('--toon-fill:#f2706a; --toon-shade:#ff94c8');
   // Letters differ from one another in turn, rise and size.
   const turns = [...a.matchAll(/--r:(-?\d+)deg/g)].map((m) => m[1]);
   expect(new Set(turns).size).toBeGreaterThan(3);

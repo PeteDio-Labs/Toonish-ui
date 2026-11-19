@@ -5,6 +5,12 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-11-19
+
+### Changed
+
+- The accent that was yellow is bubblegum pink: `color.yellow` is `#ff94c8` and `color.yellow-text` is `#b3236f` (5.4:1 on paper). Ink text on the fill is 9.6:1. Pedro chose it from four options. The token, class and helper names keep `yellow`, so no page needs a code change, only the pin.
+
 ## [0.8.1] - 2026-11-19
 
 ### Changed

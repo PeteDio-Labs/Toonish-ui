@@ -5,9 +5,9 @@ export type Accent = 'blue' | 'red' | 'yellow' | 'violet';
 const ENT: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export const esc = (s: string): string => s.replace(/[&<>"']/g, (c) => ENT[c]!);
 
-export const HEX: Record<Accent, string> = { blue: '#5f8dff', red: '#f2706a', yellow: '#f2c94c', violet: '#a995f0' };
+export const HEX: Record<Accent, string> = { blue: '#5f8dff', red: '#f2706a', yellow: '#ff94c8', violet: '#a995f0' };
 /** The accent at a depth that reads on paper: 3:1 or better for large text. The fills in HEX are 1.4 to 2.7:1 on paper. */
-export const HEX_TEXT: Record<Accent, string> = { blue: '#2a57d6', red: '#c8322b', yellow: '#7a5c00', violet: '#6b4fd6' };
+export const HEX_TEXT: Record<Accent, string> = { blue: '#2a57d6', red: '#c8322b', yellow: '#b3236f', violet: '#6b4fd6' };
 /** Shadow paired with each accent: never a complementary clash, never the fill's own colour. */
 export const PAIR: Record<Accent, Accent> = { blue: 'yellow', red: 'yellow', yellow: 'blue', violet: 'red' };
 /** The badge class for an accent. Red is the base badge and has no modifier. */
@@ -32,7 +32,7 @@ export const burst = (accent: Accent, cls = ''): string => {
 
 /** Speed lines: a fan of yellow strokes behind a panel. Ink would vanish on the navy ground. */
 export const speedLines = (cls = ''): string =>
-  `<svg class="toon-speed ${esc(cls)}" viewBox="0 0 200 120" aria-hidden="true" focusable="false" preserveAspectRatio="none"><g stroke="#f2c94c" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke">${[8, 26, 44, 62, 80, 98, 116].map((y, i) => `<line class="toon-speed-line" style="--i:${i}" x1="4" y1="${y}" x2="${120 + (i % 3) * 30}" y2="${y}" pathLength="100" vector-effect="non-scaling-stroke"/>`).join('')}</g></svg>`;
+  `<svg class="toon-speed ${esc(cls)}" viewBox="0 0 200 120" aria-hidden="true" focusable="false" preserveAspectRatio="none"><g stroke="#ff94c8" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke">${[8, 26, 44, 62, 80, 98, 116].map((y, i) => `<line class="toon-speed-line" style="--i:${i}" x1="4" y1="${y}" x2="${120 + (i % 3) * 30}" y2="${y}" pathLength="100" vector-effect="non-scaling-stroke"/>`).join('')}</g></svg>`;
 
 export interface LettersOptions { live?: boolean; flat?: boolean; /** Use the deeper accent, which reads on paper. Default is the fill for the navy ground. */ onPaper?: boolean; cls?: string; size?: number }
 
