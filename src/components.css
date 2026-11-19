@@ -1095,7 +1095,7 @@
 }
 
 /* Skip link: off screen until it takes focus, then a button-shaped pill at the top left. */
-.toon-skip { position: absolute; left: 0.5rem; top: 0.5rem; z-index: 100; transform: translateY(-200%); border: 2px solid #0a0a1f; border-radius: 9999px; background: #f2c94c; padding: 0.75rem 1.25rem; font-weight: 700; color: #0a0a1f; text-decoration: none; }
+.toon-skip { position: absolute; left: 0.5rem; top: 0.5rem; z-index: 100; transform: translateY(-200%); border: 2px solid #0a0a1f; border-radius: 9999px; background: #ff94c8; padding: 0.75rem 1.25rem; font-weight: 700; color: #0a0a1f; text-decoration: none; }
 .toon-skip:focus { transform: none; }
 
 /* Accessibility. A component that throws its own hard shadow keeps it on focus and adds the ink ring ahead of it, so the

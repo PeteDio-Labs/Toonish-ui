@@ -16,14 +16,14 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 | `color.ground` | `#0c1240` | Page background, deep navy. |
 | `color.ink` | `#0a0a1f` | Outlines, and text on every fill. |
 | `color.paper` | `#eceff3` | Panels and bubbles. Text on the ground. |
-| `color.blue` | `#5f8dff` | Fill and shadow. |
-| `color.red` | `#f2706a` | Fill and shadow. |
-| `color.yellow` | `#f2c94c` | Fill and shadow. |
-| `color.violet` | `#a995f0` | Fill and shadow. |
+| `color.blue` | `#5f8dff` | Fill and shadow. Bubblegum pink since 0.8.2 (2026-11-19); the name `yellow` is kept so no class or token changes. |
+| `color.red` | `#f2706a` | Fill and shadow. Bubblegum pink since 0.8.2; the name `yellow` is kept so no class or token changes. |
+| `color.yellow` | `#ff94c8` | Fill and shadow. Bubblegum pink since 0.8.2; the name `yellow` is kept so no class or token changes. |
+| `color.violet` | `#a995f0` | Fill and shadow. Bubblegum pink since 0.8.2; the name `yellow` is kept so no class or token changes. |
 | `color.blue-text` | `#2a57d6` | Blue for large text on paper. 5.3:1. |
 | `color.red-text` | `#c8322b` | Red for large text on paper. 4.6:1. |
 | `color.violet-text` | `#6b4fd6` | Violet for large text on paper. 4.9:1. |
-| `color.yellow-text` | `#7a5c00` | Yellow for large text on paper. 5.4:1. |
+| `color.yellow-text` | `#b3236f` | The accent for large text on paper. 5.4:1. |
 | `color.green` | `#4ccf8f` | The ok state: a fill and a shadow. Not an accent. |
 | `color.green-text` | `#0f6e42` | An ok state's text on paper. 5.5:1. |
 | `color.muted` | `#4a4d78` | Secondary text on paper. |
@@ -40,7 +40,7 @@ The tokens are in `tokens/toonish.tokens.json`, in the W3C Design Tokens format.
 
 **Pairing.** A shadow takes its fill's pair: blue and red use yellow, yellow uses blue, violet uses red. Palette shadows are the exception: they avoid red against yellow, so they use blue, or violet under the blue palette.
 
-**History.** The first set was cyan with orange, which was rejected. The second was cream, red and yellow, which looked like a default theme. Paper moved from cream to a cool grey on 2026-11-13.
+**History.** On 2026-11-19 Pedro replaced the yellow fill #f2c94c with bubblegum #ff94c8 (text variant #b3236f): he had started to dislike the yellow. The first set was cyan with orange, which was rejected. The second was cream, red and yellow, which looked like a default theme. Paper moved from cream to a cool grey on 2026-11-13.
 
 ## Palettes
 

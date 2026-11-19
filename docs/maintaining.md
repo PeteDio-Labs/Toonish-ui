@@ -51,7 +51,7 @@ No session merges its own pull request in this repository without the gate in th
 
 A merge to `main` is not a release. Batch changes under `## [Unreleased]` in `CHANGELOG.md`, and cut a release only when a consumer needs one or the owner asks. The portfolio pins a commit, so a merge to `main` reaches it only through a pin bump. It needs a release only when a consumer must install a tag.
 
-- **Patch (`0.2.x`):** fixes and small additions that break nothing.
+- **Patch (`0.2.x`):** fixes and small additions that break nothing. Since 2026-11-18, every release is a patch bump (Pedro: "+0.0.1 going forward"), a colour change included.
 - **Minor (`0.x.0`):** a meaningful batch, such as a set of added components or a token change that alters how pages look.
 - **Major:** a breaking change after `1.0.0`. While the version is `0.x`, a breaking change takes a minor bump and a changelog note.
 

@@ -4,12 +4,12 @@
   --toon-color-paper: #eceff3; /** Panels and bubbles; text on the ground. */
   --toon-color-blue: #5f8dff;
   --toon-color-red: #f2706a;
-  --toon-color-yellow: #f2c94c;
+  --toon-color-yellow: #ff94c8;
   --toon-color-violet: #a995f0;
   --toon-color-blue-text: #2a57d6; /** Blue for large figures on paper. The fill blue is 2.7:1 on paper; this is 5.3:1. */
   --toon-color-red-text: #c8322b; /** Red for large figures on paper (4.6:1). */
   --toon-color-violet-text: #6b4fd6; /** Violet for large figures on paper (4.9:1). */
-  --toon-color-yellow-text: #7a5c00; /** Yellow for large figures on paper (5.4:1). The fill yellow is 1.4:1 on paper. */
+  --toon-color-yellow-text: #b3236f; /** The accent for large figures on paper (5.4:1). The fill is 1.8:1 on paper. */
   --toon-color-green: #4ccf8f; /** The ok state: a fill and a shadow. Not a fifth accent. Green says healthy, clear or serving, and nothing else. */
   --toon-color-green-text: #0f6e42; /** Green for an ok state's text on paper (5.5:1). The fill green is 1.7:1 on paper. */
   --toon-color-muted: #4a4d78; /** Secondary text on paper. */
@@ -69,7 +69,7 @@
   --toon-border-toon: 2px;
   --toon-shadow-blue: 4px 4px 0 #5f8dff;
   --toon-shadow-red: 4px 4px 0 #f2706a;
-  --toon-shadow-yellow: 4px 4px 0 #f2c94c;
+  --toon-shadow-yellow: 4px 4px 0 #ff94c8;
   --toon-shadow-violet: 4px 4px 0 #a995f0;
   --toon-shadow-lift: 6px 7px 0 var(--toon-shadow, #f2706a);
   --toon-shadow-press: 0 0 0 var(--toon-shadow, #f2706a);

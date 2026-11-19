@@ -531,7 +531,7 @@ try {
     eq(`${bar.h}px`, bar.var, `${name}: --toon-tabbar-h equals the bar's height (${bar.h}px)`);
     eq(await p.$eval('.toon-tabbar', (e) => getComputedStyle(e).borderTopWidth), '3px', `${name}: the tab bar has a 3px top border`);
     await p.waitForTimeout(500); // the fill transitions
-    eq(await p.$eval('.toon-tab[aria-selected="true"]', (e) => getComputedStyle(e).backgroundColor), 'rgb(242, 201, 76)', `${name}: the selected tab is yellow`);
+    eq(await p.$eval('.toon-tab[aria-selected="true"]', (e) => getComputedStyle(e).backgroundColor), 'rgb(255, 148, 200)', `${name}: the selected tab is the accent`);
 
     // Disclosure: a click toggles aria-expanded and the panel; the native row opens with its summary.
     await p.goto(server.url.href, { waitUntil: 'networkidle' });
