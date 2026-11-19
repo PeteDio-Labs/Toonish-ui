@@ -358,6 +358,7 @@ Four parts for a view that answers one question. Lead with the `verdict()`, put 
 - Exactly one item is pressed. The helper throws on none, two or more, fewer than two items, more than five, and a blank label, text or value.
 - The pressed button is filled with the accent, bold and underlined, so the state is never colour alone. Each button is at least 44 px tall.
 - The kit attaches no handler. Listen for a click, set `aria-pressed` on each button, and change the view. Use it to filter one list. Use `toon-toggle` for an on and off setting.
+- Put it in a bar with the page's buttons, above a list of `disclosure()` rows. Show a `meter()` in each row's panel for a value that runs out.
 
 ### Toggle
 
