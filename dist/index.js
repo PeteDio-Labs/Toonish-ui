@@ -459,8 +459,8 @@ function initToonish(root = document) {
 // src/markup.ts
 var ENT = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 var esc = (s) => s.replace(/[&<>"']/g, (c) => ENT[c]);
-var HEX = { blue: "#5f8dff", red: "#f2706a", yellow: "#ff94c8", violet: "#a995f0" };
-var HEX_TEXT = { blue: "#2a57d6", red: "#c8322b", yellow: "#b3236f", violet: "#6b4fd6" };
+var HEX = { blue: "#5f8dff", red: "#ff4b3e", yellow: "#ff94c8", violet: "#a995f0" };
+var HEX_TEXT = { blue: "#2a57d6", red: "#b3261b", yellow: "#b3236f", violet: "#6b4fd6" };
 var PAIR = { blue: "yellow", red: "yellow", yellow: "blue", violet: "red" };
 var BADGE = { blue: "toon-badge-blue", red: "", yellow: "toon-badge-yellow", violet: "toon-badge-violet" };
 var accentOf = (accent) => {
@@ -1110,11 +1110,11 @@ var toonish_tokens_default = {
     ink: { $value: "#0a0a1f", $description: "Outlines, and text on every fill." },
     paper: { $value: "#eceff3", $description: "Panels and bubbles; text on the ground." },
     blue: { $value: "#5f8dff" },
-    red: { $value: "#f2706a" },
+    red: { $value: "#ff4b3e" },
     yellow: { $value: "#ff94c8" },
     violet: { $value: "#a995f0" },
     "blue-text": { $value: "#2a57d6", $description: "Blue for large figures on paper. The fill blue is 2.7:1 on paper; this is 5.3:1." },
-    "red-text": { $value: "#c8322b", $description: "Red for large figures on paper (4.6:1)." },
+    "red-text": { $value: "#b3261b", $description: "Red for large figures on paper (5.7:1)." },
     "violet-text": { $value: "#6b4fd6", $description: "Violet for large figures on paper (4.9:1)." },
     "yellow-text": { $value: "#b3236f", $description: "The accent for large figures on paper (5.4:1). The fill is 1.8:1 on paper." },
     green: { $value: "#4ccf8f", $description: "The ok state: a fill and a shadow. Not a fifth accent. Green says healthy, clear or serving, and nothing else." },
@@ -1128,13 +1128,13 @@ var toonish_tokens_default = {
     $description: "Four ways to dress one strip of the page, such as a verdict banner. Each has six roles: fill, text on the fill, the state word, the edge, the hard shadow and the lettering accent. Every text pair meets WCAG 2.2 AA, and test/tokens.test.ts asserts it. The names are roles, so a page asks for palette.ink-fill and never for a hex.",
     "ink-fill": { $value: "{color.ink}", $description: "Ink palette: a dark strip. Its edge is mist, because ink on the navy ground is 1.09:1." },
     "ink-text": { $value: "{color.paper}", $description: "16.9:1 on the ink fill." },
-    "ink-state": { $value: "{color.red}", $description: "The state word on ink: 6.8:1." },
+    "ink-state": { $value: "{color.red}", $description: "The state word on ink: 5.9:1." },
     "ink-edge": { $value: "{color.mist}", $description: "9.7:1 against the ground." },
     "ink-shadow": { $value: "{color.blue}" },
     "ink-accent": { $value: "{color.red}", $description: "Lettering fill, with a paper outline. Decoration." },
     "paper-fill": { $value: "{color.paper}", $description: "Paper palette: a light strip." },
     "paper-text": { $value: "{color.ink}", $description: "16.9:1 on the paper fill." },
-    "paper-state": { $value: "{color.red-text}", $description: "The state word on paper: 4.6:1." },
+    "paper-state": { $value: "{color.red-text}", $description: "The state word on paper: 5.7:1." },
     "paper-edge": { $value: "{color.ink}" },
     "paper-shadow": { $value: "{color.blue}" },
     "paper-accent": { $value: "{color.red}", $description: "Lettering fill, with an ink outline. Decoration." },
@@ -1202,11 +1202,11 @@ var toonish_tokens_default = {
   shadow: {
     $description: "Hard offset shadows. They are plain CSS strings: the DTCG shadow type has no way to say 'a var() colour'.",
     blue: { $value: "4px 4px 0 #5f8dff" },
-    red: { $value: "4px 4px 0 #f2706a" },
+    red: { $value: "4px 4px 0 #ff4b3e" },
     yellow: { $value: "4px 4px 0 #ff94c8" },
     violet: { $value: "4px 4px 0 #a995f0" },
-    lift: { $value: "6px 7px 0 var(--toon-shadow, #f2706a)" },
-    press: { $value: "0 0 0 var(--toon-shadow, #f2706a)" }
+    lift: { $value: "6px 7px 0 var(--toon-shadow, #ff4b3e)" },
+    press: { $value: "0 0 0 var(--toon-shadow, #ff4b3e)" }
   },
   ease: {
     $type: "cubicBezier",

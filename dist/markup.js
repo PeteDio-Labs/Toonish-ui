@@ -1,8 +1,8 @@
 // src/markup.ts
 var ENT = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 var esc = (s) => s.replace(/[&<>"']/g, (c) => ENT[c]);
-var HEX = { blue: "#5f8dff", red: "#f2706a", yellow: "#ff94c8", violet: "#a995f0" };
-var HEX_TEXT = { blue: "#2a57d6", red: "#c8322b", yellow: "#b3236f", violet: "#6b4fd6" };
+var HEX = { blue: "#5f8dff", red: "#ff4b3e", yellow: "#ff94c8", violet: "#a995f0" };
+var HEX_TEXT = { blue: "#2a57d6", red: "#b3261b", yellow: "#b3236f", violet: "#6b4fd6" };
 var PAIR = { blue: "yellow", red: "yellow", yellow: "blue", violet: "red" };
 var BADGE = { blue: "toon-badge-blue", red: "", yellow: "toon-badge-yellow", violet: "toon-badge-violet" };
 var accentOf = (accent) => {
