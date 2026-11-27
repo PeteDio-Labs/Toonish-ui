@@ -322,18 +322,35 @@
         }
       });
     };
+    const AUTO = ".toon-card, .toon-panel, .toon-list, .toon-stats, .toon-table-wrap, .toon-steps, .toon-deck, .toon-strip, .toon-switch-card, .toon-brief";
+    const tag = () => {
+      root.querySelectorAll("[data-toon-scroll-auto]").forEach((zone) => {
+        zone.querySelectorAll(AUTO).forEach((el) => {
+          if (el.hasAttribute("data-toon-scroll") || el.closest("[data-toon-scroll]") || el.classList.contains("toon-scroll-rise"))
+            return;
+          if (el.getBoundingClientRect().top < innerHeight * 0.9)
+            return;
+          el.dataset.toonScroll = "seen";
+          el.classList.add("toon-scroll-rise");
+        });
+      });
+    };
     const ask = () => {
       if (!queued) {
         queued = true;
         requestAnimationFrame(frame);
       }
     };
+    const swap = () => {
+      tag();
+      ask();
+    };
     addEventListener("scroll", ask, { passive: true });
     addEventListener("resize", ask);
     reduced.addEventListener("change", ask);
     new MutationObserver(ask).observe(html, { attributes: true, attributeFilter: ["data-motion"] });
-    new MutationObserver(ask).observe(root.body, { childList: true, subtree: true });
-    ask();
+    new MutationObserver(swap).observe(root.body, { childList: true, subtree: true });
+    swap();
   }
   function initToonish(root = document) {
     if (started.has(root))

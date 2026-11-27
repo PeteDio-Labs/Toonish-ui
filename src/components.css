@@ -1127,7 +1127,8 @@
    Where the stage is not pinned, an element animates by its own --toon-v as it scrolls into view, at every width. */
 .toon-scroll-on .toon-scroll-lift { --toon-k: var(--toon-v, 1); --toon-s: .1; --toon-w: .3; --toon-t: clamp(0, calc((var(--toon-k) - var(--toon-s)) / var(--toon-w)), 1); transform: translateY(calc((1 - var(--toon-t)) * 48px)) rotate(calc((1 - var(--toon-t)) * 3deg)); }
 .toon-scroll-on .toon-scroll-step { --toon-a: .2; --toon-d: .06; opacity: clamp(0, calc((var(--toon-k, 1) - var(--toon-a) - var(--toon-i, 0) * var(--toon-d)) * 12), 1); }
-.toon-scroll-on .toon-scroll-rise { --toon-t: clamp(0, calc((var(--toon-v, 1) - .05) / .25), 1); transform: translateY(calc((1 - var(--toon-t)) * 36px)); }
+/* `translate`, not `transform`, so a rising card keeps its tilt and its pop-in. It follows the scroll, so it is left out of the kit's bouncy transition. */
+.toon-scroll-on .toon-scroll-rise { --toon-t: clamp(0, calc((var(--toon-v, 1) - .05) / .25), 1); translate: 0 calc((1 - var(--toon-t)) * 36px); transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, rotate, scale, filter; }
 /* Pinned only where the whole stage fits the screen: a tall film on a phone would cut the hero off. */
 @media (min-width: 768px) and (min-height: 760px) {
   .toon-scroll-on .toon-scroll-film { height: var(--toon-film-height, 220svh); }

@@ -431,7 +431,8 @@ A scroll-driven hero, in the manner of the scrollcraft skill, with no dependency
 - `data-toon-scroll="seen"` goes on any element. `--toon-v` runs 0 as it enters at the bottom of the screen and 1 as it leaves at the top. This is the progress that animates at every width, a narrow window and a phone included.
 - `toon-scroll-lift` rises and straightens its element, by `--toon-p` while pinned and by its own `--toon-v` otherwise. Put `data-toon-scroll="seen"` on it.
 - `toon-scroll-step` fades a child in after the lift has begun. Set `--toon-i` to the child's index, so each child follows the one before.
-- `toon-scroll-rise` fades a block up by its own `--toon-v`. Put `data-toon-scroll="seen"` on it.
+- `toon-scroll-rise` lifts a block up by its own `--toon-v`. Put `data-toon-scroll="seen"` on it. It moves the block with the `translate` property, so a tilted or popping card keeps its own transform.
+- `data-toon-scroll-auto` on `<main>` applies `toon-scroll-rise` to every card, panel, list, stats row, table, steps, deck, strip, switch card and brief below the first screen, and to ones added later. A block already inside a `data-toon-scroll` element is left alone. Set `data-toon-scroll="off"` on a block to opt out.
 - `toon-scroll-shrink` scales an element to 90% across the pin. It applies only while pinned.
 - `toon-scroll-on` goes on `<html>` only while motion is allowed: `data-motion="on"`, or no `data-motion="off"` and no reduced-motion preference. Every rule above needs it, so reduced motion, the motion switch and a page without script all get the plain page. A page can set the class in its own head script, before first paint, so the pinned height does not jump in after hydration.
 - Text never dims below full opacity while it is readable: a `toon-scroll-step` starts at opacity 0 and is full before it scrolls to the middle of the screen.

@@ -321,14 +321,28 @@ function initScroll(): void {
       }
     });
   };
+  // Opt-in for a whole page: inside `[data-toon-scroll-auto]` (put it on <main>), the kit's blocks below the first screen rise into view by
+  // their own progress. Anything already inside a `[data-toon-scroll]` element is left alone, and so is `[data-toon-scroll="off"]`.
+  const AUTO = '.toon-card, .toon-panel, .toon-list, .toon-stats, .toon-table-wrap, .toon-steps, .toon-deck, .toon-strip, .toon-switch-card, .toon-brief';
+  const tag = () => {
+    root.querySelectorAll<HTMLElement>('[data-toon-scroll-auto]').forEach((zone) => {
+      zone.querySelectorAll<HTMLElement>(AUTO).forEach((el) => {
+        if (el.hasAttribute('data-toon-scroll') || el.closest('[data-toon-scroll]') || el.classList.contains('toon-scroll-rise')) return;
+        if (el.getBoundingClientRect().top < innerHeight * 0.9) return;
+        el.dataset.toonScroll = 'seen';
+        el.classList.add('toon-scroll-rise');
+      });
+    });
+  };
   const ask = () => { if (!queued) { queued = true; requestAnimationFrame(frame); } };
+  const swap = () => { tag(); ask(); };
   addEventListener('scroll', ask, { passive: true });
   addEventListener('resize', ask);
   reduced.addEventListener('change', ask);
   // A page that swaps its content (a single-page app) keeps working: a new `[data-toon-scroll]` element is read on the next frame, and the motion switch is watched.
   new MutationObserver(ask).observe(html, { attributes: true, attributeFilter: ['data-motion'] });
-  new MutationObserver(ask).observe(root.body, { childList: true, subtree: true });
-  ask();
+  new MutationObserver(swap).observe(root.body, { childList: true, subtree: true });
+  swap();
 }
 
 export function initToonish(root: Document = document): void {

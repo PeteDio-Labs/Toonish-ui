@@ -26,7 +26,7 @@ const server = Bun.serve({
       const line = (i: number) => `<p class="toon-scroll-step" style="--toon-i:${i}">Line ${i}</p>`;
       return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>scroll</title><link rel="stylesheet" href="/dist/toonish.css"><script src="/dist/toonish.js" defer></script></head><body><main>
 <div class="toon-scroll-film" data-toon-scroll="film"><div class="toon-scroll-stage"><h1 class="toon-scroll-shrink">Film</h1><div class="toon-scroll-lift" id="lift" data-toon-scroll="seen">${[0, 1, 2].map(line).join('')}</div></div></div>
-<div style="height:60vh"></div><div class="toon-scroll-rise" id="rise" data-toon-scroll="seen"><p>Rise</p></div><div style="height:120vh"></div></main></body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+<div style="height:60vh"></div><div class="toon-scroll-rise" id="rise" data-toon-scroll="seen"><p>Rise</p></div><div style="height:120vh"></div><div id="auto-zone" data-toon-scroll-auto><div class="toon-card" id="auto-card"><p>Auto</p></div><div class="toon-card" id="auto-off" data-toon-scroll="off"><p>Off</p></div></div><div style="height:120vh"></div></main></body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8' } });
     }
     if (pathname === '/axe.js') return new Response(Bun.file('node_modules/axe-core/axe.min.js'), { headers: { 'content-type': 'text/javascript' } });
     if (pathname.startsWith('/dist/') && !pathname.includes('..')) {
@@ -672,6 +672,13 @@ try {
         await sp.waitForTimeout(150);
         eq((await read()).p, 1, `scroll film, ${name}: an unpinned film reports progress 1`);
       }
+    }
+    if (!reduced) {
+      // data-toon-scroll-auto: the card below the first screen is tagged, rises by its own progress, and settles centred; the opt-out is left alone.
+      eq(await sp.evaluate(() => `${document.querySelector('#auto-card')!.classList.contains('toon-scroll-rise')}|${document.querySelector('#auto-off')!.classList.contains('toon-scroll-rise')}`), 'true|false', `scroll film, ${name}: auto tags the card and leaves the opt-out`);
+      eq(await sp.evaluate(() => { const r = document.querySelector('#auto-card')!.getBoundingClientRect(); scrollTo({ top: scrollY + r.top + r.height / 2 - innerHeight / 2, behavior: 'instant' }); return 1; }), 1, `scroll film, ${name}: scrolled to the auto card`);
+      await sp.waitForTimeout(150);
+      eq(await sp.evaluate(() => ['none', '0px', '0px 0px'].includes(getComputedStyle(document.querySelector('#auto-card')!).translate)), true, `scroll film, ${name}: the auto card has settled`);
     }
     eq(top.sideways, false, `scroll film, ${name}: the page does not scroll sideways`);
     await sc.close();

@@ -4124,7 +4124,8 @@
 }
 .toon-scroll-on .toon-scroll-rise {
   --toon-t: clamp(0, calc((var(--toon-v, 1) - .05) / .25), 1);
-  transform: translateY(calc((1 - var(--toon-t)) * 36px));
+  translate: 0 calc((1 - var(--toon-t)) * 36px);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, rotate, scale, filter;
 }
 @media (min-width: 768px) and (min-height: 760px) {
   .toon-scroll-on .toon-scroll-film {
