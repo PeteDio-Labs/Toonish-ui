@@ -285,7 +285,7 @@ function initTabs(nav: HTMLElement): void {
 
 /**
  * Scroll film: writes scroll progress into CSS custom properties on every `[data-toon-scroll]` element, one animation frame
- * after a scroll or resize. No dependency, and no listener at all when the page has no such element.
+ * after a scroll or resize. No dependency. A page with no such element does one cheap query per scroll frame.
  *   `film`: a tall wrapper with a `toon-scroll-stage` child that CSS pins. `--toon-p` runs 0 to 1 across the pin. When CSS does not
  *     pin the stage (a phone, a narrow window, a short screen), `--toon-p` is 1, so the last frame shows and nothing waits on a scroll.
  *   `seen`: any element. `--toon-v` runs 0 as it enters at the bottom of the screen to 1 as it leaves at the top. It is the progress
@@ -293,14 +293,19 @@ function initTabs(nav: HTMLElement): void {
  * `toon-scroll-on` goes on `<html>` only while motion is allowed: `data-motion="on"`, or no `data-motion="off"` and no reduced-motion
  * preference. Every `toon-scroll-*` rule needs that class, so without it (or without script) the page is the plain page.
  */
-function initScroll(root: Document): void {
-  if (!root.querySelector('[data-toon-scroll]')) return;
+let scrollStarted = false;
+function initScroll(): void {
+  // Once per page, on the real document: an app that scopes initToonish to a route's content still gets one set of listeners.
+  if (scrollStarted) return;
+  scrollStarted = true;
+  const root = document;
   const html = root.documentElement;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const clamp = (n: number) => Math.min(1, Math.max(0, n));
   let queued = false;
   const frame = () => {
     queued = false;
+    if (!root.querySelector('[data-toon-scroll]')) { html.classList.remove('toon-scroll-on'); return; }
     const on = html.dataset.motion === 'on' || (html.dataset.motion !== 'off' && !reduced.matches);
     html.classList.toggle('toon-scroll-on', on);
     if (!on) return;
@@ -351,7 +356,7 @@ export function initToonish(root: Document = document): void {
     });
   }
 
-  initScroll(root);
+  initScroll();
   root.querySelectorAll<HTMLElement>('[data-toon-deck]').forEach(initDeck);
   root.querySelectorAll<HTMLElement>('[data-toon-tabs]').forEach(initTabs);
 

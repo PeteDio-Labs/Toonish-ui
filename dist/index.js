@@ -289,15 +289,22 @@ function initTabs(nav) {
     window.scrollTo(0, 0);
   });
 }
-function initScroll(root) {
-  if (!root.querySelector("[data-toon-scroll]"))
+var scrollStarted = false;
+function initScroll() {
+  if (scrollStarted)
     return;
+  scrollStarted = true;
+  const root = document;
   const html = root.documentElement;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const clamp = (n) => Math.min(1, Math.max(0, n));
   let queued = false;
   const frame = () => {
     queued = false;
+    if (!root.querySelector("[data-toon-scroll]")) {
+      html.classList.remove("toon-scroll-on");
+      return;
+    }
     const on = html.dataset.motion === "on" || html.dataset.motion !== "off" && !reduced.matches;
     html.classList.toggle("toon-scroll-on", on);
     if (!on)
@@ -347,7 +354,7 @@ function initToonish(root = document) {
       io.observe(n);
     });
   }
-  initScroll(root);
+  initScroll();
   root.querySelectorAll("[data-toon-deck]").forEach(initDeck);
   root.querySelectorAll("[data-toon-tabs]").forEach(initTabs);
   root.addEventListener("click", (e) => {
