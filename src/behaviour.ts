@@ -283,6 +283,49 @@ function initTabs(nav: HTMLElement): void {
   });
 }
 
+/**
+ * Scroll film: writes scroll progress into CSS custom properties on every `[data-toon-scroll]` element, one animation frame
+ * after a scroll or resize. No dependency, and no listener at all when the page has no such element.
+ *   `film`: a tall wrapper with a `toon-scroll-stage` child that CSS pins. `--toon-p` runs 0 to 1 across the pin. When CSS does not
+ *     pin the stage (a phone, a narrow window, a short screen), `--toon-p` is 1, so the last frame shows and nothing waits on a scroll.
+ *   `seen`: any element. `--toon-v` runs 0 as it enters at the bottom of the screen to 1 as it leaves at the top. It is the progress
+ *     that animates at every width.
+ * `toon-scroll-on` goes on `<html>` only while motion is allowed: `data-motion="on"`, or no `data-motion="off"` and no reduced-motion
+ * preference. Every `toon-scroll-*` rule needs that class, so without it (or without script) the page is the plain page.
+ */
+function initScroll(root: Document): void {
+  if (!root.querySelector('[data-toon-scroll]')) return;
+  const html = root.documentElement;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const clamp = (n: number) => Math.min(1, Math.max(0, n));
+  let queued = false;
+  const frame = () => {
+    queued = false;
+    const on = html.dataset.motion === 'on' || (html.dataset.motion !== 'off' && !reduced.matches);
+    html.classList.toggle('toon-scroll-on', on);
+    if (!on) return;
+    const vh = innerHeight;
+    root.querySelectorAll<HTMLElement>('[data-toon-scroll]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (el.dataset.toonScroll === 'film') {
+        const stage = el.firstElementChild;
+        const pinned = r.height > vh && stage instanceof HTMLElement && getComputedStyle(stage).position === 'sticky';
+        el.style.setProperty('--toon-p', (pinned ? clamp(-r.top / (r.height - vh)) : 1).toFixed(3));
+      } else {
+        el.style.setProperty('--toon-v', clamp((vh - r.top) / (vh + r.height)).toFixed(3));
+      }
+    });
+  };
+  const ask = () => { if (!queued) { queued = true; requestAnimationFrame(frame); } };
+  addEventListener('scroll', ask, { passive: true });
+  addEventListener('resize', ask);
+  reduced.addEventListener('change', ask);
+  // A page that swaps its content (a single-page app) keeps working: a new `[data-toon-scroll]` element is read on the next frame, and the motion switch is watched.
+  new MutationObserver(ask).observe(html, { attributes: true, attributeFilter: ['data-motion'] });
+  new MutationObserver(ask).observe(root.body, { childList: true, subtree: true });
+  ask();
+}
+
 export function initToonish(root: Document = document): void {
   if (started.has(root)) return;
   started.add(root);
@@ -308,6 +351,7 @@ export function initToonish(root: Document = document): void {
     });
   }
 
+  initScroll(root);
   root.querySelectorAll<HTMLElement>('[data-toon-deck]').forEach(initDeck);
   root.querySelectorAll<HTMLElement>('[data-toon-tabs]').forEach(initTabs);
 

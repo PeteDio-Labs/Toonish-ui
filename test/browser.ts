@@ -22,6 +22,12 @@ const server = Bun.serve({
       requests.push(pathname + new URL(req.url).search);
       return new Response('<!doctype html><article><h1>Fetched page</h1><p>Body</p><img src="data:," onerror="window.__xss=1"><a href="javascript:window.__xss=2">x</a></article>', { headers: { 'content-type': 'text/html; charset=utf-8' } });
     }
+    if (pathname === '/scroll') {
+      const line = (i: number) => `<p class="toon-scroll-step" style="--toon-i:${i}">Line ${i}</p>`;
+      return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>scroll</title><link rel="stylesheet" href="/dist/toonish.css"><script src="/dist/toonish.js" defer></script></head><body><main>
+<div class="toon-scroll-film" data-toon-scroll="film"><div class="toon-scroll-stage"><h1 class="toon-scroll-shrink">Film</h1><div class="toon-scroll-lift" id="lift" data-toon-scroll="seen">${[0, 1, 2].map(line).join('')}</div></div></div>
+<div style="height:60vh"></div><div class="toon-scroll-rise" id="rise" data-toon-scroll="seen"><p>Rise</p></div><div style="height:120vh"></div></main></body></html>`, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+    }
     if (pathname === '/axe.js') return new Response(Bun.file('node_modules/axe-core/axe.min.js'), { headers: { 'content-type': 'text/javascript' } });
     if (pathname.startsWith('/dist/') && !pathname.includes('..')) {
       const f = Bun.file(`.${pathname}`);
@@ -624,6 +630,61 @@ try {
   eq(await page.evaluate(() => [...document.querySelectorAll('*')].every((e) => getComputedStyle(e).animationName === 'none')), true, 'reduced motion: animations stop');
   eq(await page.evaluate(() => ['.toon-scale-mark', '.toon-scale-move', '.toon-meter-fill', '.toon-disclosure-panel'].map((s) => getComputedStyle(document.querySelector(s)!).animationName).join()), 'none,none,none,none', 'reduced motion: scale, meter and disclosure animations stop');
   await ctx.close();
+
+  // Scroll film: it animates at every width, pins only where it fits, and is plain for reduced motion and data-motion="off".
+  for (const [name, w, h, reduced, pinned] of [['desktop', 1280, 900, false, true], ['narrow tablet 656', 656, 1000, false, false], ['phone', 390, 844, false, false], ['reduced motion', 1280, 900, true, false]] as const) {
+    const sc = await browser.newContext({ viewport: { width: w, height: h }, reducedMotion: reduced ? 'reduce' : 'no-preference' });
+    const sp = await sc.newPage();
+    await sp.goto(`${server.url.origin}/scroll`, { waitUntil: 'networkidle' });
+    await sp.waitForTimeout(250);
+    const read = () => sp.evaluate(() => {
+      const lines = [...document.querySelectorAll<HTMLElement>('.toon-scroll-step')];
+      return { on: document.documentElement.classList.contains('toon-scroll-on'), pos: getComputedStyle(document.querySelector('.toon-scroll-stage')!).position,
+        p: parseFloat(document.querySelector<HTMLElement>('.toon-scroll-film')!.style.getPropertyValue('--toon-p')), last: parseFloat(getComputedStyle(lines[2]!).opacity),
+        lift: getComputedStyle(document.querySelector('#lift')!).transform, sideways: document.documentElement.scrollWidth > innerWidth };
+    });
+    const top = await read();
+    if (reduced) {
+      eq(`${top.on}|${top.pos}|${top.last}|${top.lift}`, 'false|static|1|none', `scroll film, ${name}: plain page`);
+    } else {
+      eq(top.on, true, `scroll film, ${name}: toon-scroll-on is set`);
+      eq(top.pos === 'sticky', pinned, `scroll film, ${name}: the stage is ${pinned ? '' : 'not '}pinned`);
+      if (!pinned) {
+        // Unpinned, the lift animates at every width by its own progress: centred on the screen it is fully shown.
+        await sp.evaluate(() => { const r = document.querySelector('#lift')!.getBoundingClientRect(); scrollTo(0, scrollY + r.top + r.height / 2 - innerHeight / 2); });
+        await sp.waitForTimeout(150);
+        const mid = await read();
+        eq(mid.last, 1, `scroll film, ${name}: the last line is fully shown with the lift centred`);
+        eq(mid.lift === 'none' || mid.lift === 'matrix(1, 0, 0, 1, 0, 0)', true, `scroll film, ${name}: the lift has settled (${mid.lift})`);
+      }
+      if (pinned) {
+        const film = await sp.evaluate(() => { const f = document.querySelector<HTMLElement>('.toon-scroll-film')!; return { h: f.offsetHeight, y: f.getBoundingClientRect().top + scrollY }; });
+        await sp.evaluate((y) => scrollTo(0, y), film.y);
+        await sp.waitForTimeout(150);
+        const start = await read();
+        eq(`${start.p}|${start.last}`, '0|0', `scroll film, ${name}: at the top of the pin progress is 0 and the last line is hidden`);
+        await sp.evaluate((y) => scrollTo(0, y), film.y + film.h - h - 4);
+        await sp.waitForTimeout(150);
+        const end = await read();
+        eq(end.p > 0.9 && end.last === 1, true, `scroll film, ${name}: near the end of the pin progress is ${end.p} and the last line is shown`);
+      } else {
+        await sp.evaluate(() => scrollTo(0, 0));
+        await sp.waitForTimeout(150);
+        eq((await read()).p, 1, `scroll film, ${name}: an unpinned film reports progress 1`);
+      }
+    }
+    eq(top.sideways, false, `scroll film, ${name}: the page does not scroll sideways`);
+    await sc.close();
+  }
+  {
+    const sc = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const sp = await sc.newPage();
+    await sp.goto(`${server.url.origin}/scroll`, { waitUntil: 'networkidle' });
+    await sp.evaluate(() => { document.documentElement.dataset.motion = 'off'; });
+    await sp.waitForTimeout(250);
+    eq(await sp.evaluate(() => `${document.documentElement.classList.contains('toon-scroll-on')}|${getComputedStyle(document.querySelector('.toon-scroll-stage')!).position}`), 'false|static', 'scroll film, data-motion=off: plain page');
+    await sc.close();
+  }
 
   // The motion switch: data-motion="off" stops every animation without the system preference.
   const ctx2 = await browser.newContext();

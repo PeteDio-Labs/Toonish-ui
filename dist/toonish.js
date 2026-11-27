@@ -290,6 +290,44 @@
       window.scrollTo(0, 0);
     });
   }
+  function initScroll(root) {
+    if (!root.querySelector("[data-toon-scroll]"))
+      return;
+    const html = root.documentElement;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const clamp = (n) => Math.min(1, Math.max(0, n));
+    let queued = false;
+    const frame = () => {
+      queued = false;
+      const on = html.dataset.motion === "on" || html.dataset.motion !== "off" && !reduced.matches;
+      html.classList.toggle("toon-scroll-on", on);
+      if (!on)
+        return;
+      const vh = innerHeight;
+      root.querySelectorAll("[data-toon-scroll]").forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (el.dataset.toonScroll === "film") {
+          const stage = el.firstElementChild;
+          const pinned = r.height > vh && stage instanceof HTMLElement && getComputedStyle(stage).position === "sticky";
+          el.style.setProperty("--toon-p", (pinned ? clamp(-r.top / (r.height - vh)) : 1).toFixed(3));
+        } else {
+          el.style.setProperty("--toon-v", clamp((vh - r.top) / (vh + r.height)).toFixed(3));
+        }
+      });
+    };
+    const ask = () => {
+      if (!queued) {
+        queued = true;
+        requestAnimationFrame(frame);
+      }
+    };
+    addEventListener("scroll", ask, { passive: true });
+    addEventListener("resize", ask);
+    reduced.addEventListener("change", ask);
+    new MutationObserver(ask).observe(html, { attributes: true, attributeFilter: ["data-motion"] });
+    new MutationObserver(ask).observe(root.body, { childList: true, subtree: true });
+    ask();
+  }
   function initToonish(root = document) {
     if (started.has(root))
       return;
@@ -310,6 +348,7 @@
         io.observe(n);
       });
     }
+    initScroll(root);
     root.querySelectorAll("[data-toon-deck]").forEach(initDeck);
     root.querySelectorAll("[data-toon-tabs]").forEach(initTabs);
     root.addEventListener("click", (e) => {

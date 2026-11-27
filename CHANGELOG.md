@@ -5,6 +5,10 @@ and the project uses [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Experimental, on `experiment/scroll`: scroll film. `data-toon-scroll` (`film` and `seen`) writes `--toon-p` and `--toon-v`, and `toon-scroll-film`, `toon-scroll-stage`, `toon-scroll-lift`, `toon-scroll-step`, `toon-scroll-rise` and `toon-scroll-shrink` read them. It animates at every width and is off for reduced motion and `data-motion="off"`. Ported from the portfolio's hero experiment (`pdlabs-portfolio`, `experiment/scroll-film`). Pedro asked for an experimental branch he can scrap.
+
 ## [0.8.4] - 2026-11-19
 
 ### Added

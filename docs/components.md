@@ -423,6 +423,19 @@ An element with `data-toon-toggle` is a group of buttons where one is pressed at
 - `always` keeps the pile at every width. `cols` sets the grid columns from `md`.
 - `deck()` does not escape the card HTML, because a card is markup you wrote. Escape any text you put in one.
 
+### Scroll film (experimental)
+
+A scroll-driven hero, in the manner of the scrollcraft skill, with no dependency. It lives on the `experiment/scroll` branch and is not released. The script writes scroll progress into CSS custom properties, and the classes read them. The effect uses `transform` and `opacity` only.
+
+- `data-toon-scroll="film"` marks a tall wrapper (`toon-scroll-film`) whose first child is the stage (`toon-scroll-stage`). Where the screen is at least 768 px wide and 760 px tall, CSS pins the stage for `--toon-film-height` (default `220svh`), and `--toon-p` runs 0 to 1 across the pin. Anywhere else the stage is not pinned and `--toon-p` is 1.
+- `data-toon-scroll="seen"` goes on any element. `--toon-v` runs 0 as it enters at the bottom of the screen and 1 as it leaves at the top. This is the progress that animates at every width, a narrow window and a phone included.
+- `toon-scroll-lift` rises and straightens its element, by `--toon-p` while pinned and by its own `--toon-v` otherwise. Put `data-toon-scroll="seen"` on it.
+- `toon-scroll-step` fades a child in after the lift has begun. Set `--toon-i` to the child's index, so each child follows the one before.
+- `toon-scroll-rise` fades a block up by its own `--toon-v`. Put `data-toon-scroll="seen"` on it.
+- `toon-scroll-shrink` scales an element to 90% across the pin. It applies only while pinned.
+- `toon-scroll-on` goes on `<html>` only while motion is allowed: `data-motion="on"`, or no `data-motion="off"` and no reduced-motion preference. Every rule above needs it, so reduced motion, the motion switch and a page without script all get the plain page. A page can set the class in its own head script, before first paint, so the pinned height does not jump in after hydration.
+- Text never dims below full opacity while it is readable: a `toon-scroll-step` starts at opacity 0 and is full before it scrolls to the middle of the screen.
+
 ## Decoration
 
 All decoration is `aria-hidden`.
